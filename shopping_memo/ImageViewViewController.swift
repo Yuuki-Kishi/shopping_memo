@@ -32,6 +32,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        //.originalImageにするとトリミングなしになる
         imageView.image = info[.originalImage] as? UIImage
         dismiss(animated: true, completion: nil)
     }
