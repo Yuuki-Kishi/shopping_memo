@@ -80,8 +80,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
             let errorCode = (error as? NSError)?.code
             if error == nil, let result = authResult {
                 self.dismiss(animated: true, completion: nil)
-                self.performSegue(withIdentifier: "toHomevc1", sender: result.user)
-
+                self.performSegue(withIdentifier: "toHomevc", sender: result.user)
             } else if errorCode == 17008{
                 let alert: UIAlertController = UIAlertController(title: "新規登録できません。", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                 alert.addAction(
@@ -147,15 +146,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
             let errorCode = (error as? NSError)?.code
             if error == nil, let result = authResult {
                 self.dismiss(animated: true, completion: nil)
-                if self.imageCountInt == 0 {
-                    if self.auth.currentUser != nil {
-                        self.performSegue(withIdentifier: "toHomevc0", sender: result.user)
-                    }
-                } else {
-                    if self.auth.currentUser != nil {
-                        self.performSegue(withIdentifier: "toHomevc1", sender: result.user)
-                    }
-                }
+                self.performSegue(withIdentifier: "toHomevc", sender: result.user)
             } else if errorCode == 17008{
                 let alert: UIAlertController = UIAlertController(title: "新規登録できません。", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                 alert.addAction(

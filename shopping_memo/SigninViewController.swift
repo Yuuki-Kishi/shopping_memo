@@ -85,7 +85,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(_ animated: Bool) {
         auth = Auth.auth()
         if auth.currentUser != nil {
-            performSegue(withIdentifier: "toHomevc1", sender: auth.currentUser)
+            performSegue(withIdentifier: "toHomevc", sender: auth.currentUser)
         }
     }
     
@@ -130,7 +130,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
                     self.userDefaults.set(email, forKey: "email")
-                    self.performSegue(withIdentifier: "toHomevc1", sender: result.user)
+                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
                     self.passwordTextField.text = ""
                 } else {
                     print("error: \(error!)")
@@ -198,16 +198,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
                     self.userDefaults.set(email, forKey: "email")
-                    
-                    if self.imageCountInt == 0 {
-                        if self.auth.currentUser != nil {
-                            self.performSegue(withIdentifier: "toHomevc0", sender: result.user)
-                        }
-                    } else {
-                        if self.auth.currentUser != nil {
-                            self.performSegue(withIdentifier: "toHomevc1", sender: result.user)
-                        }
-                    }
+                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
                     self.passwordTextField.text = ""
                 } else {
                     print("error: \(error!)")
