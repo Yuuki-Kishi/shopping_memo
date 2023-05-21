@@ -22,11 +22,15 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
         sendResetPasswordButton.layer.cornerRadius = 10.0
         sendResetPasswordButton.layer.borderColor = UIColor.black.cgColor
         sendResetPasswordButton.layer.borderWidth = 2.0
-        emailTextField.layer.cornerRadius = 6.0
-        emailTextField.layer.borderColor = UIColor.black.cgColor
-        emailTextField.layer.borderWidth = 2.0
         
-        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+        emailTextField.layer.cornerRadius = 6.0
+        emailTextField.layer.borderColor = UIColor.label.cgColor
+        emailTextField.layer.borderWidth = 2.0
+        emailTextField.backgroundColor = UIColor.systemGray5
+        
+        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+
+        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         // Do any additional setup after loading the view.
         
         emailTextField.delegate = self

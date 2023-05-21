@@ -52,7 +52,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemGray5Color"/>
                         <constraints>
                             <constraint firstItem="3ai-WH-ueo" firstAttribute="top" secondItem="hUU-hs-yME" secondAttribute="top" constant="5" id="2pR-fV-RpJ"/>
                             <constraint firstItem="gLw-yx-FOk" firstAttribute="leading" secondItem="hUU-hs-yME" secondAttribute="leading" constant="8" id="Btw-pq-SoN"/>
@@ -67,6 +67,7 @@
                         </constraints>
                     </view>
                 </subviews>
+                <color key="backgroundColor" systemColor="systemGray5Color"/>
                 <constraints>
                     <constraint firstItem="hUU-hs-yME" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="20" id="BdJ-Fe-NmH"/>
                     <constraint firstItem="hUU-hs-yME" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="iKl-1i-Wbz"/>
@@ -84,8 +85,8 @@
         </tableViewCell>
     </objects>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        <systemColor name="systemGray5Color">
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

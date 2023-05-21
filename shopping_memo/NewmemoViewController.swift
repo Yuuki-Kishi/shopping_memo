@@ -13,15 +13,19 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     @IBOutlet weak var TextField: UITextField!
     
+    @IBOutlet var signOutButton: UIButton!
+
     let dateFormatter = DateFormatter()
 
     var listNameText: String!
+    var nonCheckSwitch: Bool!
     
     let userDefaults: UserDefaults = UserDefaults.standard
     
     var listArray = [String]()
     var keyArray = [String]()
     
+    var deleteAccount = false
     
     var ref: DatabaseReference!
     
@@ -47,6 +51,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         
         listCountInt = userDefaults.integer(forKey: "listCount")
+        nonCheckSwitch = userDefaults.bool(forKey: "nonCheckSwitch")
         
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
         
@@ -59,11 +64,13 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let image = UIImage(systemName: "plus")
         plusButton.setImage(image, for: .normal)
-        plusButton.tintColor = .black
-        
+        plusButton.tintColor = UIColor.black
+
         plusButton.layer.cornerRadius = 10.0
         plusButton.layer.borderWidth = 1.5
         plusButton.layer.borderColor = UIColor.black.cgColor
+        
+        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         userId = Auth.auth().currentUser?.uid
         
@@ -73,9 +80,9 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.dataSource = self
         
         ref.child("users").child(userId).observe(.childAdded, with: { [self] snapshot in
-            let listName = snapshot.childSnapshot(forPath: "name").value as? String
+            guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
 
-            self.listArray.append(listName!)
+            self.listArray.append(listName)
             print("listArray:", listArray)
             self.keyArray.append(snapshot.key)
 
@@ -254,7 +261,6 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             print ("Error signing out: %@", signOutError)
         }
         self.dismiss(animated: true, completion: nil)
-        
     }
     
     
@@ -282,8 +288,15 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                 
                 self.listArray.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                self.nonCheckSwitch = false
+                self.userDefaults.set(self.nonCheckSwitch, forKey: "nonCheckSwitch")
                 self.ref.child("users").child(self.userId).child(self.list).removeValue()
-                print("Delete完了")
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    
+                    self.nonCheckSwitch = true
+                    self.userDefaults.set(self.nonCheckSwitch, forKey: "nonCheckSwitch")
+                }
                 
                 // 実行結果に関わらず記述
                 completionHandler(true)

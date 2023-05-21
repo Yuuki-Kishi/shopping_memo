@@ -16,6 +16,9 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var signInButton: UIButton!
     @IBOutlet weak var signUpButton: UIButton!
     @IBOutlet weak var listSelectButton: UIButton!
+    @IBOutlet weak var deleteButton: UIButton!
+    @IBOutlet weak var nonSignInButton: UIButton!
+    @IBOutlet weak var appVersionLabel: UILabel!
     var auth: Auth!
     
     let userDefaults: UserDefaults = UserDefaults.standard
@@ -23,21 +26,27 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     var imageCountInt: Int!
     
     var email: String!
+    var password: String!
     var userId: String!
     
     var listNumber: Int!
     var ref: DatabaseReference!
     
+    var deleteAccount = false
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         emailTextField.layer.cornerRadius = 6.0
-        emailTextField.layer.borderColor = UIColor.black.cgColor
+        emailTextField.layer.borderColor = UIColor.label.cgColor
         emailTextField.layer.borderWidth = 2.0
+        emailTextField.backgroundColor = UIColor.systemGray5
         
         passwordTextField.layer.cornerRadius = 6.0
-        passwordTextField.layer.borderColor = UIColor.black.cgColor
+        passwordTextField.layer.borderColor = UIColor.label.cgColor
         passwordTextField.layer.borderWidth = 2.0
+        passwordTextField.backgroundColor = UIColor.systemGray5
         
         signInButton.layer.cornerRadius = 10.0
         signInButton.layer.borderColor = UIColor.black.cgColor
@@ -47,13 +56,26 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         signUpButton.layer.borderColor = UIColor.black.cgColor
         signUpButton.layer.borderWidth = 1.0
         
+        nonSignInButton.layer.cornerRadius = 10.0
+        nonSignInButton.layer.borderColor = UIColor.black.cgColor
+        nonSignInButton.layer.borderWidth = 1.0
+        
+        deleteButton.layer.cornerRadius = 10.0
+        deleteButton.layer.borderColor = UIColor.systemRed.cgColor
+        deleteButton.layer.borderWidth = 1.0
+        
 //        listSelectButton.imageView?.contentMode = .scaleAspectFit
 //        listSelectButton.contentHorizontalAlignment = .fill
 //        listSelectButton.contentVerticalAlignment = .fill
         imageCountInt = 1
         
-        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+        let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        appVersionLabel.text = "Version: " + AppVer!
+        
+        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        
+        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         imageCountInt = userDefaults.integer(forKey: "imageCount")
         
@@ -130,6 +152,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
                     self.userDefaults.set(email, forKey: "email")
+                    self.userDefaults.set(password, forKey: "password")
                     self.performSegue(withIdentifier: "toHomevc", sender: result.user)
                     self.passwordTextField.text = ""
                 } else {
@@ -245,5 +268,17 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         }
         return true
     }
-    
+}
+
+
+extension UIColor {
+    static func dynamicColor(light: UIColor, dark: UIColor) -> UIColor {
+        return UIColor { (traitCollection:UITraitCollection) -> UIColor in
+            if traitCollection.userInterfaceStyle == .dark {
+                return dark
+            } else {
+                return light
+            }
+        }
+    }
 }

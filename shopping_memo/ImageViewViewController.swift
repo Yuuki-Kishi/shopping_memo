@@ -16,11 +16,11 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet var plusButton: UIButton!
     @IBOutlet var memoLabel: UILabel!
     
-    var shoppingMemo: String!
+    var shoppingMemoName: String!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        memoLabel.text = shoppingMemo
+        memoLabel.text = shoppingMemoName
         
         let image = UIImage(systemName: "plus")
         plusButton.setImage(image, for: .normal)

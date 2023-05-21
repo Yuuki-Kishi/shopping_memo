@@ -20,7 +20,7 @@
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ydw-6M-bdN">
                         <rect key="frame" x="10" y="10" width="385" height="50"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemGray5Color"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="50" id="Vk9-N8-TUx"/>
                             <constraint firstAttribute="width" constant="385" id="YUt-Y0-vST"/>
@@ -34,6 +34,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
+                <color key="backgroundColor" systemColor="systemGray5Color"/>
                 <constraints>
                     <constraint firstItem="Ydw-6M-bdN" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="Fc8-Vx-V93"/>
                     <constraint firstAttribute="trailing" secondItem="Ydw-6M-bdN" secondAttribute="trailing" constant="10" id="XFj-9d-RUW"/>
@@ -50,8 +51,8 @@
         </tableViewCell>
     </objects>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        <systemColor name="systemGray5Color">
+            <color red="0.89803921568627454" green="0.89803921568627454" blue="0.91764705882352937" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

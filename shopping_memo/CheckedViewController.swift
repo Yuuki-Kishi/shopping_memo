@@ -53,9 +53,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
     var ref: DatabaseReference!
     
     
-    var checkedArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date)]()
+    var checkedArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, imageUrl: String)]()
     
-    var searchArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date)]()
+    var searchArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, imageUrl: String)]()
     
     var nonCheckedArray = [(memoId: String, shoppingMemo: String, isChecked: Bool)]()
     
@@ -70,19 +70,23 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let image2 = UIImage(systemName: "ellipsis")
         menuButton.setImage(image2, for: .normal)
-        menuButton.tintColor = .black
+        menuButton.tintColor = .systemRed
         
         clearButton.layer.cornerRadius = 10.0
         clearButton.layer.borderWidth = 1.0
-        clearButton.layer.borderColor = UIColor.red.cgColor
+        clearButton.layer.borderColor = UIColor.systemRed.cgColor
         
         menuButton.layer.cornerRadius = 10.0
         menuButton.layer.borderWidth = 2.0
-        menuButton.layer.borderColor = UIColor.black.cgColor
+        menuButton.layer.borderColor = UIColor.label.cgColor
+        menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         searchTextField.layer.cornerRadius = 6.0
         searchTextField.layer.borderWidth = 2.0
-        searchTextField.layer.borderColor = UIColor.black.cgColor
+        searchButton.layer.borderColor = UIColor.label.cgColor
+        searchButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
+        
+        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         searchButton.layer.cornerRadius = 10.0
         searchButton.layer.borderWidth = 2.0
@@ -92,6 +96,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         deleteButton.setImage(image3, for: .normal)
         deleteButton.tintColor = .gray
         
+        checkedList.adjustsFontSizeToFitWidth = true
         checkedList.text = name
         
         menu()
@@ -99,7 +104,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         arrayInt = 0
         
         userDefaults.set(checkedSwitch, forKey: "checkedSwitch")
-        searchTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを検索",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+        searchTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを検索",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
         print("ぬuserDefauls:", userDefaults.bool(forKey: "checkedSwitch"))
         checkedSwitchCount = 1
@@ -108,9 +113,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         
         table.delegate = self
         
-        table.isEditing = true
+        //table.isEditing = true
         
-        table.allowsSelectionDuringEditing = true
+        //table.allowsSelectionDuringEditing = true
         
         searchTextField.delegate = self
         
@@ -136,13 +141,15 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
             guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+
             
             self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = self.dateFormatter.date(from: dateNow)
             
-            self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!))
+            self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, imageUrl: imageUrl))
             
             print("removedList2:", self.checkedArray)
             
@@ -151,6 +158,8 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             if self.checkSortCountInt == 0 {
                 self.checkedArray.sort {$0.shoppingMemo < $1.shoppingMemo}
             } else if self.checkSortCountInt == 1 {
+                self.checkedArray.sort {$0.shoppingMemo > $1.shoppingMemo}
+            } else {
                 self.checkedArray.sort {$0.dateNow < $1.dateNow}
             }
             
@@ -177,13 +186,15 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 guard let removedShoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
                 guard var removedIsChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
                 guard let romovedDateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                guard let removeImageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+
                 
                 removedIsChecked = !removedIsChecked
                 
                 print("removedIsChecked:", removedIsChecked)
                 
-                ref.child("users").child(self.userId).child(self.list).child(self.nonCheck).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": romovedDateNow])
-                
+                ref.child("users").child(self.userId).child(self.list).child(self.nonCheck).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": romovedDateNow, "imageUrl": removeImageUrl])
+
                 
                 //               if self.checkedArray.isEmpty {
                 //                   self.ref.child("users").child(self.userId).child(self.list).setValue("temporaly value")
@@ -210,9 +221,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         //        print("removedList5:", nonCheckedArray)
     }
     
-    
-    
-    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var cellCount = 0
@@ -243,7 +254,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         
         print(checkedArray[indexPath.row])
         if checkedArray[indexPath.row].isChecked {
-            cell.accessoryType = .checkmark
+            //cell.accessoryType = .checkmark
         } else {
             cell.accessoryType = .none
             cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
@@ -255,37 +266,45 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        var alertTextField: UITextField!
+        let index = indexPath.row
+        let memo = checkedArray[index]
+        let memoId = checkedArray[index].memoId
+        let memoCount = checkedArray[index].memoCount
+        var shoppingMemo = checkedArray[index].shoppingMemo
+        let isChecked = checkedArray[index].isChecked
+        let dateNow = checkedArray[index].dateNow
         
-//        print("ぬdidSelectRowAt開始時:", checkedSwitch!)
-//        print("ぬcheckedSwitchCount:", checkedSwitchCount!)
-//
-//
-//        if indexPath.section > 0 { return }
-//
-//        print("checkArrayIndex:", indexPath.row)
-//
-//        let memoId = checkedArray[indexPath.row].memoId
-//        let memoCount = checkedArray[indexPath.row].memoCount
-//        let shoppingMemo = checkedArray[indexPath.row].shoppingMemo
-//        var isChecked = checkedArray[indexPath.row].isChecked
-//
-//        isChecked = !isChecked // true falseの反転
-//
-//        //nonCheckedArrayに入れる。
-//        //        self.nonCheckedArray.append((memoId, shoppingMemo, isChecked))
-//        //        print("removedList6:", nonCheckedArray)
-//        // 配列の値を更新後のisCheckedで置き換える
-//        checkedArray[indexPath.row].isChecked = isChecked
-//        //        if checkedArray.count == 1 {
-//        //            self.ref.child("users").child(userId).child(list).child(checked).setValue(list)
-//        //        }
-//
-//        self.ref.child("users").child(userId).child(list).child(checked).child(memoId).removeValue()
-//
-//        print("ぬdidSelectRowAt終了時:", checkedSwitch!)
-//        print("ぬcheckedSwitchCount:", checkedSwitchCount!)
-
-        
+        let alert: UIAlertController = UIAlertController(title: "メモの変更", message: "変更後のメモを記入してください。", preferredStyle: .alert)
+        alert.addTextField { textField in
+            alertTextField = textField
+            alertTextField.returnKeyType = .done
+            alertTextField.text = self.checkedArray[index].shoppingMemo
+            
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default,
+                    handler: { action in
+                        if alertTextField.text != "" {
+                            var shoppingMemo = self.checkedArray[index];shoppingMemo
+                            let text = alertTextField.text!
+                            self.checkedArray[index].shoppingMemo = text
+                            print("checkedArray:", self.checkedArray[index])
+                            self.ref.child("users").child(self.userId).child(self.list).child(self.checked).child(memoId).updateChildValues(["shoppingMemo": text])
+                            self.table.reloadData()
+                        }
+                    })
+                )
+            alert.addAction(
+                UIAlertAction(
+                    title: "キャンセル",
+                    style: .cancel
+                )
+            )
+            
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -331,11 +350,12 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 let shoppingMemo = checkedArray[i].shoppingMemo
                 let isChecked = checkedArray[i].isChecked
                 let dateNow = checkedArray[i].dateNow
-                
+                let imageUrl = checkedArray[i].imageUrl
+
                 print("shoppingMemoんぬ:", shoppingMemo)
                 
                 if shoppingMemo == text {
-                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow))
+                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, imageUrl: imageUrl))
                     print("shoppingMemoんぬ:", shoppingMemo)
                 }
                 
@@ -400,11 +420,12 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 let shoppingMemo = checkedArray[i].shoppingMemo
                 let isChecked = checkedArray[i].isChecked
                 let dateNow = checkedArray[i].dateNow
-                
+                let imageUrl = checkedArray[i].imageUrl
+
                 print("shoppingMemoんぬ:", shoppingMemo)
                 
                 if shoppingMemo == text {
-                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow))
+                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, imageUrl: imageUrl))
                     print("shoppingMemoんぬ:", shoppingMemo)
                 }
                 
@@ -449,23 +470,28 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
         let Items = [
-            UIAction(title: "五十音順", image: UIImage(systemName: "character"), handler: { _ in
+            UIAction(title: "五十音順", image: UIImage(systemName: "a.circle"), handler: { _ in
                 self.checkSortCountInt = 0
                 self.userDefaults.set(self.checkSortCountInt, forKey: "checkSortCount")
                 self.checkedArray.sort {$0.shoppingMemo < $1.shoppingMemo}
                 self.table.reloadData()
                 print("ソートしました。")
             }),
-            UIAction(title: "追加した順", image: UIImage(systemName: "clock"), handler: { _ in
+            UIAction(title: "逆五十音順", image: UIImage(systemName: "z.circle"), handler: { _ in
                 self.checkSortCountInt = 1
+                self.userDefaults.set(self.checkSortCountInt, forKey: "checkSortCount")
+                self.checkedArray.sort {$0.shoppingMemo > $1.shoppingMemo}
+                self.table.reloadData()
+                print("ソートしました。")
+            }),
+            UIAction(title: "追加した順", image: UIImage(systemName: "clock"), handler: { _ in
+                self.checkSortCountInt = 2
                 self.userDefaults.set(self.checkSortCountInt, forKey: "checkSortCount")
                 self.checkedArray.sort {$0.dateNow < $1.dateNow}
                 self.table.reloadData()
                 print("ソートしました。")
             }),
-            
         ]
-        
         
         
         print("メニューです。")
@@ -484,47 +510,58 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     @IBAction func clear(_ sender: Any) {
-        let alert: UIAlertController = UIAlertController(title: "削除してもよろしいですか？", message: "この操作は取り消すことができません。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(
-                title: "OK",
-                style: .default,
-                handler: { action in
-                    self.checkedSwitch = false
-                    self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
-                    self.checkedSwitchCount = 2
-                    self.checkedArray.removeAll()
-                    
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.checked).removeValue()
-                    
-                    self.ref.child("users").child(self.userId).child(self.list).observe(.childAdded, with: { snapshot in
-                                    
-                        let dataId = self.list!
-                        
-                        let checkName = [self.checked: dataId]
-                                    
-                        self.ref.child("users").child(self.userId).child(self.list).updateChildValues(checkName)
-                        
-                    })
-                    self.table.reloadData()
-                            
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-
-                        self.checkedSwitch = true
+        if checkedArray.count > 0 {
+            let alert: UIAlertController = UIAlertController(title: "削除してもよろしいですか？", message: "この操作は取り消すことができません。", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default,
+                    handler: { action in
+                        self.checkedSwitch = false
                         self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
-
-                        self.dismiss(animated: true, completion: nil)
+                        self.checkedSwitchCount = 2
+                        self.checkedArray.removeAll()
+                        
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.checked).removeValue()
+                        
+                        self.ref.child("users").child(self.userId).child(self.list).observe(.childAdded, with: { snapshot in
+                            
+                            let dataId = self.list!
+                            
+                            let checkName = [self.checked: dataId]
+                            
+                            self.ref.child("users").child(self.userId).child(self.list).updateChildValues(checkName)
+                            
+                        })
+                        self.table.reloadData()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            
+                            self.checkedSwitch = true
+                            self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
+                            
+                            self.dismiss(animated: true, completion: nil)
+                        }
                     }
-                }
+                )
             )
-        )
-        alert.addAction(
-            UIAlertAction(
-                title: "キャンセル",
-                style: .cancel
+            alert.addAction(
+                UIAlertAction(
+                    title: "キャンセル",
+                    style: .cancel
+                )
             )
-        )
-        self.present(alert, animated: true, completion: nil)
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる項目がありません.", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default
+                )
+            )
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     
@@ -533,7 +570,36 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
 
     }
     
-    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        print("🇯🇵IndexPath:", indexPath)
+        var deleteAction: UIContextualAction
+        let checkedMemo = checkedArray[indexPath.row].memoId
+        // 削除処理
+        deleteAction = UIContextualAction(style: .destructive, title: "削除") { (action, view, completionHandler) in
+            //削除処理を記述
+            self.checkedSwitch = false
+            self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
+            print("Deleteがタップされた")
+            
+            self.checkedArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+            self.ref.child("users").child(self.userId).child(self.list).child(self.checked).child(checkedMemo).removeValue()
+            print("Delete完了")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.checkedSwitch = true
+                self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
+            }
+            
+            // 実行結果に関わらず記述
+            completionHandler(true)
+            
+        }
+        
+        self.table.reloadData()
+        
+        // 定義したアクションをセット
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
 }
 
 extension CheckedViewController {
@@ -549,10 +615,7 @@ extension CheckedViewController {
 extension CheckedViewController: checkedMarkDelegete {
     func buttonPressed(indexPath: IndexPath) {
         print("⤴️buttonPressed成功!")
-        
         let memoId = checkedArray[indexPath.row].memoId
-        
         self.ref.child("users").child(userId).child(list).child(checked).child(memoId).removeValue()
-        
     }
 }
