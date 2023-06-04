@@ -10,9 +10,7 @@ import FirebaseDatabase
 import FirebaseAuth
 
 protocol CatchProtocol {
-    
     func catchData(count: Array<Any>)
-    
 }
 
 class CheckedViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
@@ -45,6 +43,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var userId: String!
     var list: String!
+    var shoppingMemoName: String!
+    var memoIdString: String!
+    var imageUrlString: String!
     
     var checkedSwitchCount: Int!
     
@@ -53,9 +54,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
     var ref: DatabaseReference!
     
     
-    var checkedArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, imageUrl: String)]()
+    var checkedArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, checkedTime: Date, imageUrl: String)]()
     
-    var searchArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, imageUrl: String)]()
+    var searchArray = [(memoId: String, memoCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, checkedTime: Date, imageUrl: String)]()
     
     var nonCheckedArray = [(memoId: String, shoppingMemo: String, isChecked: Bool)]()
     
@@ -66,11 +67,11 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         clearButton.setImage(image, for: .normal)
         clearButton.tintColor = .red
         
-        checkSortCountInt = userDefaults.integer(forKey: "checkSortCount")
+        checkSortCountInt = 3
         
         let image2 = UIImage(systemName: "ellipsis")
         menuButton.setImage(image2, for: .normal)
-        menuButton.tintColor = .systemRed
+        menuButton.tintColor = .black
         
         clearButton.layer.cornerRadius = 10.0
         clearButton.layer.borderWidth = 1.0
@@ -82,15 +83,16 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         searchTextField.layer.cornerRadius = 6.0
+        searchTextField.layer.borderColor = UIColor.label.cgColor
         searchTextField.layer.borderWidth = 2.0
+        searchTextField.backgroundColor = UIColor.systemGray5
+
+        searchButton.layer.cornerRadius = 10.0
+        searchButton.layer.borderWidth = 2.0
         searchButton.layer.borderColor = UIColor.label.cgColor
         searchButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
-        searchButton.layer.cornerRadius = 10.0
-        searchButton.layer.borderWidth = 2.0
-        searchButton.layer.borderColor = UIColor.black.cgColor
         
         let image3 = UIImage(systemName: "multiply.circle")
         deleteButton.setImage(image3, for: .normal)
@@ -141,15 +143,16 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
             guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+            
+            dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.timeZone = TimeZone(identifier: "UTC")
+            let date = dateFormatter.date(from: dateNow)
+            let time = dateFormatter.date(from: checkedTime)
 
-            
-            self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-            self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-            let date = self.dateFormatter.date(from: dateNow)
-            
-            self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, imageUrl: imageUrl))
+            self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
             
             print("removedList2:", self.checkedArray)
             
@@ -159,66 +162,46 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 self.checkedArray.sort {$0.shoppingMemo < $1.shoppingMemo}
             } else if self.checkSortCountInt == 1 {
                 self.checkedArray.sort {$0.shoppingMemo > $1.shoppingMemo}
-            } else {
+            } else if self.checkSortCountInt == 2{
                 self.checkedArray.sort {$0.dateNow < $1.dateNow}
+            } else {
+                self.checkedArray.sort {$0.checkedTime > $1.checkedTime}
             }
             
             self.table.reloadData()
         })
-        print("removedList3:", checkedArray)
+        
         
         //checkedの中身が消えたとき
         ref.child("users").child(userId).child(list).child(checked).observe(.childRemoved, with: { [self] snapshot in
-            
             checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
-            
+            print("checkedSwitch:", checkedSwitch)
             if checkedSwitch == true {
-                                
-                print("removed: \(snapshot)")
+                print("checkedSwitch2:", checkedSwitch)
                 let index = self.checkedArray.firstIndex(where: {$0.memoId == snapshot.key})
-                
-    //            print("removeda: \(self.checkedArray[index!])")
-                print("📱snapshot:\(snapshot.key)")
                 self.checkedArray.remove(at: index!)
-                
                 
                 guard let removedMemoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
                 guard let removedShoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
                 guard var removedIsChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
                 guard let romovedDateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                let removedCheckedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
                 guard let removeImageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
 
-                
                 removedIsChecked = !removedIsChecked
+                                
+                print("Mail3")
+                ref.child("users").child(self.userId).child(self.list).child(self.nonCheck).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": romovedDateNow, "checkedTime": removedCheckedTime, "imageUrl": removeImageUrl])
                 
-                print("removedIsChecked:", removedIsChecked)
-                
-                ref.child("users").child(self.userId).child(self.list).child(self.nonCheck).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": romovedDateNow, "imageUrl": removeImageUrl])
-
-                
-                //               if self.checkedArray.isEmpty {
-                //                   self.ref.child("users").child(self.userId).child(self.list).setValue("temporaly value")
-                //               }
                 self.table.reloadData()
-                
             }
-
         })
         
-        //nonCheckに追加されたとき
-        //        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childAdded, with: { snapshot in
-        //            let memoId = snapshot.key // memo0とか
-        //            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-        //            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-        //
-        //            self.nonCheckedArray.append((memoId: memoId, shoppingMemo: shoppingMemo, isChecked: isChecked))
-        //                        self.checkedArray.sort(by: {(A, B) -> Bool in
-        //                            return A.isChecked != true && B.isChecked == true
-        //                        })
-        //            print("removedList4:", self.nonCheckedArray)
-        //            self.table.reloadData()
-        //        })
-        //        print("removedList5:", nonCheckedArray)
+        ref.child("users").child(userId).observe(.childChanged, with: { [self] snapshot in
+            guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
+            name = listName
+            checkedList.text = name
+        })
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -243,13 +226,68 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         let cell = tableView.dequeueReusableCell(withIdentifier: "CheckedTableViewCell") as! CheckedTableViewCell
         
         cell.checkedDalegate = self
+        cell.imageDelegate = self
         cell.indexPath = indexPath
         
-        // セルの中にラベルに配列の要素の値を代入
-        if arrayInt == 0 {
-            cell.memoLabel?.text = checkedArray[indexPath.row].shoppingMemo
-        } else if arrayInt == 1 {
-            cell.memoLabel?.text = searchArray[indexPath.row].shoppingMemo
+        let time = checkedArray[indexPath.row].checkedTime
+        
+        dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")
+        let date = dateFormatter.string(from: Date())
+        let dateNow = dateFormatter.date(from: date)
+        let difference = dateNow!.timeIntervalSince(time)
+        print("dateNow:", dateNow!)
+        print("time:", time)
+        print("date - time:", difference)
+        
+        if difference <= 43200 {
+            // セルの中にラベルに配列の要素の値を代入
+            if arrayInt == 0 {
+                cell.memoLabel?.text = checkedArray[indexPath.row].shoppingMemo
+                cell.memoLabel?.backgroundColor = UIColor.systemGray3
+                cell.whiteView?.backgroundColor = UIColor.systemGray3
+                cell.backgroundColor = UIColor.systemGray3
+            } else if arrayInt == 1 {
+                cell.memoLabel?.text = searchArray[indexPath.row].shoppingMemo
+                cell.memoLabel?.backgroundColor = UIColor.systemGray3
+                cell.whiteView?.backgroundColor = UIColor.systemGray3
+                cell.backgroundColor = UIColor.systemGray3
+            }
+            
+            let imageUrl = checkedArray[indexPath.row].imageUrl
+            if imageUrl == "" {
+                let image = UIImage(systemName: "plus.viewfinder")
+                cell.imageButton?.setImage(image, for: .normal)
+                cell.imageButton?.tintColor = .label
+            } else {
+                let image2 = UIImage(systemName: "photo")
+                cell.imageButton?.setImage(image2, for: .normal)
+                cell.imageButton?.tintColor = .label
+            }
+        } else if difference > 60 * 60 * 6 {
+            if arrayInt == 0 {
+                cell.memoLabel?.text = checkedArray[indexPath.row].shoppingMemo
+                cell.memoLabel?.backgroundColor = UIColor.systemGray5
+                cell.whiteView?.backgroundColor = UIColor.systemGray5
+                cell.backgroundColor = UIColor.systemGray5
+            } else if arrayInt == 1 {
+                cell.memoLabel?.text = searchArray[indexPath.row].shoppingMemo
+                cell.memoLabel?.backgroundColor = UIColor.systemGray5
+                cell.whiteView?.backgroundColor = UIColor.systemGray5
+                cell.backgroundColor = UIColor.systemGray5
+            }
+            
+            let imageUrl = checkedArray[indexPath.row].imageUrl
+            if imageUrl == "" {
+                let image = UIImage(systemName: "plus.viewfinder")
+                cell.imageButton?.setImage(image, for: .normal)
+                cell.imageButton?.tintColor = .label
+            } else {
+                let image2 = UIImage(systemName: "photo")
+                cell.imageButton?.setImage(image2, for: .normal)
+                cell.imageButton?.tintColor = .label
+            }
         }
         
         print(checkedArray[indexPath.row])
@@ -307,25 +345,6 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        // segueのIDを確認して特定のsegueのときのみ動作させる
-        if segue.identifier == "toViewController" {
-            // 2. 遷移先のViewControllerを取得
-            let next = segue.destination as? ViewController
-            // 3. １で用意した遷移先の変数に値を渡す
-            //            next?.checkedArray = nonCheckedArray
-            next?.list = list
-            //            print("nextList:", next?.checkedArray)
-            
-            delegate?.catchData(count: nonCheckedArray)
-            
-            //元の画面に戻る処理
-            dismiss(animated: true, completion: nil)
-        }
-        
-    }
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         if searchTextField.text == "" {
@@ -342,7 +361,6 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         } else {
             searchArray = []
             for i in 0...checkedArray.count - 1 {
-                
                 let text = searchTextField.text
                 
                 let memoId = checkedArray[i].memoId
@@ -350,30 +368,18 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 let shoppingMemo = checkedArray[i].shoppingMemo
                 let isChecked = checkedArray[i].isChecked
                 let dateNow = checkedArray[i].dateNow
+                let checkedTime = checkedArray[i].checkedTime
                 let imageUrl = checkedArray[i].imageUrl
-
-                print("shoppingMemoんぬ:", shoppingMemo)
                 
                 if shoppingMemo == text {
-                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, imageUrl: imageUrl))
-                    print("shoppingMemoんぬ:", shoppingMemo)
+                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl))
                 }
-                
             }
             
             arrayInt = 1
-            
             userDefaults.set(arrayInt, forKey: "arrayInt")
             
-            //            let num = checkedArray.count - searchArray.count
-            
-            //            for i in 0...num - 1 {
-            //                self.searchArray.append((memoId: "", memoCount: 0, shoppingMemo: "", isChecked: false, dateNow: searchArray[0].dateNow))
-            //            }
-            
-            //            tableView(table, cellForRowAt: IndexPath())
             self.table.reloadData()
-            
             
             if searchArray.count == 0 {
                 let alert: UIAlertController = UIAlertController(title: "該当項目なし。", message: "該当する項目がありません。", preferredStyle: .alert)
@@ -420,28 +426,17 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 let shoppingMemo = checkedArray[i].shoppingMemo
                 let isChecked = checkedArray[i].isChecked
                 let dateNow = checkedArray[i].dateNow
+                let checkedTime = checkedArray[i].checkedTime
                 let imageUrl = checkedArray[i].imageUrl
-
-                print("shoppingMemoんぬ:", shoppingMemo)
                 
                 if shoppingMemo == text {
-                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, imageUrl: imageUrl))
-                    print("shoppingMemoんぬ:", shoppingMemo)
+                    self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl))
                 }
-                
             }
             
             arrayInt = 1
-            
             userDefaults.set(arrayInt, forKey: "arrayInt")
             
-            //            let num = checkedArray.count - searchArray.count
-            
-            //            for i in 0...num - 1 {
-            //                self.searchArray.append((memoId: "", memoCount: 0, shoppingMemo: "", isChecked: false, dateNow: searchArray[0].dateNow))
-            //            }
-            
-            //            tableView(table, cellForRowAt: IndexPath())
             self.table.reloadData()
             
             
@@ -458,7 +453,6 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.arrayInt = 0
-                
                 self.userDefaults.set(self.arrayInt, forKey: "arrayInt")
             }
         }
@@ -491,6 +485,13 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 self.table.reloadData()
                 print("ソートしました。")
             }),
+            UIAction(title: "チェックつけた順", image: UIImage(systemName: "clock"), handler: { _ in
+                self.checkSortCountInt = 3
+                self.userDefaults.set(self.checkSortCountInt, forKey: "checkedSortCount")
+                self.checkedArray.sort {$0.checkedTime > $1.checkedTime}
+                self.table.reloadData()
+                print("ソートしました。")
+            })
         ]
         
         
@@ -524,15 +525,15 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                         
                         self.ref.child("users").child(self.userId).child(self.list).child(self.checked).removeValue()
                         
-                        self.ref.child("users").child(self.userId).child(self.list).observe(.childAdded, with: { snapshot in
-                            
-                            let dataId = self.list!
-                            
-                            let checkName = [self.checked: dataId]
-                            
-                            self.ref.child("users").child(self.userId).child(self.list).updateChildValues(checkName)
-                            
-                        })
+//                        self.ref.child("users").child(self.userId).child(self.list).observe(.childAdded, with: { snapshot in
+//
+//                            let dataId = self.list!
+//
+//                            let checkName = [self.checked: dataId]
+//
+//                            self.ref.child("users").child(self.userId).child(self.list).updateChildValues(checkName)
+//
+//                        })
                         self.table.reloadData()
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -579,6 +580,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             //削除処理を記述
             self.checkedSwitch = false
             self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
+            print("checkedSwitch3:", self.checkedSwitch)
             print("Deleteがタップされた")
             
             self.checkedArray.remove(at: indexPath.row)
@@ -600,6 +602,17 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         // 定義したアクションをセット
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toCheckedImageVC" {
+            let next = segue.destination as? CheckedImageViewController
+            next?.shoppingMemoName = shoppingMemoName
+            next?.memoIdString = memoIdString
+            next?.list = list
+            next?.checked = checked
+            next?.imageUrlString = imageUrlString
+        }
+    }
 }
 
 extension CheckedViewController {
@@ -616,6 +629,18 @@ extension CheckedViewController: checkedMarkDelegete {
     func buttonPressed(indexPath: IndexPath) {
         print("⤴️buttonPressed成功!")
         let memoId = checkedArray[indexPath.row].memoId
+        self.memoIdString = memoId
+        self.shoppingMemoName = checkedArray[indexPath.row].shoppingMemo
         self.ref.child("users").child(userId).child(list).child(checked).child(memoId).removeValue()
+    }
+}
+
+extension CheckedViewController: checkedImageButtonDelegate {
+    func buttonTapped(indexPath: IndexPath) {
+        print("⤴️buttonPressed成功!")
+        self.memoIdString = checkedArray[indexPath.row].memoId
+        self.shoppingMemoName = checkedArray[indexPath.row].shoppingMemo
+        self.imageUrlString = checkedArray[indexPath.row].imageUrl
+        self.performSegue(withIdentifier: "toCheckedImageVC", sender: nil)
     }
 }

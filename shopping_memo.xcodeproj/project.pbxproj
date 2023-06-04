@@ -45,6 +45,7 @@
 		DEA403E02929CE7600ABA7D1 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */; };
 		DEA403E32929E85C00ABA7D1 /* CustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA403E12929E85C00ABA7D1 /* CustomCell.swift */; };
 		DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEA403E22929E85C00ABA7D1 /* CustomCell.xib */; };
+		DEB6BBD42A1CF7D6001CC05A /* CheckedImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */; };
 		DEC30FC8293E055B006416C2 /* ImageViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */; };
 		DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */; };
 		DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975992620967F00AD695D /* NotViewController.swift */; };
@@ -107,6 +108,7 @@
 		DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		DEA403E12929E85C00ABA7D1 /* CustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCell.swift; sourceTree = "<group>"; };
 		DEA403E22929E85C00ABA7D1 /* CustomCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomCell.xib; sourceTree = "<group>"; };
+		DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedImageViewController.swift; sourceTree = "<group>"; };
 		DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewViewController.swift; sourceTree = "<group>"; };
 		DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotMakeNewMemoViewController.swift; sourceTree = "<group>"; };
 		DEC975992620967F00AD695D /* NotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotViewController.swift; sourceTree = "<group>"; };
@@ -195,15 +197,16 @@
 				DEFD52DA291791C8007899AA /* TableViewController.swift */,
 				DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */,
 				DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */,
+				DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */,
 				DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */,
 				DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */,
 				DE02CB882560D79B008012F6 /* Main.storyboard */,
 				DEA403E12929E85C00ABA7D1 /* CustomCell.swift */,
 				DEA403E22929E85C00ABA7D1 /* CustomCell.xib */,
-				DE9BE8F8293A3CC200992A9F /* CustomTableViewCell.swift */,
-				DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */,
 				DE74EA6E2A19BEA300C87A7E /* NotLogInTableViewCell.swift */,
 				DE74EA6F2A19BEA300C87A7E /* NotLogInTableViewCell.xib */,
+				DE9BE8F8293A3CC200992A9F /* CustomTableViewCell.swift */,
+				DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */,
 				DE26EAF429E12BFA007AEC11 /* CheckedTableViewCell.swift */,
 				DE26EAF529E12BFA007AEC11 /* CheckedTableViewCell.xib */,
 				DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */,
@@ -459,6 +462,7 @@
 				DE74EA6D2A19BD9F00C87A7E /* DeleteViewController.swift in Sources */,
 				DE361BBF25AABD4D00ADB360 /* MakeNewMemofileViewController.swift in Sources */,
 				DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */,
+				DEB6BBD42A1CF7D6001CC05A /* CheckedImageViewController.swift in Sources */,
 				DEA403E32929E85C00ABA7D1 /* CustomCell.swift in Sources */,
 				DE02CB832560D79B008012F6 /* AppDelegate.swift in Sources */,
 				DE1BA9B42585B5A6003506E9 /* SignupViewController.swift in Sources */,
@@ -658,6 +662,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -679,6 +684,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

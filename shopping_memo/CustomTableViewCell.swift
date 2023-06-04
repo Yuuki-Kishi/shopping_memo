@@ -43,7 +43,7 @@ class CustomTableViewCell: UITableViewCell {
         
         let image = UIImage(systemName: "square")
         checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .black
+        checkMarkImageButton.tintColor = .label
         
         imageButton.layer.cornerRadius = 7.5
         
@@ -54,7 +54,7 @@ class CustomTableViewCell: UITableViewCell {
     @IBAction func check(_ sender:Any) {
         let image = UIImage(systemName: "checkmark.square")
         checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .black
+        checkMarkImageButton.tintColor = .label
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             print("check!")

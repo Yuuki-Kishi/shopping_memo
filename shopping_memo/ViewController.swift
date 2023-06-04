@@ -25,6 +25,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     var searchInt = 0
     var arrayInt = 0
     var name: String!
+    var memoIdString: String!
+    var imageUrlString: String!
     
     //Table Viewヲセンゲン→関連付け
     @IBOutlet var table: UITableView!
@@ -159,14 +161,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
             guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-//            guard let checkedTime = snapshot.childSnapshot(forPath: "checkedTime").value as? String else { return }
+            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             
             dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-//            let time = dateFormatter.date(from: checkedTime)
             let time = date
             
             self.memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
@@ -191,7 +192,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
             guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-            guard let checkedTime = snapshot.childSnapshot(forPath: "checkedTime").value as? String else { return }
+            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             
             
@@ -199,7 +200,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-            let time = dateFormatter.date(from: checkedTime)
+            let time = date
             
             for i in 0...memoArray.count - 1 {
                 let memo = memoArray[i].memoId
@@ -233,7 +234,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 guard let removedShoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
                 guard var removedIsChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
                 guard let removeDateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-                guard let removeCheckedTime = snapshot.childSnapshot(forPath: "checkedTime").value as? String else { return }
+                let removeCheckedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
                 guard let removeImageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
 
                 removedIsChecked = !removedIsChecked
@@ -241,9 +242,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let time = dateFormatter.date(from: removeCheckedTime)
+                let time = dateFormatter.string(from: Date())
                                 
-                ref.child("users").child(userId).child(list).child(checked).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": removeDateNow, "checkedTime": time!, "imageUrl": removeImageUrl])
+                ref.child("users").child(userId).child(list).child(checked).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": removeDateNow, "checkedTime": time, "imageUrl": removeImageUrl])
 
                 //            if self.memoArray.isEmpty {
                 //                self.ref.child("users").child(self.userId).child(self.list).setValue("temporaly value")
@@ -251,29 +252,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 self.table.reloadData()
             }
         })
-        
-        
-        //        ref.child("users").child(userId).child(list).child(checked).observe(.childChanged, with: { snapshot in
-        //            print("changed: \(snapshot)")
-        //            self.table.reloadData()
-        //        })
-        
-        
-        // checkedに追加されたとき
-        //        ref.child("users").child(userId).child(list).child(checked).observe(.childAdded, with: { snapshot in
-        //            let memoId = snapshot.key // memo0とか
-        //            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-        //            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-        //
-        //
-        //            self.checkedMemoArray.append((memoId: memoId, shoppingMemo: shoppingMemo, isChecked: isChecked))
-        //            self.memoArray.sort(by: {(A, B) -> Bool in
-        //            return A.isChecked != true && B.isChecked == true
-        //                        })
-        //            self.table.reloadData()
-        //        })
-        
-        
         
         table.allowsMultipleSelection = true
         
@@ -286,6 +264,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             // ...
             print(Auth.auth().currentUser)
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        ref.child("users").child(userId).child(list).observe(.childChanged, with: { [self] snapshot in
+            guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
+            name = listName
+            listNameLabel.text = name
+        })
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -350,15 +336,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             cell.memoLabel.text = searchArray[indexPath.row].shoppingMemo
         }
         
-        cell.backgroundColor = .none
+        var backgroundConfig = UIBackgroundConfiguration.listPlainCell()
+        backgroundConfig.backgroundColor = UIColor.systemGray5
+        
+        cell.backgroundConfiguration = backgroundConfig
         
         let imageUrl = memoArray[indexPath.row].imageUrl
         if imageUrl == "" {
-            let image = UIImage(systemName: "photo")
+            let image = UIImage(systemName: "plus.viewfinder")
             cell.imageButton.setImage(image, for: .normal)
-            cell.imageButton.tintColor = .black
+            cell.imageButton.tintColor = .label
         } else {
-            
+            let image2 = UIImage(systemName: "photo")
+            cell.imageButton.setImage(image2, for: .normal)
+            cell.imageButton.tintColor = .label
         }
         
         
@@ -462,6 +453,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 )
                 self.present(alert, animated: true, completion: nil)
             } else {
+                print("Mail1")
                 self.ref.child("users").child(userId).child(list).child(nonCheck).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
 
                 countInt += 1
@@ -556,6 +548,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 
                 self.present(alert, animated: true, completion: nil)
             } else {
+                print("Mail2")
                 self.ref.child("users").child(userId).child(list).child(nonCheck).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 countInt += 1
                 userDefaults.set(countInt, forKey: "count")
@@ -651,6 +644,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         } else if segue.identifier == "toImageViewVC" {
             let next = segue.destination as? ImageViewViewController
             next?.shoppingMemoName = shoppingMemoName
+            next?.memoIdString = memoIdString
+            next?.list = list
+            next?.nonCheck = nonCheck
+            next?.imageUrlString = imageUrlString
         }
         
     }
@@ -815,40 +812,11 @@ extension ViewController {
                 let dateNow = memoArray[i].dateNow
                 let checkedTime = memoArray[i].checkedTime
                 let imageUrl = memoArray[i].imageUrl
-
-                print("for:", type(of: dateNow))
-
-                dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let time = dateFormatter.string(from: dateNow)
                 
                 memoCount = i
-                print("indexPath2:", indexPath.row)
-                print("memoId:", memoId)
                 memoArray[i] = (memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl)
 
-                print(memoArray[i])
-                
-//                if i == self.memoArray.count {
-//                    changeSwitch = true
-//                    userDefaults.set(changeSwitch, forKey: "changeSwitch")
-//                } else {
-//                    changeSwitch = false
-//                    userDefaults.set(changeSwitch, forKey: "changeSwitch")
-//                }
-
                 self.ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).updateChildValues(["memoCount": memoCount])
-                
-                
-                
-                //            print("i:", i)
-                
-                //            self.table.reloadData()
-                
-                //            self.table.reloadRows(at: [indexPath], with: .fade)
-                //            let row = NSIndexPath(row: i, section: 0)
-                //            self.table.reloadRowsAtIndexPaths([row], withRowAnimation: UITableViewRowAnimation.Fade)
             }
             self.sortCountInt = 3
             userDefaults.set(sortCountInt, forKey: "sortCount")
@@ -883,7 +851,9 @@ extension ViewController: checkMarkDelegete {
 extension ViewController: imageButtonDelegate {
     func buttonTapped(indexPath: IndexPath) {
         print("⤴️buttonTapped成功!")
+        self.memoIdString = memoArray[indexPath.row].memoId
         self.shoppingMemoName = memoArray[indexPath.row].shoppingMemo
+        self.imageUrlString = memoArray[indexPath.row].imageUrl
         self.performSegue(withIdentifier: "toImageViewVC", sender: nil)
     }
 }

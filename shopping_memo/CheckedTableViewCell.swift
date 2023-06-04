@@ -10,15 +10,20 @@ import UIKit
 protocol checkedMarkDelegete: AnyObject {
     func buttonPressed(indexPath: IndexPath)
 }
+protocol checkedImageButtonDelegate: AnyObject {
+    func buttonTapped(indexPath: IndexPath)
+}
 
 class CheckedTableViewCell: UITableViewCell {
     
     var checkedDalegate: checkedMarkDelegete?
-    
+    var imageDelegate: checkedImageButtonDelegate?
+
     var memoImageView: UIImageView!
     @IBOutlet var whiteView: UIView!
     @IBOutlet var checkMarkImageButton: UIButton!
     @IBOutlet var memoLabel: UILabel!
+    @IBOutlet var imageButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -33,7 +38,7 @@ class CheckedTableViewCell: UITableViewCell {
         
         let image = UIImage(systemName: "checkmark.square")
         checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .black
+        checkMarkImageButton.tintColor = .label
     }
     
     var indexPath: IndexPath!
@@ -41,7 +46,7 @@ class CheckedTableViewCell: UITableViewCell {
     @IBAction func check(_ sender:Any) {
         let image = UIImage(systemName: "square")
         checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .black
+        checkMarkImageButton.tintColor = .label
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             print("check!")
@@ -51,4 +56,9 @@ class CheckedTableViewCell: UITableViewCell {
         
     }
     
+    @IBAction func image(_ sender: Any) {
+        print("image!")
+        self.imageDelegate?.buttonTapped(indexPath: self.indexPath)
+        print("finish")
+    }
 }
