@@ -155,11 +155,10 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
             print(error.localizedDescription)
         }
         
-        ref.child("users").child(userId).child(list).child(checked).observe(.childChanged, with: { [self] snapshot in
+        ref.child("users").child(uid).child(list).child(checked).observe(.childChanged, with: { [self] snapshot in
             let memoId = snapshot.key
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-            let imageUrl = storage.reference(forURL: url)
-            memoIdString = memoId
+            let imageRef = storage.reference(forURL: url)
             
             if url == "" {
                 imageView.contentMode = .center
@@ -170,7 +169,7 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
                 noImageLabel.isHidden = false
                 upDateLabel.text = ""
             } else {
-                imageUrl.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
                         print(error)
                     } else {
@@ -180,7 +179,7 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
                         self.noImageLabel.isHidden = true
                     }
                 }
-                url.getMetadata { [self] metadata, error in
+                imageRef.getMetadata { [self] metadata, error in
                     if let error = error {
                         print(error)
                     } else {

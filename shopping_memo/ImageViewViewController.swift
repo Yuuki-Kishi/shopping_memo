@@ -202,7 +202,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         //            }
         //        })
         
-        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childChanged, with: { [self] snapshot in
+        ref.child("users").child(uid).child(list).child(nonCheck).observe(.childChanged, with: { [self] snapshot in
             let memoId = snapshot.key
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             let imageUrl = storage.reference(forURL: url)
