@@ -117,18 +117,14 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         if indexPath.row == listArray.count {
             cell.listLabel?.text = "＋"
-            
             return cell
-            
         } else {
             cell.listLabel?.text = listArray[indexPath.row]
-            
             return cell
         }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
         // segueのIDを確認して特定のsegueのときのみ動作させる
         if segue.identifier == "toViewControllerFromTableView" {
             // 2. 遷移先のViewControllerを取得
@@ -165,24 +161,15 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                         handler: { action in
                             if textField.text != "" {
                                 let text = textField.text!
-                                let checked = ["チェック済み": text]
-                                let nonCheck = ["未チェック": text]
-                                
-                                let data = ["\(text)": text]
-                                
+                                let memo = ["memo": text]
+                                                                
                                 self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
                                 self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                                 self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                                 let date = self.dateFormatter.string(from: Date())
                                 
-                                self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "未チェック": text, "チェック済み": text])
-                                
-                                print("追加なりけり")
-                                
-                                self.listCountInt += 1
-                                self.userDefaults.set(self.listCountInt, forKey: "listCount")
-                                
-                                
+                                self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "memo": memo])
+                                                                
                                 textField.text = ""
                             }
                         }
@@ -224,25 +211,14 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                     handler: { action in
                         if textField.text != "" {
                             let text = textField.text!
-                            let checked = ["チェック済み": text]
-                            let nonCheck = ["未チェック": text]
-                            
-                            let data = ["\(text)": text]
+                            let memo = ["memo": text]
                             
                             self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
                             self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                             self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                             let date = self.dateFormatter.string(from: Date())
                             
-                            self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "未チェック": text, "チェック済み": text])
-                            
-                            self.ref.child("users").child(self.userId).child("list\(date)").child("未チェック").updateChildValues(["memoNumber": self.memoNumber])
-
-                            print("追加なりけり")
-                            
-                            self.listCountInt += 1
-                            self.userDefaults.set(self.listCountInt, forKey: "listCount")
-                            
+                            self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "memo": text])
                             
                             textField.text = ""
                         }
@@ -263,18 +239,8 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.dismiss(animated: true, completion: nil)
     }
     
-    
-    
-    @IBAction func toMakeNewMemo(_ sender: Any) {
-        print("タップ")
-        self.performSegue(withIdentifier: "toMakeNewMemo", sender: nil)
-    }
-    
-    
-    
     //     スワイプした時に表示するアクションの定義
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        print("🇯🇵IndexPath:", indexPath)
         var deleteAction: UIContextualAction
         var editAction: UIContextualAction
         if indexPath.row < listArray.count {
@@ -288,19 +254,10 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                 
                 self.listArray.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                self.nonCheckSwitch = false
-                self.userDefaults.set(self.nonCheckSwitch, forKey: "nonCheckSwitch")
                 self.ref.child("users").child(self.userId).child(self.list).removeValue()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    
-                    self.nonCheckSwitch = true
-                    self.userDefaults.set(self.nonCheckSwitch, forKey: "nonCheckSwitch")
-                }
                 
                 // 実行結果に関わらず記述
                 completionHandler(true)
-                
             }
             // 編集処理
             editAction = UIContextualAction(style: .normal, title: "編集") { (action, view, completionHandler) in
@@ -329,35 +286,24 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                             handler: { action in
                                 if alertTextField.text != "" {
                                     
-                                    var list = self.listArray[indexPath.row];list
+                                    let list = self.listArray[indexPath.row]
+                                    let key = self.keyArray[indexPath.row]
                                     let text = alertTextField.text!
-                                    let checked = ["チェック済み": text]
-                                    let nonCheck = ["未チェック": text]
-                                    
-                                    let data = ["\(text)": text]
+                                    let memo = ["memo": text]
                                     
                                     self.listArray.replace(before: list, after: text)
                                     
-                                    self.ref.child("users").child(self.userId).child(self.keyArray[indexPath.row]).updateChildValues(["name": text])
-                                    
-                                    self.tableView.reloadData()
+                                    self.ref.child("users").child(self.userId).child(key).updateChildValues(["name": text])
                                 }
                             }
                         )
                     )
                     
                     self.present(alert, animated: true, completion: nil)
-                    
-                    print("listArray:", self.listArray)
                 }
-                
-                
                 // 実行結果に関わらず記述
                 completionHandler(true)
-                
             }
-            
-            
             editAction.backgroundColor = UIColor.systemBlue
             
             self.tableView.reloadData()
@@ -369,7 +315,6 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             return UISwipeActionsConfiguration(actions: [])
         }
     }
-    
 }
 
 extension Array where Element: Equatable {

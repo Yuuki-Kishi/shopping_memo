@@ -17,13 +17,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     let userDefaults: UserDefaults = UserDefaults.standard
     let dateFormatter = DateFormatter()
-    var countInt = 0
     var defaultMemoCount: Int!
-    var nonCheckSwitch = true
-    var changeSwitch = false
     var sortCountInt = 3
-    var searchInt = 0
-    var arrayInt = 0
+    var searchSwitch = false
+    var arraySwitch = false
     var name: String!
     var memoIdString: String!
     var imageUrlString: String!
@@ -49,6 +46,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     let checked = "チェック済み"
     let nonCheck = "未チェック"
+    let memo = "memo"
     
     var ref: DatabaseReference!
     
@@ -70,23 +68,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 
         listNameLabel.text = name
         
-        countInt = userDefaults.integer(forKey: "count")
-        print("🌀nonCheckSwitch:", nonCheckSwitch)
-        userDefaults.set(nonCheckSwitch, forKey: "nonCheckSwitch")
-        print("🌀nonCheckSwitch:", nonCheckSwitch)
         sortCountInt = userDefaults.integer(forKey: "sortCount")
-        print("sortCountInt:", sortCountInt)
-        print("sortCountInt:", userDefaults.integer(forKey: "sortCount"))
-        searchInt = 0
-        
-        print("userDefaults:", userDefaults.integer(forKey: "count"))
-        
+        searchSwitch = false
+                
         defaultMemoCount = -1
         
-        if searchInt == 0 {
+        if searchSwitch == false {
             self.addMemoButton.setTitle("追加", for: .normal)
             self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        } else if searchInt == 1 {
+        } else if searchSwitch == true {
             self.addMemoButton.setTitle("検索", for: .normal)
             self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを検索",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         }
@@ -163,6 +153,33 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
             let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+                        
+            ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).removeValue()
+            
+            ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
+            
+            switch sortCountInt {
+            case 0:
+                memoArray.sort {$0.shoppingMemo < $1.shoppingMemo}
+            case 1:
+                memoArray.sort {$0.shoppingMemo > $1.shoppingMemo}
+            case 2:
+                memoArray.sort {$0.dateNow < $1.dateNow}
+            default:
+                memoArray.sort {$0.memoCount < $1.memoCount}
+            }
+            
+            self.table.reloadData()
+        })
+        
+        ref.child("users").child(userId).child(list).child(memo).observe(.childAdded, with: { [self] snapshot in
+            let memoId = snapshot.key // memo0とか
+            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             
             dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -170,15 +187,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let date = dateFormatter.date(from: dateNow)
             let time = date
             
-            self.memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+            if isChecked == false {
+                self.memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+            }
             
-            if sortCountInt == 0 {
+            switch sortCountInt {
+            case 0:
                 memoArray.sort {$0.shoppingMemo < $1.shoppingMemo}
-            } else if sortCountInt == 1 {
+            case 1:
                 memoArray.sort {$0.shoppingMemo > $1.shoppingMemo}
-            } else if sortCountInt == 2 {
+            case 2:
                 memoArray.sort {$0.dateNow < $1.dateNow}
-            } else {
+            default:
                 memoArray.sort {$0.memoCount < $1.memoCount}
             }
             
@@ -186,7 +206,40 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         })
         
         // nonCheckに変化があったとき
-        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childChanged, with: { [self] snapshot in
+//        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childChanged, with: { [self] snapshot in
+//            let memoId = snapshot.key // memo0とか
+//            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+//            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+//            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+//            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+//            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+//            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+//
+//
+//            dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+//            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//            dateFormatter.timeZone = TimeZone(identifier: "UTC")
+//            let date = dateFormatter.date(from: dateNow)
+//            let time = date
+//
+//            let index = self.memoArray.firstIndex(where: {$0.memoId == memoId})
+//            memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+//
+//            switch sortCountInt {
+//            case 0:
+//                memoArray.sort {$0.shoppingMemo < $1.shoppingMemo}
+//            case 1:
+//                memoArray.sort {$0.shoppingMemo > $1.shoppingMemo}
+//            case 2:
+//                memoArray.sort {$0.dateNow < $1.dateNow}
+//            default:
+//                memoArray.sort {$0.memoCount < $1.memoCount}
+//            }
+//
+//            self.table.reloadData()
+//        })
+        
+        ref.child("users").child(userId).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
             let memoId = snapshot.key // memo0とか
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
             guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
@@ -202,56 +255,56 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let date = dateFormatter.date(from: dateNow)
             let time = date
             
-            for i in 0...memoArray.count - 1 {
-                let memo = memoArray[i].memoId
-                if memo == memoId {
-                    memoArray[i] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                }
+            let index = self.memoArray.firstIndex(where: {$0.memoId == memoId})
+            if isChecked == false {
+                memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+            } else if isChecked == true {
+                memoArray.remove(at: index!)
             }
                         
-            if sortCountInt == 0 {
+            switch sortCountInt {
+            case 0:
                 memoArray.sort {$0.shoppingMemo < $1.shoppingMemo}
-            } else if sortCountInt == 1 {
+            case 1:
                 memoArray.sort {$0.shoppingMemo > $1.shoppingMemo}
-            } else if sortCountInt == 2 {
+            case 2:
                 memoArray.sort {$0.dateNow < $1.dateNow}
-            } else {
-                print("sort")
+            default:
                 memoArray.sort {$0.memoCount < $1.memoCount}
             }
-                        
             self.table.reloadData()
         })
         
         // nonCheckの中身が消えたとき
-        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childRemoved, with: { [self] snapshot in
-            nonCheckSwitch = userDefaults.bool(forKey: "nonCheckSwitch")
-            if nonCheckSwitch == true {
-                let index = self.memoArray.firstIndex(where: {$0.memoId == snapshot.key})
-                self.memoArray.remove(at: index!)
-                
-                guard let removedMemoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
-                guard let removedShoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-                guard var removedIsChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-                guard let removeDateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-                let removeCheckedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
-                guard let removeImageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-
-                removedIsChecked = !removedIsChecked
-                
-                dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let time = dateFormatter.string(from: Date())
-                                
-                ref.child("users").child(userId).child(list).child(checked).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": removeDateNow, "checkedTime": time, "imageUrl": removeImageUrl])
-
-                //            if self.memoArray.isEmpty {
-                //                self.ref.child("users").child(self.userId).child(self.list).setValue("temporaly value")
-                //            }
-                self.table.reloadData()
-            }
-        })
+//        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childRemoved, with: { [self] snapshot in
+//            nonCheckSwitch = userDefaults.bool(forKey: "nonCheckSwitch")
+//            print("nonCheckSwitch:", nonCheckSwitch)
+//            if nonCheckSwitch == true {
+//                let index = memoArray.firstIndex(where: {$0.memoId == snapshot.key})
+//                memoArray.remove(at: index!)
+//
+//                guard let removedMemoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+//                guard let removedShoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+//                guard var removedIsChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+//                guard let removeDateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+//                let removeCheckedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+//                guard let removeImageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+//
+//                removedIsChecked = !removedIsChecked
+//
+//                dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+//                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//                dateFormatter.timeZone = TimeZone(identifier: "UTC")
+//                let time = dateFormatter.string(from: Date())
+//
+//                ref.child("users").child(userId).child(list).child(memo).child(snapshot.key).updateChildValues(["memoCount": removedMemoCount, "shoppingMemo": removedShoppingMemo, "isChecked": removedIsChecked, "dateNow": removeDateNow, "checkedTime": time, "imageUrl": removeImageUrl])
+//
+//                //            if self.memoArray.isEmpty {
+//                //                self.ref.child("users").child(self.userId).child(self.list).setValue("temporaly value")
+//                //            }
+//                self.table.reloadData()
+//            }
+//        })
         
         table.allowsMultipleSelection = true
         
@@ -292,9 +345,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var cellCount = 0
         
-        if searchInt == 0 {
+        if searchSwitch == false {
             cellCount = memoArray.count
-        } else if searchInt == 1 {
+        } else if searchSwitch == true {
             cellCount = searchArray.count
         }
         //セルの数を数える→セルの数を決める
@@ -302,37 +355,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        print("indexPath:", indexPath)
-        
-        var checkImage: UIImage!
-        
-        
         //IDツキノセルヲシュトクシテ、セルフゾクノTextLabelニ「テスト」トヒョウジサセテミル
         // セルを取得
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomTableViewCell") as! CustomTableViewCell
         cell.checkDalegate = self
         cell.imageDelegate = self
         cell.indexPath = indexPath
-        
-        print("🌙memoArray:", memoArray)
-        
-        
-        //        cell.memoLabel.text = memoArray[indexPath.row].shoppingMemo
-        print(indexPath.row)
-        print(memoArray.count)
-        print("ここでエラーが出てる")
-        print(memoArray[indexPath.row])
-        print(memoArray[indexPath.row].shoppingMemo)
-        
-        arrayInt = userDefaults.integer(forKey: "arrayInt")
-        
-        print("arrayInt:", arrayInt)
-        
-        if arrayInt == 0 {
+                    
+        arraySwitch = userDefaults.bool(forKey: "arraySwitch")
+                
+        if arraySwitch == false {
             // セルの中にラベルに配列の要素の値を代入
             cell.memoLabel.text = memoArray[indexPath.row].shoppingMemo
-        } else if arrayInt == 1 {
+        } else if arraySwitch == true {
             cell.memoLabel.text = searchArray[indexPath.row].shoppingMemo
         }
         
@@ -351,12 +386,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             cell.imageButton.setImage(image2, for: .normal)
             cell.imageButton.tintColor = .label
         }
-        
-        
-        
-        
-        //        self.ref.child("users").child(userId).child(list).child(nonCheck).child(["\(memoArray[indexPath.row].memoId)"]).updateChildValues(<#[AnyHashable : Any]#>)
-        
+                
         print(memoArray[indexPath.row])
         if memoArray[indexPath.row].isChecked {
             //            cell.accessoryType = .checkmark
@@ -379,27 +409,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
             cell.textLabel?.textColor = UIColor.black
         }
-        
-        
-        //        memoArray.sort {$0.memoCount < $1.memoCount}
-        
         // 最後に設定したセルを表示
         return cell
-        
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("didSelectRowAtが呼ばれました！")
-        
         var alertTextField: UITextField!
         let index = indexPath.row
-        let memo = memoArray[index]
         let memoId = memoArray[index].memoId
-        let memoCount = memoArray[index].memoCount
-        var shoppingMemo = memoArray[index].shoppingMemo
-        let isChecked = memoArray[index].isChecked
-        let dateNow = memoArray[index].dateNow
         
         let alert: UIAlertController = UIAlertController(title: "メモの変更", message: "変更後のメモを記入してください。", preferredStyle: .alert)
         alert.addTextField { textField in
@@ -413,11 +431,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     style: .default,
                     handler: { action in
                         if alertTextField.text != "" {
-                            var shoppingMemo = self.memoArray[index];shoppingMemo
+                            let shoppingMemo = self.memoArray[index].shoppingMemo
                             let text = alertTextField.text!
                             self.memoArray[index].shoppingMemo = text
                             print("memoArray:", self.memoArray[index])
-                            self.ref.child("users").child(self.userId).child(self.list).child(self.nonCheck).child(memoId).updateChildValues(["shoppingMemo": text])
+                            self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["shoppingMemo": text])
                             self.table.reloadData()
                         }
                     })
@@ -428,7 +446,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     style: .cancel
                 )
             )
-            
             self.present(alert, animated: true, completion: nil)
         }
     }
@@ -436,7 +453,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        if searchInt == 0 {
+        if searchSwitch == false {
             dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
@@ -454,16 +471,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 self.present(alert, animated: true, completion: nil)
             } else {
                 print("Mail1")
-                self.ref.child("users").child(userId).child(list).child(nonCheck).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
-
-                countInt += 1
-                userDefaults.set(countInt, forKey: "count")
-                //            listSort()
-                //            self.table.reloadData()
+                self.ref.child("users").child(userId).child(list).child(memo).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
             }
             
-        } else if searchInt == 1 {
+        } else if searchSwitch == true {
             if titleTextField.text == "" {
                 let alert: UIAlertController = UIAlertController(title: "検索できません。", message: "検索キーワードがありません。", preferredStyle: .alert)
                 alert.addAction(
@@ -476,9 +488,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             } else {
                 searchArray = []
                 for i in 0...memoArray.count - 1 {
-                    
                     let text = titleTextField.text
-                    
                     let memoId = memoArray[i].memoId
                     let memoCount = memoArray[i].memoCount
                     let shoppingMemo = memoArray[i].shoppingMemo
@@ -486,22 +496,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     let dateNow = memoArray[i].dateNow
                     let checkedTime = memoArray[i].checkedTime
                     let imageUrl = memoArray[i].imageUrl
-                    
-                    print("shoppingMemoんぬ:", shoppingMemo)
-                    
+                                        
                     if shoppingMemo == text {
                         self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl))
-                        print("shoppingMemoんぬ:", shoppingMemo)
                     }
-                    
                 }
-                
-                arrayInt = 1
-                
-                userDefaults.set(arrayInt, forKey: "arrayInt")
-                
                 self.table.reloadData()
-                
                 
                 if searchArray.count == 0 {
                     let alert: UIAlertController = UIAlertController(title: "該当項目なし。", message: "該当する項目がありません。", preferredStyle: .alert)
@@ -515,9 +515,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.arrayInt = 0
-                    
-                    self.userDefaults.set(self.arrayInt, forKey: "arrayInt")
+                    self.arraySwitch = true
+                    self.userDefaults.set(self.arraySwitch, forKey: "arraySwitch")
                 }
             }
         }
@@ -527,10 +526,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     @IBAction func addMemo(_ sender: Any) {
         titleTextField.resignFirstResponder()
-        searchInt = userDefaults.integer(forKey: "searchInt")
-        print("serachInt", searchInt)
-        if searchInt == 0 {
-            print("searchInt:", searchInt)
+        if searchSwitch == false {
             dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
@@ -545,16 +541,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                         }
                     )
                 )
-                
                 self.present(alert, animated: true, completion: nil)
             } else {
-                print("Mail2")
-                self.ref.child("users").child(userId).child(list).child(nonCheck).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
-                countInt += 1
-                userDefaults.set(countInt, forKey: "count")
+                print("Mail1")
+                self.ref.child("users").child(userId).child(list).child(memo).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
             }
-        } else if searchInt == 1{
+            
+        } else if searchSwitch == true {
             if titleTextField.text == "" {
                 let alert: UIAlertController = UIAlertController(title: "検索できません。", message: "検索キーワードがありません。", preferredStyle: .alert)
                 alert.addAction(
@@ -565,12 +559,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 )
                 self.present(alert, animated: true, completion: nil)
             } else {
-                print("searchInt:", searchInt)
                 searchArray = []
                 for i in 0...memoArray.count - 1 {
-                    
                     let text = titleTextField.text
-                    
                     let memoId = memoArray[i].memoId
                     let memoCount = memoArray[i].memoCount
                     let shoppingMemo = memoArray[i].shoppingMemo
@@ -578,32 +569,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     let dateNow = memoArray[i].dateNow
                     let checkedTime = memoArray[i].checkedTime
                     let imageUrl = memoArray[i].imageUrl
-                    
-                    print("shoppingMemoんぬ:", shoppingMemo)
-                    
+                                        
                     if shoppingMemo == text {
                         self.searchArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl))
-                        print("shoppingMemoんぬ:", shoppingMemo)
                     }
-                    
                 }
-                print("searchArray:", searchArray)
-                
-                arrayInt = 1
-                
-                userDefaults.set(arrayInt, forKey: "arrayInt")
-                
-                print("arrayInt:", arrayInt)
-                
-                //            let num = memoArray.count - searchArray.count
-                
-                //            for i in 0...num - 1 {
-                //                self.searchArray.append((memoId: "", memoCount: 0, shoppingMemo: "", isChecked: false, dateNow: searchArray[0].dateNow))
-                //            }
-                
-                //            tableView(table, cellForRowAt: IndexPath())
                 self.table.reloadData()
-                
                 
                 if searchArray.count == 0 {
                     let alert: UIAlertController = UIAlertController(title: "該当項目なし。", message: "該当する項目がありません。", preferredStyle: .alert)
@@ -617,14 +588,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 }
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.arrayInt = 0
-                    
-                    self.userDefaults.set(self.arrayInt, forKey: "arrayInt")
+                    self.arraySwitch = true
+                    self.userDefaults.set(self.arraySwitch, forKey: "arraySwitch")
                 }
-                
             }
         }
-        
     }
     
     
@@ -646,7 +614,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             next?.shoppingMemoName = shoppingMemoName
             next?.memoIdString = memoIdString
             next?.list = list
-            next?.nonCheck = nonCheck
             next?.imageUrlString = imageUrlString
         }
         
@@ -663,22 +630,22 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         
         let Items = [
             UIAction(title: "追加", image: UIImage(systemName: "plus"), handler: { _ in
-                if self.searchInt == 1 {
+                if self.searchSwitch == true {
                     self.addMemoButton.setTitle("追加", for: .normal)
                     self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-                    self.searchInt = 0
-                    self.userDefaults.set(self.searchInt, forKey: "searchInt")
+                    self.searchSwitch = false
+                    self.userDefaults.set(self.searchSwitch, forKey: "searchSwitch")
                     self.titleTextField.text = ""
                     self.table.reloadData()
                     print("追加モード")
                 }
             }),
             UIAction(title:"検索", image: UIImage(systemName: "magnifyingglass"), handler: { _ in
-                if self.searchInt == 0 {
+                if self.searchSwitch == false {
                     self.addMemoButton.setTitle("検索", for: .normal)
                     self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを検索",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-                    self.searchInt = 1
-                    self.userDefaults.set(self.searchInt, forKey: "searchInt")
+                    self.searchSwitch = true
+                    self.userDefaults.set(self.searchSwitch, forKey: "searchSwitch")
                     self.table.reloadData()
                     print("検索モード")
                 }
@@ -806,7 +773,6 @@ extension ViewController {
                 
                 let memoId = memoArray[i].memoId
                 var memoCount = memoArray[0].memoCount
-                let indexPath = IndexPath(row: i, section: 0)
                 let shoppingMemo = memoArray[i].shoppingMemo
                 let isChecked = memoArray[0].isChecked
                 let dateNow = memoArray[i].dateNow
@@ -816,7 +782,7 @@ extension ViewController {
                 memoCount = i
                 memoArray[i] = (memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl)
 
-                self.ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).updateChildValues(["memoCount": memoCount])
+                self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount])
             }
             self.sortCountInt = 3
             userDefaults.set(sortCountInt, forKey: "sortCount")
@@ -829,7 +795,6 @@ extension ViewController {
 
 extension ViewController {
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        
         return .none
     }
     
@@ -841,10 +806,8 @@ extension ViewController {
 extension ViewController: checkMarkDelegete {
     func buttonPressed(indexPath: IndexPath) {
         print("⤴️buttonPressed成功!")
-        
         let memoId = memoArray[indexPath.row].memoId
-        
-        self.ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).removeValue()
+        self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["isChecked": true])
     }
 }
 

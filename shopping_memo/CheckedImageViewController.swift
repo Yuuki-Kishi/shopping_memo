@@ -25,7 +25,8 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
     var imageUrlString: String!
     var userId: String!
     var list: String!
-    var checked = "チェック済み"
+    let checked = "チェック済み"
+    let memo = "memo"
     var ref: DatabaseReference!
     let df = DateFormatter()
     let storage = Storage.storage()
@@ -63,60 +64,10 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
         guard let list = list else { return }
         guard let memoId = memoIdString else { return }
         
-//        let islandRef = Storage.storage().reference().child("\(uid)/\(memoId).jpg")
-//
-//        if imageUrlString == "" {
-//            imageView.contentMode = .center
-//            imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-//            imageView.backgroundColor = UIColor.systemGray5
-//            imageView.image = UIImage(systemName: "photo")
-//            imageView.tintColor = UIColor.label
-//            noImageLabel.isHidden = false
-//        } else {
-//            islandRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
-//                if let error = error {
-//                    print(error)
-//                } else {
-//                    let image = UIImage(data: data!)
-//                    self.imageView.contentMode = .scaleAspectFit
-//                    self.imageView.image = image
-//                    self.noImageLabel.isHidden = true
-//                }
-//            }
-//            islandRef.getMetadata { [self] metadata, error in
-//                if let error = error {
-//                    print(error)
-//                } else {
-//                    let date = metadata?.timeCreated
-//                    df.dateStyle = .medium
-//                    df.timeStyle = .medium
-//                    df.timeZone = TimeZone(identifier: "Asia/Tokyo")
-//                    df.locale = Locale(identifier: "ja_JP")
-//                    upDateLabel.text = " 最終更新日時:" + df.string(from: date!) + " "
-//                }
-//            }
-//        }
-        
-        ref.child("users").child(uid).child(list).child(checked).child(memoId).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
-            
+        ref.child("users").child(uid).child(list).child(memo).child(memoId).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
             if snapshot.value == nil {
-                
                 return
             }
-            print("実行1")
-            print(uid)
-            print(list)
-            print(checked)
-            print(memoId)
-//            guard error == nil else { return }
-            print("実行2")
-            
-            print()
-            print("↓↓")
-            print(snapshot.value)
-            print("↑↑")
-            print()
-            
             guard let url = snapshot.value as? String else { return }
             print("url:", url)
             if url == "" {
@@ -155,7 +106,7 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
             print(error.localizedDescription)
         }
         
-        ref.child("users").child(uid).child(list).child(checked).observe(.childChanged, with: { [self] snapshot in
+        ref.child("users").child(uid).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
             let memoId = snapshot.key
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             let imageRef = storage.reference(forURL: url)
@@ -212,11 +163,10 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
                 imageRef.downloadURL { (url, error) in
                     guard let downloadURL = url else { return }
                     let imageUrl = downloadURL.absoluteString
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.checked).child(memoId).updateChildValues(["imageUrl": imageUrl])
+                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": imageUrl])
                 }
             }
         }
-        
         //.originalImageにするとトリミングなしになる
         //        imageView.image = info[.originalImage] as? UIImage
         imageView.image = nil
@@ -258,7 +208,7 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
                             if let error = error {
                                 print(error)
                             } else {
-                                self.ref.child("users").child(self.userId).child(self.list).child(self.checked).child(memoId).updateChildValues(["imageUrl": ""])
+                                self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": ""])
                                 self.imageView.image = UIImage(systemName: "photo")
                                 self.noImageLabel.isHidden = false
                                 self.noImageLabel.backgroundColor = .systemGray5
