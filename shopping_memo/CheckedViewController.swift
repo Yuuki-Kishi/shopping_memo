@@ -157,7 +157,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             let date = dateFormatter.date(from: dateNow)
             let time = date
             
-            if isChecked == false {
+            if isChecked == true {
                 self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
             }
             
@@ -172,6 +172,44 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 checkedArray.sort {$0.memoCount < $1.memoCount}
             }
             
+            self.table.reloadData()
+        })
+        
+        ref.child("users").child(userId).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
+            let memoId = snapshot.key // memo0とか
+            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+            
+            
+            dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.timeZone = TimeZone(identifier: "UTC")
+            let date = dateFormatter.date(from: dateNow)
+            let time = date
+            
+            let index = self.checkedArray.firstIndex(where: {$0.memoId == memoId})
+            if isChecked == true {
+                checkedArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+            } else if isChecked == false {
+                if index != nil {
+                    checkedArray.remove(at: index!)
+                }
+            }
+                        
+            switch checkSortCountInt {
+            case 0:
+                checkedArray.sort {$0.shoppingMemo < $1.shoppingMemo}
+            case 1:
+                checkedArray.sort {$0.shoppingMemo > $1.shoppingMemo}
+            case 2:
+                checkedArray.sort {$0.dateNow < $1.dateNow}
+            default:
+                checkedArray.sort {$0.memoCount < $1.memoCount}
+            }
             self.table.reloadData()
         })
         

@@ -256,10 +256,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let time = date
             
             let index = self.memoArray.firstIndex(where: {$0.memoId == memoId})
-            if isChecked == false {
-                memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-            } else if isChecked == true {
-                memoArray.remove(at: index!)
+            if index == nil {
+                if isChecked == false {
+                    memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                }
+            }else if index != nil {
+                if isChecked == false {
+                    memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                } else if isChecked == true {
+                    memoArray.remove(at: index!)
+                }
             }
                         
             switch sortCountInt {
