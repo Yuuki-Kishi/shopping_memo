@@ -192,10 +192,14 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             let time = date
             
             let index = self.checkedArray.firstIndex(where: {$0.memoId == memoId})
-            if isChecked == true {
-                checkedArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-            } else if isChecked == false {
-                if index != nil {
+            if index == nil {
+                if isChecked == true {
+                    checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                }
+            }else if index != nil {
+                if isChecked == true {
+                    checkedArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                } else if isChecked == false {
                     checkedArray.remove(at: index!)
                 }
             }
