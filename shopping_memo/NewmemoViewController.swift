@@ -79,26 +79,30 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.delegate = self
         tableView.dataSource = self
         
+        keyArray = []
+        listArray = []
+        
         ref.child("users").child(userId).observe(.childAdded, with: { [self] snapshot in
             guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
-
-            self.listArray.append(listName)
-            print("listArray:", listArray)
             self.keyArray.append(snapshot.key)
-
-            //            if (type(of: memoValue)) == Optional<Any>.self{
-            //                print("type if: memoID追加\(memoId)")
-            //                print(memoValue!)
-            //                self.listArray.append(memoId)
-            //            } else if memoValue as! String != "temporaly value" {
-            //                print("temp if: memoID追加\(memoId)")
-            //                self.listArray.append(memoId)
-            //            } else {
-            //
-            //            }
+            self.listArray.append(listName)
             self.tableView.reloadData()
         })
         
+        ref.child("users").child(userId).observe(.childChanged, with: { [self] snapshot in
+            keyArray = []
+            listArray = []
+            guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
+            self.keyArray.append(snapshot.key)
+            self.listArray.append(listName)
+            self.tableView.reloadData()
+        })
+        
+        ref.child("users").child(userId).observe(.childRemoved, with: { [self] snapshot in
+            let index = keyArray.firstIndex(of: snapshot.key)
+            keyArray.remove(at: index!)
+            self.tableView.reloadData()
+        })
         userId = Auth.auth().currentUser?.uid
         
         print("list:", list)
@@ -168,7 +172,10 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                                 let date = self.dateFormatter.string(from: Date())
                                 
-                                self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "memo": memo])
+                                print("date:", date)
+                                print("keyArray:", self.keyArray)
+                                
+                                self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text])
                                                                 
                                 textField.text = ""
                             }
@@ -185,6 +192,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             name = listName
             print("🎌list:", list!)
             print("🇯🇵listName:", name!)
+            print("🗾keyArray:", keyArray)
             self.performSegue(withIdentifier: "toViewControllerFromTableView", sender: nil)
         }
     }
@@ -218,7 +226,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                             self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                             let date = self.dateFormatter.string(from: Date())
                             
-                            self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text, "memo": text])
+                            self.ref.child("users").child(self.userId).child("list\(date)").updateChildValues(["name": text])
                             
                             textField.text = ""
                         }

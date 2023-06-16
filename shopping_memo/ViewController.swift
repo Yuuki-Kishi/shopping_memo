@@ -69,7 +69,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         listNameLabel.text = name
         
         sortCountInt = userDefaults.integer(forKey: "sortCount")
-        searchSwitch = false
+        userDefaults.set(arraySwitch, forKey: "arraySwitch")
                 
         defaultMemoCount = -1
         
@@ -92,7 +92,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         addMemoButton.layer.cornerRadius = 10.0
         addMemoButton.layer.borderColor = UIColor.label.cgColor
         addMemoButton.layer.borderWidth = 2.0
-        addMemoButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
+        addMemoButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
 
         
         titleTextField.layer.cornerRadius = 6.0
@@ -114,9 +114,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         menuButton.layer.cornerRadius = 10.0
         menuButton.layer.borderColor = UIColor.label.cgColor
         menuButton.layer.borderWidth = 2.0
-        menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
+        menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
-        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
+        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         
         ref = Database.database().reference()
@@ -155,7 +155,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
                         
             ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).removeValue()
-            
             ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
             
             switch sortCountInt {
@@ -369,6 +368,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         cell.indexPath = indexPath
                     
         arraySwitch = userDefaults.bool(forKey: "arraySwitch")
+        print("arraySwitch:", arraySwitch)
                 
         if arraySwitch == false {
             // セルの中にラベルに配列の要素の値を代入
@@ -476,7 +476,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 )
                 self.present(alert, animated: true, completion: nil)
             } else {
-                print("Mail1")
+                print("🇯🇵list:", list!)
                 self.ref.child("users").child(userId).child(list).child(memo).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
             }
@@ -549,7 +549,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 )
                 self.present(alert, animated: true, completion: nil)
             } else {
-                print("Mail1")
                 self.ref.child("users").child(userId).child(list).child(memo).child("memo\(time)").updateChildValues(["memoCount": defaultMemoCount!, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
             }
@@ -641,6 +640,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
                     self.searchSwitch = false
                     self.userDefaults.set(self.searchSwitch, forKey: "searchSwitch")
+                    self.arraySwitch = false
+                    self.userDefaults.set(self.arraySwitch, forKey: "arraySwitch")
                     self.titleTextField.text = ""
                     self.table.reloadData()
                     print("追加モード")
@@ -652,6 +653,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを検索",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
                     self.searchSwitch = true
                     self.userDefaults.set(self.searchSwitch, forKey: "searchSwitch")
+                    self.arraySwitch = false
+                    self.userDefaults.set(self.arraySwitch, forKey: "arraySwitch")
                     self.table.reloadData()
                     print("検索モード")
                 }
@@ -787,7 +790,6 @@ extension ViewController {
                 
                 memoCount = i
                 memoArray[i] = (memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl)
-
                 self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount])
             }
             self.sortCountInt = 3

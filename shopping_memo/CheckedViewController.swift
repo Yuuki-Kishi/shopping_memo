@@ -136,9 +136,8 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             case 2:
                 checkedArray.sort {$0.dateNow < $1.dateNow}
             default:
-                checkedArray.sort {$0.memoCount < $1.memoCount}
+                checkedArray.sort {$0.checkedTime > $1.checkedTime}
             }
-            
             self.table.reloadData()
         })
         
@@ -169,9 +168,8 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             case 2:
                 checkedArray.sort {$0.dateNow < $1.dateNow}
             default:
-                checkedArray.sort {$0.memoCount < $1.memoCount}
+                checkedArray.sort {$0.checkedTime > $1.checkedTime}
             }
-            
             self.table.reloadData()
         })
         
@@ -212,7 +210,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             case 2:
                 checkedArray.sort {$0.dateNow < $1.dateNow}
             default:
-                checkedArray.sort {$0.memoCount < $1.memoCount}
+                checkedArray.sort {$0.checkedTime > $1.checkedTime}
             }
             self.table.reloadData()
         })
@@ -487,7 +485,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
                 self.checkedArray.sort {$0.dateNow < $1.dateNow}
                 self.table.reloadData()
             }),
-            UIAction(title: "チェックつけた順", image: UIImage(systemName: "clock"), handler: { _ in
+            UIAction(title: "チェックつけた順", image: UIImage(systemName: "clock.arrow.circlepath"), handler: { _ in
                 self.checkSortCountInt = 3
                 self.userDefaults.set(self.checkSortCountInt, forKey: "checkedSortCount")
                 self.checkedArray.sort {$0.checkedTime > $1.checkedTime}
