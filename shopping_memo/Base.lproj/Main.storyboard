@@ -740,7 +740,7 @@
                         <outlet property="table" destination="OWz-2S-Xsk" id="d9j-Yt-7o2"/>
                         <outlet property="titleTextField" destination="al4-OR-kvt" id="9bC-b7-psy"/>
                         <segue destination="MPR-tV-1XQ" kind="presentation" identifier="toCheckedViewController" modalPresentationStyle="fullScreen" id="9Sn-9L-IC1"/>
-                        <segue destination="jcD-vb-11I" kind="presentation" identifier="toImageViewVC" modalPresentationStyle="fullScreen" id="joG-ha-aqd"/>
+                        <segue destination="jcD-vb-11I" kind="presentation" identifier="toImageViewVC" id="joG-ha-aqd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -752,7 +752,7 @@
             <objects>
                 <viewController id="jcD-vb-11I" customClass="ImageViewViewController" customModule="shopping_memo" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6Ns-wq-htG">
-                        <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
+                        <rect key="frame" x="0.0" y="0.0" width="430" height="863"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" restorationIdentifier="toViewController" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="em5-J4-ai1">
@@ -792,10 +792,10 @@
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GeM-Ff-WAe">
-                                <rect key="frame" x="0.0" y="99" width="430" height="833"/>
+                                <rect key="frame" x="0.0" y="99" width="430" height="764"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="hourglass" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="3nn-aa-1R4">
-                                        <rect key="frame" x="165" y="368.33333333333337" width="100" height="97"/>
+                                        <rect key="frame" x="165" y="333.66666666666669" width="100" height="96.999999999999972"/>
                                         <color key="tintColor" systemColor="labelColor"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="100" id="JRI-bg-LCj"/>
@@ -803,10 +803,10 @@
                                         </constraints>
                                     </imageView>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aOW-gE-UqZ">
-                                        <rect key="frame" x="0.0" y="36" width="430" height="797"/>
+                                        <rect key="frame" x="0.0" y="36" width="430" height="728"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Image" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="51x-5c-uQu">
-                                        <rect key="frame" x="112.66666666666669" y="623" width="205" height="60"/>
+                                        <rect key="frame" x="112.66666666666669" y="554" width="205" height="60"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="50"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -870,7 +870,6 @@
                         <outlet property="deleteButton" destination="sqp-kD-1zy" id="8U1-Dh-thE"/>
                         <outlet property="imageView" destination="aOW-gE-UqZ" id="LLT-l5-zKY"/>
                         <outlet property="memoLabel" destination="agN-EI-lo8" id="2ED-dw-xu4"/>
-                        <outlet property="memoNameLabel" destination="agN-EI-lo8" id="L95-Lw-H0G"/>
                         <outlet property="noImageLabel" destination="51x-5c-uQu" id="sVj-UN-Za6"/>
                         <outlet property="plusButton" destination="eSy-C9-l8K" id="oTP-uZ-VvJ"/>
                         <outlet property="upDateLabel" destination="sIL-Au-5al" id="Se4-W5-gH6"/>
@@ -1605,7 +1604,6 @@
                         <outlet property="deleteButton" destination="Mkx-4Y-usb" id="2fw-1J-65Q"/>
                         <outlet property="imageView" destination="KP4-bo-0ah" id="ZUF-LY-Qhj"/>
                         <outlet property="memoLabel" destination="uxI-hB-w4a" id="KLZ-Iy-p9b"/>
-                        <outlet property="memoNameLabel" destination="uxI-hB-w4a" id="zrs-vF-rUb"/>
                         <outlet property="noImageLabel" destination="N4v-A4-p37" id="Ee7-d6-k53"/>
                         <outlet property="plusButton" destination="Ap8-9X-ifP" id="fXm-1U-Dtp"/>
                         <outlet property="upDateLabel" destination="MLL-CJ-1ab" id="iOI-fA-SNa"/>

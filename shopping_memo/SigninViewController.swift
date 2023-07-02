@@ -33,7 +33,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     var ref: DatabaseReference!
     
     var deleteAccount = false
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,9 +63,9 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         deleteButton.layer.borderColor = UIColor.systemRed.cgColor
         deleteButton.layer.borderWidth = 1.0
         
-//        listSelectButton.imageView?.contentMode = .scaleAspectFit
-//        listSelectButton.contentHorizontalAlignment = .fill
-//        listSelectButton.contentVerticalAlignment = .fill
+        //        listSelectButton.imageView?.contentMode = .scaleAspectFit
+        //        listSelectButton.contentHorizontalAlignment = .fill
+        //        listSelectButton.contentVerticalAlignment = .fill
         imageCountInt = 1
         
         let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
@@ -81,16 +80,51 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         
         ref = Database.database().reference()
         
-//        if imageCountInt == 0 {
-//            let image = UIImage(systemName: "square.grid.2x2")
-//            self.listSelectButton.setImage(image, for: .normal)
-//            listSelectButton.tintColor = .black
-//        } else {
-//            let image = UIImage(systemName: "list.bullet")
-//            self.listSelectButton.setImage(image, for: .normal)
-//            listSelectButton.tintColor = .black
-//
-//        }
+        Task {
+            let result = await AppVersionCheck.appVersionCheck()
+            
+            print("result:", AppVersionCheck.result)
+            if result {
+                DispatchQueue.main.async {
+                    let url = URL(string: "https://itunes.apple.com/jp/app/apple-store/id6448711012")!
+                    let alert: UIAlertController = UIAlertController(title: "最新バージョンではありません。", message: "AppStoreから更新してください。", preferredStyle: .alert)
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "更新する",
+                            style: .default,
+                            handler: { action in
+                                UIApplication.shared.open(url, options: [:]) { success in
+                                    if success {
+                                        print("成功!")
+                                    }
+                                }
+                            }
+                        )
+                    )
+                    
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "キャンセル",
+                            style: .cancel,
+                            handler: { action in
+                            }
+                        )
+                    )
+                    self.present(alert, animated: true, completion: nil)
+                }
+            }
+            print("result2:", AppVersionCheck.result)
+        }
+        //        if imageCountInt == 0 {
+        //            let image = UIImage(systemName: "square.grid.2x2")
+        //            self.listSelectButton.setImage(image, for: .normal)
+        //            listSelectButton.tintColor = .black
+        //        } else {
+        //            let image = UIImage(systemName: "list.bullet")
+        //            self.listSelectButton.setImage(image, for: .normal)
+        //            listSelectButton.tintColor = .black
+        //
+        //        }
         
         print("imageCount:", imageCountInt!)
         

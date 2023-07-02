@@ -154,7 +154,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-            let time = date
+            let time = dateFormatter.date(from: checkedTime)
             
             if isChecked == true {
                 self.checkedArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))

@@ -93,12 +93,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         addMemoButton.layer.borderColor = UIColor.label.cgColor
         addMemoButton.layer.borderWidth = 2.0
         addMemoButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-
+        addMemoButton.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
+        addMemoButton.layer.shadowColor = UIColor.label.cgColor
+        addMemoButton.layer.shadowOpacity = 0.3
+        addMemoButton.layer.shadowRadius = 4
         
         titleTextField.layer.cornerRadius = 6.0
         titleTextField.layer.borderColor = UIColor.label.cgColor
         titleTextField.layer.borderWidth = 2.0
         titleTextField.backgroundColor = .systemGray5
+        
+        titleTextField.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
+        titleTextField.layer.shadowColor = UIColor.label.cgColor
+        titleTextField.layer.shadowOpacity = 0.3
+        titleTextField.layer.shadowRadius = 4
         
         menu()
         
@@ -115,6 +123,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         menuButton.layer.borderColor = UIColor.label.cgColor
         menuButton.layer.borderWidth = 2.0
         menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
+        menuButton.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
+        menuButton.layer.shadowColor = UIColor.label.cgColor
+        menuButton.layer.shadowOpacity = 0.3
+        menuButton.layer.shadowRadius = 4
         
         view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
@@ -252,16 +264,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-            let time = date
+            let time = Date()
+            print("time:", time)
             
             let index = self.memoArray.firstIndex(where: {$0.memoId == memoId})
             if index == nil {
                 if isChecked == false {
-                    memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                    memoArray.append((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
                 }
             }else if index != nil {
                 if isChecked == false {
-                    memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                    memoArray[index!] = ((memoId: memoId, memoCount: memoCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
                 } else if isChecked == true {
                     memoArray.remove(at: index!)
                 }
@@ -815,7 +828,9 @@ extension ViewController: checkMarkDelegete {
     func buttonPressed(indexPath: IndexPath) {
         print("⤴️buttonPressed成功!")
         let memoId = memoArray[indexPath.row].memoId
-        self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["isChecked": true])
+        let time = Date()
+        let cTime = dateFormatter.string(from: time)
+        self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["isChecked": true, "checkedTime": cTime])
     }
 }
 

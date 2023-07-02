@@ -12,7 +12,6 @@ import FirebaseStorage
 
 class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    @IBOutlet var memoNameLabel: UILabel!
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var plusButton: UIButton!
     @IBOutlet var memoLabel: UILabel!
@@ -25,6 +24,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     var imageUrlString: String!
     var userId: String!
     var list: String!
+    var imageRef: StorageReference!
     let nonCheck = "未チェック"
     let memo = "memo"
     var ref: DatabaseReference!
@@ -60,9 +60,6 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         userId = Auth.auth().currentUser?.uid
         ref = Database.database().reference()
         
-        print(userId)
-        print(list)
-        print(memoIdString)
         guard let uid = userId else { return }
         guard let list = list else { return }
         guard let memoId = memoIdString else { return }
@@ -73,7 +70,6 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             }
             
             guard let url = snapshot.value as? String else { return }
-            print("url:", url)
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
@@ -81,9 +77,10 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 imageView.image = UIImage(systemName: "photo")
                 imageView.tintColor = UIColor.label
                 noImageLabel.isHidden = false
+                upDateLabel.text = "最終更新日時:"
             } else {
-                let imageUrl = storage.reference(forURL: url)
-                imageUrl.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                imageRef = storage.reference(forURL: url)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
                         print(error)
                     } else {
@@ -93,7 +90,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                         self.noImageLabel.isHidden = true
                     }
                 }
-                imageUrl.getMetadata { [self] metadata, error in
+                imageRef.getMetadata { [self] metadata, error in
                     if let error = error {
                         print(error)
                     } else {
@@ -111,9 +108,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         }
         
         ref.child("users").child(uid).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
-            let memoId = snapshot.key
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-            let imageUrl = storage.reference(forURL: url)
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
@@ -121,8 +116,10 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 imageView.image = UIImage(systemName: "photo")
                 imageView.tintColor = UIColor.label
                 noImageLabel.isHidden = false
+                upDateLabel.text = "最終更新日時:"
             } else {
-                imageUrl.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                imageRef = storage.reference(forURL: url)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
                         print(error)
                     } else {
@@ -132,7 +129,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                         self.noImageLabel.isHidden = true
                     }
                 }
-                imageUrl.getMetadata { [self] metadata, error in
+                imageRef.getMetadata { [self] metadata, error in
                     if let error = error {
                         print(error)
                     } else {
@@ -211,9 +208,13 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                                 print(error)
                             } else {
                                 self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": ""])
+                                self.imageView.contentMode = .center
+                                self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
+                                self.imageView.backgroundColor = UIColor.systemGray5
                                 self.imageView.image = UIImage(systemName: "photo")
+                                self.imageView.tintColor = UIColor.label
                                 self.noImageLabel.isHidden = false
-                                self.noImageLabel.backgroundColor = .systemGray5
+                                self.upDateLabel.text = "最終更新日時:"
                             }
                         }
                     })

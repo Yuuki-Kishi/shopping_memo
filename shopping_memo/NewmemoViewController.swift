@@ -90,11 +90,11 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         })
         
         ref.child("users").child(userId).observe(.childChanged, with: { [self] snapshot in
-            keyArray = []
-            listArray = []
             guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
-            self.keyArray.append(snapshot.key)
-            self.listArray.append(listName)
+            let index = keyArray.firstIndex(of: snapshot.key)
+            self.keyArray[index!] = snapshot.key
+            let index2 = listArray.firstIndex(of: listName)
+            self.listArray[index2!] = listName
             self.tableView.reloadData()
         })
         
@@ -153,7 +153,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alert.addAction(
                     UIAlertAction(
                         title: "キャンセル",
-                        style: .default,
+                        style: .cancel,
                         handler: { action in
                         }
                     )
@@ -190,9 +190,6 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             let listName = listArray[indexPath.row]
             list = key
             name = listName
-            print("🎌list:", list!)
-            print("🇯🇵listName:", name!)
-            print("🗾keyArray:", keyArray)
             self.performSegue(withIdentifier: "toViewControllerFromTableView", sender: nil)
         }
     }
@@ -207,7 +204,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             alert.addAction(
                 UIAlertAction(
                     title: "キャンセル",
-                    style: .default,
+                    style: .cancel,
                     handler: { action in
                     }
                 )

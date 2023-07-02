@@ -36,6 +36,11 @@ class CheckedTableViewCell: UITableViewCell {
         whiteView.layer.borderWidth = 1.0
         whiteView.layer.cornerRadius = 10.0
         
+        whiteView.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
+        whiteView.layer.shadowColor = UIColor.label.cgColor
+        whiteView.layer.shadowOpacity = 0.3
+        whiteView.layer.shadowRadius = 4
+        
         let image = UIImage(systemName: "checkmark.square")
         checkMarkImageButton.setImage(image, for: .normal)
         checkMarkImageButton.tintColor = .label
