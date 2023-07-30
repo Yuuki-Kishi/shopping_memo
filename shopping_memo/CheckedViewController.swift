@@ -552,9 +552,9 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         // 削除処理
         deleteAction = UIContextualAction(style: .destructive, title: "削除") { (action, view, completionHandler) in
             //削除処理を記述
-            tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
             self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(deleteMemo).removeValue()
             self.checkedArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
             // 実行結果に関わらず記述
             completionHandler(true)
         }

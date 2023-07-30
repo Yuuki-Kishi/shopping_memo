@@ -18,6 +18,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet var noImageLabel: UILabel!
     @IBOutlet var deleteButton: UIButton!
     @IBOutlet var upDateLabel: UILabel!
+    @IBOutlet var connection: UIImageView!
     
     var shoppingMemoName: String!
     var memoIdString: String!
@@ -30,6 +31,8 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     var ref: DatabaseReference!
     let df = DateFormatter()
     let storage = Storage.storage()
+    let activityIndicatorView = UIActivityIndicatorView()
+    var connect = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,17 +43,13 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         plusButton.setImage(image, for: .normal)
         plusButton.tintColor = .black
         
-        plusButton.layer.cornerRadius = 10.0
-        plusButton.layer.borderWidth = 1.5
-        plusButton.layer.borderColor = UIColor.black.cgColor
-        
         upDateLabel.layer.cornerRadius = 5.0
-        upDateLabel.layer.borderWidth = 1.5
-        upDateLabel.layer.borderColor = UIColor.label.cgColor
+        upDateLabel.clipsToBounds = true
+        upDateLabel.layer.cornerCurve = .continuous
         
-        let image2 = UIImage(systemName: "multiply.circle")
+        let image2 = UIImage(systemName: "trash")
         deleteButton.setImage(image2, for: .normal)
-        deleteButton.tintColor = .label
+        deleteButton.tintColor = .systemRed
         
         memoLabel.adjustsFontSizeToFitWidth = true
         upDateLabel.adjustsFontSizeToFitWidth = true
@@ -64,21 +63,39 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         guard let list = list else { return }
         guard let memoId = memoIdString else { return }
         
+        activityIndicatorView.center = view.center
+        activityIndicatorView.style = .large
+        activityIndicatorView.color = .label
+        
+        print(imageView.center)
+        print(activityIndicatorView.center)
+        
+        imageView.addSubview(activityIndicatorView)
+        
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {
+                self.connection.image = UIImage(systemName: "wifi")
+                self.connect = true
+            } else {
+                self.connection.image = UIImage(systemName: "wifi.slash")
+                self.connect = false
+          }})
+        
         ref.child("users").child(uid).child(list).child(memo).child(memoId).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
             if snapshot.value == nil {
                 return
             }
-            
             guard let url = snapshot.value as? String else { return }
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-                imageView.backgroundColor = UIColor.systemGray5
                 imageView.image = UIImage(systemName: "photo")
                 imageView.tintColor = UIColor.label
                 noImageLabel.isHidden = false
-                upDateLabel.text = "最終更新日時:"
+                upDateLabel.text = " 最終更新日時:"
             } else {
+                activityIndicatorView.startAnimating()
                 imageRef = storage.reference(forURL: url)
                 imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
@@ -86,6 +103,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     } else {
                         let image = UIImage(data: data!)
                         self.imageView.contentMode = .scaleAspectFit
+                        self.activityIndicatorView.stopAnimating()
                         self.imageView.image = image
                         self.noImageLabel.isHidden = true
                     }
@@ -95,10 +113,9 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                         print(error)
                     } else {
                         let date = metadata?.timeCreated
+                        df.locale = Locale(identifier: "ja_JP")
                         df.dateStyle = .medium
                         df.timeStyle = .medium
-                        df.timeZone = TimeZone(identifier: "Asia/Tokyo")
-                        df.locale = Locale(identifier: "ja_JP")
                         upDateLabel.text = " 最終更新日時:" + df.string(from: date!) + " "
                     }
                 }
@@ -108,15 +125,16 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         }
         
         ref.child("users").child(uid).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
+            activityIndicatorView.startAnimating()
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-                imageView.backgroundColor = UIColor.systemGray5
+                activityIndicatorView.stopAnimating()
                 imageView.image = UIImage(systemName: "photo")
                 imageView.tintColor = UIColor.label
                 noImageLabel.isHidden = false
-                upDateLabel.text = "最終更新日時:"
+                upDateLabel.text = " 最終更新日時:"
             } else {
                 imageRef = storage.reference(forURL: url)
                 imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
@@ -125,6 +143,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     } else {
                         let image = UIImage(data: data!)
                         self.imageView.contentMode = .scaleAspectFit
+                        self.activityIndicatorView.stopAnimating()
                         self.imageView.image = image
                         self.noImageLabel.isHidden = true
                     }
@@ -134,10 +153,9 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                         print(error)
                     } else {
                         let date = metadata?.timeCreated
+                        df.locale = Locale(identifier: "ja_JP")
                         df.dateStyle = .medium
                         df.timeStyle = .medium
-                        df.timeZone = TimeZone(identifier: "Asia/Tokyo")
-                        df.locale = Locale(identifier: "ja_JP")
                         upDateLabel.text = " 最終更新日時:" + df.string(from: date!) + " "
                     }
                 }
@@ -169,16 +187,27 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         //.originalImageにするとトリミングなしになる
         //imageView.image = info[.originalImage] as? UIImage
         imageView.image = nil
-        upDateLabel.text = ""
+//        upDateLabel.text = ""
         dismiss(animated: true, completion: nil)
     }
     
     @IBAction func openAlbum() {
-        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-            let picker = UIImagePickerController()
-            picker.sourceType = .photoLibrary
-            picker.delegate = self
-            present(picker, animated: true, completion: nil)
+        if connect {
+            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                let picker = UIImagePickerController()
+                picker.sourceType = .photoLibrary
+                picker.delegate = self
+                present(picker, animated: true, completion: nil)
+            }
+        } else {
+            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default,
+                    handler: { action in
+                    }))
+            self.present(alert, animated: true, completion: nil)
         }
     }
     
@@ -187,46 +216,58 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         guard let memoId = memoIdString else { return }
         let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
         
-        if imageView.image == UIImage(systemName: "photo") {
-            let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default
+            if imageView.image == UIImage(systemName: "photo") {
+                let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
+                alert.addAction(
+                    UIAlertAction(
+                        title: "OK",
+                        style: .default
+                    )
                 )
-            )
-            self.present(alert, animated: true, completion: nil)
-        } else {
-            let alert: UIAlertController = UIAlertController(title: "画像を削除", message: "画像を削除してもよろしいですか。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                        imageRef.delete { error in
-                            if let error = error {
-                                print(error)
-                            } else {
-                                self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": ""])
-                                self.imageView.contentMode = .center
-                                self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-                                self.imageView.backgroundColor = UIColor.systemGray5
-                                self.imageView.image = UIImage(systemName: "photo")
-                                self.imageView.tintColor = UIColor.label
-                                self.noImageLabel.isHidden = false
-                                self.upDateLabel.text = "最終更新日時:"
-                            }
-                        }
-                    })
-            )
-            alert.addAction(
-                UIAlertAction(
-                    title: "キャンセル",
-                    style: .cancel
-                )
-            )
-            self.present(alert, animated: true, completion: nil)
-        }
+                self.present(alert, animated: true, completion: nil)
+            } else {
+                if connect {
+                    let alert: UIAlertController = UIAlertController(title: "画像を削除", message: "画像を削除してもよろしいですか。", preferredStyle: .alert)
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "削除",
+                            style: .destructive,
+                            handler: { action in
+                                self.activityIndicatorView.startAnimating()
+                                imageRef.delete { error in
+                                    if let error = error {
+                                        print(error)
+                                    } else {
+                                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": ""])
+                                        self.imageView.contentMode = .center
+                                        self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
+                                        self.imageView.image = UIImage(systemName: "photo")
+                                        self.imageView.tintColor = UIColor.label
+                                        self.noImageLabel.isHidden = false
+                                        self.upDateLabel.text = " 最終更新日時:"
+                                    }
+                                }
+                            })
+                    )
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "キャンセル",
+                            style: .cancel
+                        )
+                    )
+                    self.present(alert, animated: true, completion: nil)
+                } else {
+                    let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
+                    alert.addAction(
+                        UIAlertAction(
+                            title: "OK",
+                            style: .default,
+                            handler: { action in
+                            }))
+                    self.present(alert, animated: true, completion: nil)
+                }
+            }
+        
     }
     @IBAction func back() {
         self.dismiss(animated: true, completion: nil)

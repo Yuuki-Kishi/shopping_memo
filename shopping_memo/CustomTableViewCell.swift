@@ -23,10 +23,13 @@ class CustomTableViewCell: UITableViewCell {
     var imageDelegate: imageButtonDelegate?
     
     var memoImageView: UIImageView!
-    @IBOutlet var whiteView: UIView!
     @IBOutlet var checkMarkImageButton: UIButton!
     @IBOutlet var memoLabel: UILabel!
     @IBOutlet var imageButton: UIButton!
+    
+    var indexPath: IndexPath!
+    var activityIndicatorView = UIActivityIndicatorView()
+    var isCheckedBool = false
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -37,42 +40,39 @@ class CustomTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
-        whiteView.layer.borderColor = UIColor.label.cgColor
-        whiteView.layer.borderWidth = 1.0
-        whiteView.layer.cornerRadius = 10.0
-        
-        whiteView.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
-        whiteView.layer.shadowColor = UIColor.label.cgColor
-        whiteView.layer.shadowOpacity = 0.3
-        whiteView.layer.shadowRadius = 4
-        
-        let image = UIImage(systemName: "square")
-        checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .label
-        
         imageButton.layer.cornerRadius = 7.5
+        memoLabel.adjustsFontSizeToFitWidth = true
+        activityIndicatorView.frame = checkMarkImageButton.frame
+        activityIndicatorView.center.x = 20
+        activityIndicatorView.center.y = 20
+//        activityIndicatorView.center = checkMarkImageButton.center
+        print(activityIndicatorView.center)
+        print(checkMarkImageButton.center)
+//        activityIndicatorView.image
+        activityIndicatorView.layer.contentsCenter = checkMarkImageButton.frame
+        activityIndicatorView.style = .medium
+        activityIndicatorView.color = .label
         
+        checkMarkImageButton.addSubview(activityIndicatorView)
     }
     
-    var indexPath: IndexPath!
     
     @IBAction func check(_ sender:Any) {
-        let image = UIImage(systemName: "checkmark.square")
-        checkMarkImageButton.setImage(image, for: .normal)
-        checkMarkImageButton.tintColor = .label
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            print("check!")
-            self.checkDalegate?.buttonPressed(indexPath: self.indexPath)
-            print("finish")
-        }
-        
+//        if isCheckedBool {
+//            let image = UIImage(systemName: "square")
+//            checkMarkImageButton.setImage(image, for: .normal)
+//            checkMarkImageButton.tintColor = .label
+//        } else {
+//            let image = UIImage(systemName: "checkmark.square")
+//            checkMarkImageButton.setImage(image, for: .normal)
+//            checkMarkImageButton.tintColor = .label
+//        }
+        checkMarkImageButton.setImage(UIImage(), for: .normal)
+        activityIndicatorView.startAnimating()
+        self.checkDalegate?.buttonPressed(indexPath: self.indexPath)
     }
     
     @IBAction func image(_ sender: Any) {
-        print("image!")
         self.imageDelegate?.buttonTapped(indexPath: self.indexPath)
-        print("finish")
     }
-    
 }

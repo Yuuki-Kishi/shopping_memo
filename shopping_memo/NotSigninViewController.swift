@@ -20,18 +20,7 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        table.register(UINib(nibName: "NotLogInTableViewCell", bundle: nil), forCellReuseIdentifier: "Cell")
-        
-        addMemoButton.layer.cornerRadius = 10.0
-        addMemoButton.layer.borderColor = UIColor.label.cgColor
-        addMemoButton.layer.borderWidth = 2.0
-        addMemoButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-
-        
-        titleTextField.layer.cornerRadius = 6.0
-        titleTextField.layer.borderColor = UIColor.label.cgColor
-        titleTextField.layer.borderWidth = 2.0
-        titleTextField.backgroundColor = .systemGray5
+        table.register(UINib(nibName: "NotLogInTableViewCell", bundle: nil), forCellReuseIdentifier: "NotLogInTableViewCell")
         
         view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
@@ -56,7 +45,8 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! NonLogInTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "NotLogInTableViewCell") as! NotLogInTableViewCell
+        print("memoArray:", memoArray)
         cell.memoLabel?.text = memoArray[indexPath.row]
         return cell
     }
@@ -81,7 +71,7 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
             )
             self.present(alert, animated: true, completion: nil)
         } else {
-            memoArray.append(textField.text!)
+            memoArray.insert(textField.text!, at: 0)
             userDefaults.set(memoArray, forKey: "memoArray")
             textField.text = ""
             self.table.reloadData()
@@ -89,27 +79,62 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
         return true
     }
     
-    @IBAction func addMemo(_ sender: Any) {
-        titleTextField.resignFirstResponder()
-        if titleTextField.text == "" {
-            let alert: UIAlertController = UIAlertController(title: "メモを追加できません。", message: "記入欄が空白です。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }
-                )
-            )
-            self.present(alert, animated: true, completion: nil)
-        } else {
-            memoArray.append(titleTextField.text!)
-            userDefaults.set(memoArray, forKey: "memoArray")
-            print("memoArray:", memoArray)
-            titleTextField.text = ""
-            self.table.reloadData()
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        var editAction: UIContextualAction
+        let memo = memoArray[indexPath.row]
+        // 削除処理
+        editAction = UIContextualAction(style: .destructive, title: "編集") { (action, view, completionHandler) in
+            var alertTextField: UITextField!
+            let alert: UIAlertController = UIAlertController(title: "リストの名称変更", message: "新しいリストの名前を入力してください。", preferredStyle: .alert)
+            alert.addTextField { textField in
+                alertTextField = textField
+                alertTextField.clearButtonMode = UITextField.ViewMode.always
+                alertTextField.returnKeyType = .done
+                alertTextField.text = memo
+                alert.addAction(
+                    UIAlertAction(
+                        title: "キャンセル",
+                        style: .cancel
+                    ))
+                alert.addAction(
+                    UIAlertAction(
+                        title: "OK",
+                        style: .default,
+                        handler: { action in
+                            if alertTextField.text != "" {
+                                let text = alertTextField.text!
+                                self.memoArray[indexPath.row] = text
+                                self.userDefaults.set(self.memoArray, forKey: "memoArray")
+                                self.table.reloadData()
+                            }
+                        }))
+                self.present(alert, animated: true, completion: nil)
+            }
+            completionHandler(true)
         }
+        editAction.backgroundColor = UIColor.systemBlue
+        return UISwipeActionsConfiguration(actions: [editAction])
     }
+    //    @IBAction func addMemo(_ sender: Any) {
+    //        titleTextField.resignFirstResponder()
+    //        if titleTextField.text == "" {
+    //            let alert: UIAlertController = UIAlertController(title: "メモを追加できません。", message: "記入欄が空白です。", preferredStyle: .alert)
+//            alert.addAction(
+//                UIAlertAction(
+//                    title: "OK",
+//                    style: .default,
+//                    handler: { action in
+//                    }
+//                )
+//            )
+//            self.present(alert, animated: true, completion: nil)
+//        } else {
+//            memoArray.append(titleTextField.text!)
+//            userDefaults.set(memoArray, forKey: "memoArray")
+//            titleTextField.text = ""
+//            self.table.reloadData()
+//        }
+//    }
     
     @IBAction func back() {
         self.dismiss(animated: true, completion: nil)

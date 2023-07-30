@@ -17,6 +17,7 @@
 		DE02CBA52560D79D008012F6 /* shopping_memoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CBA42560D79D008012F6 /* shopping_memoUITests.swift */; };
 		DE0C02B0258797CE005BB17F /* MemofileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02AF258797CE005BB17F /* MemofileViewController.swift */; };
 		DE0C02B82587A313005BB17F /* NewmemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02B72587A313005BB17F /* NewmemoViewController.swift */; };
+		DE15A3CC2A696B5A0073A109 /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */; };
 		DE1BA9B42585B5A6003506E9 /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */; };
 		DE1BA9BC2585B683003506E9 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9BB2585B683003506E9 /* SigninViewController.swift */; };
 		DE1BAA172585F014003506E9 /* ResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BAA162585F014003506E9 /* ResetViewController.swift */; };
@@ -37,8 +38,6 @@
 		DE74EA6D2A19BD9F00C87A7E /* DeleteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */; };
 		DE74EA702A19BEA300C87A7E /* NotLogInTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE74EA6E2A19BEA300C87A7E /* NotLogInTableViewCell.swift */; };
 		DE74EA712A19BEA300C87A7E /* NotLogInTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE74EA6F2A19BEA300C87A7E /* NotLogInTableViewCell.xib */; };
-		DE9BE8F6293A3C2200992A9F /* icon1 no background2.png in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8F4293A3C2200992A9F /* icon1 no background2.png */; };
-		DE9BE8F7293A3C2200992A9F /* icon1 no background.png in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8F5293A3C2200992A9F /* icon1 no background.png */; };
 		DE9BE8FA293A3CC200992A9F /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9BE8F8293A3CC200992A9F /* CustomTableViewCell.swift */; };
 		DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */; };
 		DE9BE8FE293A4F8D00992A9F /* CustomListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */; };
@@ -88,6 +87,7 @@
 		DE02CBA62560D79D008012F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE0C02AF258797CE005BB17F /* MemofileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemofileViewController.swift; sourceTree = "<group>"; };
 		DE0C02B72587A313005BB17F /* NewmemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewmemoViewController.swift; sourceTree = "<group>"; };
+		DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		DE1BA9BB2585B683003506E9 /* SigninViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		DE1BAA162585F014003506E9 /* ResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetViewController.swift; sourceTree = "<group>"; };
@@ -101,8 +101,6 @@
 		DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteViewController.swift; sourceTree = "<group>"; };
 		DE74EA6E2A19BEA300C87A7E /* NotLogInTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotLogInTableViewCell.swift; sourceTree = "<group>"; };
 		DE74EA6F2A19BEA300C87A7E /* NotLogInTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = NotLogInTableViewCell.xib; sourceTree = "<group>"; };
-		DE9BE8F4293A3C2200992A9F /* icon1 no background2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon1 no background2.png"; path = "メモるん　アイコン/icon1 no background2.png"; sourceTree = SOURCE_ROOT; };
-		DE9BE8F5293A3C2200992A9F /* icon1 no background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon1 no background.png"; path = "メモるん　アイコン/icon1 no background.png"; sourceTree = SOURCE_ROOT; };
 		DE9BE8F8293A3CC200992A9F /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomTableViewCell.xib; sourceTree = "<group>"; };
 		DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListCell.swift; sourceTree = "<group>"; };
@@ -181,8 +179,7 @@
 		DE02CB812560D79B008012F6 /* shopping_memo */ = {
 			isa = PBXGroup;
 			children = (
-				DE9BE8F5293A3C2200992A9F /* icon1 no background.png */,
-				DE9BE8F4293A3C2200992A9F /* icon1 no background2.png */,
+				DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
@@ -359,13 +356,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE02CB8F2560D79C008012F6 /* LaunchScreen.storyboard in Resources */,
-				DE9BE8F7293A3C2200992A9F /* icon1 no background.png in Resources */,
 				DE9BE8FF293A4F8D00992A9F /* CustomListCell.xib in Resources */,
 				DE74EA712A19BEA300C87A7E /* NotLogInTableViewCell.xib in Resources */,
 				DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */,
 				DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */,
-				DE9BE8F6293A3C2200992A9F /* icon1 no background2.png in Resources */,
 				DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */,
+				DE15A3CC2A696B5A0073A109 /* NBGShoppingMemoIcon.png in Resources */,
 				DE02CB8C2560D79C008012F6 /* Assets.xcassets in Resources */,
 				DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */,
 				DE02CB8A2560D79B008012F6 /* Main.storyboard in Resources */,
@@ -666,11 +662,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -688,11 +687,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
