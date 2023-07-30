@@ -61,7 +61,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
-            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <color key="backgroundColor" systemColor="systemGray6Color"/>
             <connections>
                 <outlet property="checkMarkImageButton" destination="gLw-yx-FOk" id="aLd-Lb-e0E"/>
                 <outlet property="imageButton" destination="3ai-WH-ueo" id="7nL-s7-6kZ"/>

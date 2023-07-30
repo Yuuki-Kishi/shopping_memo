@@ -329,6 +329,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         
         table.sectionHeaderTopPadding = 0.01
         
+        table.sectionFooterHeight = 0.0
+        
         table.estimatedSectionHeaderHeight = 0.0
         table.estimatedSectionFooterHeight = 0.0
         
@@ -380,10 +382,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
 
     
     func numberOfSections(in tableView: UITableView) -> Int {
+        print(checkedArray)
         var sectionCount = 0
         if !memoArray.isEmpty {
             sectionCount += 1
-        } else if !checkedArray.isEmpty && !checkedSwitch {
+        }
+        if !checkedArray.isEmpty && !checkedSwitch {
             sectionCount += 1
         }
         print("sectionCount:", sectionCount)
@@ -419,30 +423,45 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
 //        return 60
 //    }
     
-//    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-//        return 0
-//    }
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
+    }
 //
 
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        let headerView = UIView()
-//        headerView.backgroundColor = .systemPink
-//        headerView.frame = CGRect(x: 0, y: 0, width: tableView.frame.width, height: 200)
-//
-//        let title = UILabel()
-//        title.text = "test"
-//        title.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-//        title.textColor = .white
-//        title.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-//        title.sizeToFit()
-//        headerView.addSubview(title)
-//
-//        title.translatesAutoresizingMaskIntoConstraints = false
-//        title.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-//        title.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
-//
-//        return headerView
-//    }
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+//        headerView.backgroundColor = .systemGray5
+        headerView.frame = CGRect(x: 0, y: 0, width: tableView.frame.width, height: 30)
+//        headerView.layer.cornerRadius = 5.0
+        
+        let title = UILabel()
+        if tableView.numberOfSections == 2 {
+            if section == 0 {
+                title.text = "未完了"
+            } else {
+                title.text = "完了"
+            }
+        } else if tableView.numberOfSections == 1 {
+            if memoArray.isEmpty {
+                title.text = "完了"
+            } else if checkedArray.isEmpty {
+                title.text = "未完了"
+            } else {
+                title.text = "未完了"
+            }
+        }
+        title.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        title.textColor = .label
+        title.frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        title.sizeToFit()
+        headerView.addSubview(title)
+
+        title.translatesAutoresizingMaskIntoConstraints = false
+        title.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
+        title.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
+
+        return headerView
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var cellCount = 0
@@ -1319,39 +1338,43 @@ extension ViewController: checkMarkDelegete {
         if connect {
             self.changedSwitch = true
             self.userDefaults.set(changedSwitch, forKey: "changedSwitch")
-            if sectionCount == 2 {
+            if self.table.numberOfSections == 2 {
                 if indexPath.section == 0 {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = memoArray[indexPath.row].memoId
+                    let isChecked = memoArray[indexPath.row].isChecked
                     let time = Date()
                     let cTime = dateFormatter.string(from: time)
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": true, "checkedTime": cTime])
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
                     }
                 } else if indexPath.section == 1 {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = checkedArray[indexPath.row].memoId
+                    let isChecked = checkedArray[indexPath.row].isChecked
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": false])
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked])
                     }
                 }
-            } else if sectionCount == 1 {
-                if self.sectionTitle == "未完了" {
+            } else if self.table.numberOfSections == 1 {
+                if !self.memoArray.isEmpty && !self.checkedArray.isEmpty {
                     let memoId = memoArray[indexPath.row].memoId
+                    let isChecked = memoArray[indexPath.row].isChecked
                     let time = Date()
                     let cTime = dateFormatter.string(from: time)
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": true, "checkedTime": cTime])
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
                     }
-                } else if self.sectionTitle == "完了" {
+                } else {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = checkedArray[indexPath.row].memoId
+                    let isChecked = checkedArray[indexPath.row].isChecked
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": false])
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked])
                     }
                 }
             }

@@ -679,7 +679,7 @@
                                 <rect key="frame" x="0.0" y="151" width="430" height="781"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="sectionIndexColor" systemColor="labelColor"/>
-                                <color key="sectionIndexBackgroundColor" systemColor="systemGray5Color"/>
+                                <color key="sectionIndexBackgroundColor" systemColor="systemGray6Color"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="EXy-tk-2d6">
                                         <rect key="frame" x="20" y="55.333332061767578" width="390" height="43.666667938232422"/>

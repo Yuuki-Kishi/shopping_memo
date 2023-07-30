@@ -34,6 +34,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <color key="backgroundColor" systemColor="systemGray6Color"/>
             <connections>
                 <outlet property="listLabel" destination="Hwc-Yu-UUv" id="0bI-7s-Sly"/>
             </connections>
