@@ -17,7 +17,6 @@
 		DE02CBA52560D79D008012F6 /* shopping_memoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CBA42560D79D008012F6 /* shopping_memoUITests.swift */; };
 		DE0C02B0258797CE005BB17F /* MemofileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02AF258797CE005BB17F /* MemofileViewController.swift */; };
 		DE0C02B82587A313005BB17F /* NewmemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02B72587A313005BB17F /* NewmemoViewController.swift */; };
-		DE15A3CC2A696B5A0073A109 /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */; };
 		DE1BA9B42585B5A6003506E9 /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */; };
 		DE1BA9BC2585B683003506E9 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9BB2585B683003506E9 /* SigninViewController.swift */; };
 		DE1BAA172585F014003506E9 /* ResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BAA162585F014003506E9 /* ResetViewController.swift */; };
@@ -50,6 +49,7 @@
 		DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */; };
 		DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975992620967F00AD695D /* NotViewController.swift */; };
 		DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975A1262A69D100AD695D /* CheckedViewController.swift */; };
+		DEF4F6BD2A79227D00140B05 /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */; };
 		DEFD52DB291791C8007899AA /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFD52DA291791C8007899AA /* TableViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -87,7 +87,6 @@
 		DE02CBA62560D79D008012F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE0C02AF258797CE005BB17F /* MemofileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemofileViewController.swift; sourceTree = "<group>"; };
 		DE0C02B72587A313005BB17F /* NewmemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewmemoViewController.swift; sourceTree = "<group>"; };
-		DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		DE1BA9BB2585B683003506E9 /* SigninViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		DE1BAA162585F014003506E9 /* ResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetViewController.swift; sourceTree = "<group>"; };
@@ -113,6 +112,7 @@
 		DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotMakeNewMemoViewController.swift; sourceTree = "<group>"; };
 		DEC975992620967F00AD695D /* NotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotViewController.swift; sourceTree = "<group>"; };
 		DEC975A1262A69D100AD695D /* CheckedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedViewController.swift; sourceTree = "<group>"; };
+		DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DEFD52DA291791C8007899AA /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,7 +179,7 @@
 		DE02CB812560D79B008012F6 /* shopping_memo */ = {
 			isa = PBXGroup;
 			children = (
-				DE15A3CB2A696B590073A109 /* NBGShoppingMemoIcon.png */,
+				DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
@@ -361,7 +361,7 @@
 				DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */,
 				DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */,
 				DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */,
-				DE15A3CC2A696B5A0073A109 /* NBGShoppingMemoIcon.png in Resources */,
+				DEF4F6BD2A79227D00140B05 /* NBGShoppingMemoIcon.png in Resources */,
 				DE02CB8C2560D79C008012F6 /* Assets.xcassets in Resources */,
 				DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */,
 				DE02CB8A2560D79B008012F6 /* Main.storyboard in Resources */,

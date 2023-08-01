@@ -33,7 +33,6 @@ class CustomTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
         self.layer.backgroundColor = UIColor.systemGray6.cgColor
     }
 
@@ -45,10 +44,6 @@ class CustomTableViewCell: UITableViewCell {
         activityIndicatorView.frame = checkMarkImageButton.frame
         activityIndicatorView.center.x = 20
         activityIndicatorView.center.y = 20
-//        activityIndicatorView.center = checkMarkImageButton.center
-        print(activityIndicatorView.center)
-        print(checkMarkImageButton.center)
-//        activityIndicatorView.image
         activityIndicatorView.layer.contentsCenter = checkMarkImageButton.frame
         activityIndicatorView.style = .medium
         activityIndicatorView.color = .label
@@ -58,15 +53,6 @@ class CustomTableViewCell: UITableViewCell {
     
     
     @IBAction func check(_ sender:Any) {
-//        if isCheckedBool {
-//            let image = UIImage(systemName: "square")
-//            checkMarkImageButton.setImage(image, for: .normal)
-//            checkMarkImageButton.tintColor = .label
-//        } else {
-//            let image = UIImage(systemName: "checkmark.square")
-//            checkMarkImageButton.setImage(image, for: .normal)
-//            checkMarkImageButton.tintColor = .label
-//        }
         checkMarkImageButton.setImage(UIImage(), for: .normal)
         activityIndicatorView.startAnimating()
         self.checkDalegate?.buttonPressed(indexPath: self.indexPath)
