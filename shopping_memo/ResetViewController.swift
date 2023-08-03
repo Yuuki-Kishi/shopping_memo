@@ -13,7 +13,6 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var sendResetPasswordButton: UIButton!
     @IBOutlet weak var emailTextField: UITextField!
-    @IBOutlet weak var connection: UIImageView!
     
     let ud: UserDefaults = UserDefaults.standard
     var connect = false
@@ -32,10 +31,8 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
-                self.connection.image = UIImage(systemName: "wifi")
                 self.connect = true
             } else {
-                self.connection.image = UIImage(systemName: "wifi.slash")
                 self.connect = false
           }})
         

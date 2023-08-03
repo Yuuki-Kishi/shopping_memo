@@ -13,16 +13,11 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet var emailTextField: UITextField!
     @IBOutlet var passwordTextField: UITextField!
-    @IBOutlet var connection: UIImageView!
-    
     @IBOutlet var signInButton: UIButton!
     
     var userDefaults: UserDefaults = UserDefaults.standard
-
     var auth: Auth!
-    
     var ref: DatabaseReference!
-    
     var connect = false
     
     override func viewDidLoad() {
@@ -46,10 +41,8 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
-                self.connection.image = UIImage(systemName: "wifi")
                 self.connect = true
             } else {
-                self.connection.image = UIImage(systemName: "wifi.slash")
                 self.connect = false
           }})
     }
@@ -108,7 +101,7 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
                 )
             )
             self.present(alert, animated: true, completion: nil)
-        } else if connection.image == UIImage(systemName: "wifi.slash") {
+        } else if !connect {
             let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "インターネット未接続です。", preferredStyle: .alert)
             alert.addAction(
                 UIAlertAction(

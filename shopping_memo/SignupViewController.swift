@@ -16,7 +16,6 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var passwordCheckTextField: UITextField!
     @IBOutlet weak var appIconImage: UIImageView!
-    @IBOutlet weak var connection: UIImageView!
     private let minPasswordLength = 8
     var auth: Auth!
     var connect = false
@@ -48,10 +47,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
           if snapshot.value as? Bool ?? false {
-              self.connection.image = UIImage(systemName: "wifi")
               self.connect = true
           } else {
-              self.connection.image = UIImage(systemName: "wifi.slash")
               self.connect = false
           }})
     }
@@ -99,7 +96,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
             let ok = UIAlertAction(title: "OK", style: .default) { (action) in
             }
             alert.addAction(ok)
-        } else if connect == false {
+        } else if !connect {
             let alert = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
             present(alert, animated: true, completion: nil)
             let ok = UIAlertAction(title: "OK", style: .default) { (action) in
@@ -147,13 +144,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     }
 }
 extension String {
-    
     // 半角数字とドットの判定
-    
     func isAlphanumeric() -> Bool {
-        
         return self.range(of: "[^a-zA-Z0-9]", options: .regularExpression) == nil && self != ""
-        
     }
-    
 }

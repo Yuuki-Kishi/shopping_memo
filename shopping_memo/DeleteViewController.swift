@@ -14,7 +14,6 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var emailLabel: UILabel!
     @IBOutlet var passwordLabel: UILabel!
     @IBOutlet var deleteButton: UIButton!
-    @IBOutlet var connection: UIImageView!
     
     var email: String!
     var password: String!
@@ -50,10 +49,8 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
-                self.connection.image = UIImage(systemName: "wifi")
                 self.connect = true
             } else {
-                self.connection.image = UIImage(systemName: "wifi.slash")
                 self.connect = false
             }})
     }

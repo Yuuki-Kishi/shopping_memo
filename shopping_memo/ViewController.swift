@@ -48,7 +48,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         super.viewDidLoad()
         
         title = name
-        edit()
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+
+        menu()
         
         memoSortInt = userDefaults.integer(forKey: "memoSortInt")
         checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
@@ -524,7 +526,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         }
     }
     
-    func edit() {
+    func menu() {
         if table.isEditing {
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
             menuBarButtonItem.tintColor = .black
@@ -587,7 +589,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             
             let Item3 = UIAction(title: "リストの編集", image: UIImage(systemName: "list.bullet"), handler: { _ in
                 self.table.isEditing = true
-                self.edit()
+                self.menu()
             })
             
             if checkedSwitch {
@@ -605,7 +607,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     self.checkedSwitch = true
                 }
                 self.userDefaults.set(self.checkedSwitch, forKey: "checkedSwitch")
-                self.edit()
+                self.menu()
                 self.table.reloadData()
             })
             let sort1 = UIMenu(title: "未完了を並び替え", image: UIImage(systemName: "square"),  children: Item1)
@@ -622,7 +624,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
         table.isEditing = false
-        edit()
+        menu()
     }
 }
 
@@ -632,7 +634,6 @@ extension ViewController {
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        // TODO: 入れ替え時の処理を実装する（データ制御など）
         if tableView.numberOfSections == 2 {
             if sourceIndexPath.section == 0 {
                 let memo = memoArray[sourceIndexPath.row]
@@ -743,9 +744,8 @@ extension ViewController {
         alert.addAction(
             UIAlertAction(
                 title: "OK",
-                style: .default,
-                handler: { action in
-                }))
+                style: .default
+            ))
         self.present(alert, animated: true, completion: nil)
     }
     

@@ -15,27 +15,18 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var signInButton: UIButton!
     @IBOutlet weak var signUpButton: UIButton!
-    @IBOutlet weak var listSelectButton: UIButton!
     @IBOutlet weak var deleteButton: UIButton!
     @IBOutlet weak var nonSignInButton: UIButton!
     @IBOutlet weak var appVersionLabel: UILabel!
     @IBOutlet weak var appIconImage: UIImageView!
-    @IBOutlet weak var connection: UIImageView!
+    
     var auth: Auth!
-    
     let userDefaults: UserDefaults = UserDefaults.standard
-    
-    var imageCountInt: Int!
-    
     var email: String!
     var password: String!
     var userId: String!
-    
-    var listNumber: Int!
     var ref: DatabaseReference!
-    
     var connect = false
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,25 +42,21 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         appIconImage.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         appIconImage.layer.borderColor = UIColor.clear.cgColor
         
-        imageCountInt = 1
-        
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
+                
         let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
         appVersionLabel.text = "Version: " + AppVer!
         
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-                
-        imageCountInt = userDefaults.integer(forKey: "imageCount")
-        
+                        
         ref = Database.database().reference()
         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
           if snapshot.value as? Bool ?? false {
-              self.connection.image = UIImage(systemName: "wifi")
               self.connect = true
           } else {
-              self.connection.image = UIImage(systemName: "wifi.slash")
               self.connect = false
           }})
         
@@ -108,16 +95,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             }
             print("result2:", AppVersionCheck.result)
         }
-        //        if imageCountInt == 0 {
-        //            let image = UIImage(systemName: "square.grid.2x2")
-        //            self.listSelectButton.setImage(image, for: .normal)
-        //            listSelectButton.tintColor = .black
-        //        } else {
-        //            let image = UIImage(systemName: "list.bullet")
-        //            self.listSelectButton.setImage(image, for: .normal)
-        //            listSelectButton.tintColor = .black
-        //
-        //        }
                 
         emailTextField.text = email
 
@@ -138,25 +115,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         self.view.endEditing(true)
     }
     
-    
-//    @IBAction func listSelect(_ sender: Any) {
-//        print("listSelectがtapされました")
-//        imageCountInt = userDefaults.integer(forKey: "imageCount")
-//        if imageCountInt == 0 {
-//            let image = UIImage(systemName: "list.bullet")
-//            listSelectButton.setImage(image, for: .normal)
-//            imageCountInt = 1
-//            print("imageCount:", imageCountInt!)
-//            userDefaults.set(imageCountInt, forKey: "imageCount")
-//        } else {
-//            let image = UIImage(systemName: "square.grid.2x2")
-//            listSelectButton.setImage(image, for: .normal)
-//            imageCountInt = 0
-//            print("imageCount:", imageCountInt!)
-//            userDefaults.set(imageCountInt, forKey: "imageCount")
-//        }
-//    }
-    
     @IBAction func signInBut() {
         signIn()
     }
@@ -176,18 +134,16 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             alert.addAction(
                 UIAlertAction(
                     title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
+                    style: .default
+                ))
             self.present(alert, animated: true, completion: nil)
-        } else if connect == false {
+        } else if !connect {
             let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "インターネット未接続です。", preferredStyle: .alert)
             alert.addAction(
                 UIAlertAction(
                     title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
+                    style: .default
+                ))
             self.present(alert, animated: true, completion: nil)
         } else {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
@@ -205,43 +161,35 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
                         alert.addAction(
                             UIAlertAction(
                                 title: "OK",
-                                style: .default,
-                                handler: { action in
-                                }
-                            )
-                        )
+                                style: .default
+                            ))
                         self.present(alert, animated: true, completion: nil)
                     } else if errorCode == 17009 {
                         let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "パスワードが正しくありません。", preferredStyle: .alert)
                         alert.addAction(
                             UIAlertAction(
                                 title: "OK",
-                                style: .default,
-                                handler: { action in
-                                }
-                            )
-                        )
+                                style: .default
+                            ))
                         self.present(alert, animated: true, completion: nil)
-                        
                     } else if errorCode == 17011 {
                         let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "アカウントが存在しません。", preferredStyle: .alert)
                         alert.addAction(
                             UIAlertAction(
                                 title: "OK",
-                                style: .default,
-                                handler: { action in
-                                    
-                                }
-                            )
-                        )
+                                style: .default
+                            ))
                         self.present(alert, animated: true, completion: nil)
                     }
                 }
             }
         }
     }
+    
+    @IBAction func toNSVC() {
+        self.performSegue(withIdentifier: "toNSVC", sender: nil)
+    }
 }
-
 
 extension UIColor {
     static func dynamicColor(light: UIColor, dark: UIColor) -> UIColor {

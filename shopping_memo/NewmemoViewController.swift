@@ -26,8 +26,9 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "リスト"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
-        edit()
+        menu()
                 
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
                 
@@ -218,14 +219,14 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func edit() {
+    func menu() {
         if tableView.isEditing {
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
             menuBarButtonItem.tintColor = .black
         } else {
             let Items = UIMenu(title: "", options: .displayInline, children: [
                 UIAction(title: "リストの追加", image: UIImage(systemName: "plus"), handler: { _ in self.listPlus()}),
-                UIAction(title: "リストの編集", image: UIImage(systemName: "list.bullet"), handler: { _ in self.tableView.isEditing = true; self.edit()})
+                UIAction(title: "リストの編集", image: UIImage(systemName: "list.bullet"), handler: { _ in self.tableView.isEditing = true; self.menu()})
             ])
             let signOut = UIAction(title: "ログアウト", attributes: .destructive, handler: { _ in self.signOut()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, signOut])
@@ -237,7 +238,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
         tableView.isEditing = false
-        edit()
+        menu()
     }
     
     func alert() {
@@ -245,9 +246,8 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         alert.addAction(
             UIAlertAction(
                 title: "OK",
-                style: .default,
-                handler: { action in
-                }))
+                style: .default
+            ))
         self.present(alert, animated: true, completion: nil)
     }
     

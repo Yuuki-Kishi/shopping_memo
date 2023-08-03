@@ -11,14 +11,18 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
     
     @IBOutlet var titleTextField: UITextField!
     @IBOutlet var table: UITableView!
-    @IBOutlet var addMemoButton: UIButton!
+    @IBOutlet var deleteButton: UIButton!
     
     var memoArray = [String]()
-    
     let userDefaults: UserDefaults = UserDefaults.standard
+    var menuBarButtonItem: UIBarButtonItem!
+    var backBarButtonItem: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        deleteButton.setImage(UIImage(systemName: "trash"), for: .normal)
+        deleteButton.tintColor = .systemRed
         
         table.register(UINib(nibName: "NotLogInTableViewCell", bundle: nil), forCellReuseIdentifier: "NotLogInTableViewCell")
         
@@ -115,26 +119,35 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
         editAction.backgroundColor = UIColor.systemBlue
         return UISwipeActionsConfiguration(actions: [editAction])
     }
-    //    @IBAction func addMemo(_ sender: Any) {
-    //        titleTextField.resignFirstResponder()
-    //        if titleTextField.text == "" {
-    //            let alert: UIAlertController = UIAlertController(title: "メモを追加できません。", message: "記入欄が空白です。", preferredStyle: .alert)
-//            alert.addAction(
-//                UIAlertAction(
-//                    title: "OK",
-//                    style: .default,
-//                    handler: { action in
-//                    }
-//                )
-//            )
-//            self.present(alert, animated: true, completion: nil)
-//        } else {
-//            memoArray.append(titleTextField.text!)
-//            userDefaults.set(memoArray, forKey: "memoArray")
-//            titleTextField.text = ""
-//            self.table.reloadData()
-//        }
-//    }
+    
+    @IBAction func delete() {
+        if self.memoArray.isEmpty {
+            let alert: UIAlertController = UIAlertController(title: "削除できません", message: "削除できる項目がありません。", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default
+                ))
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            let alert: UIAlertController = UIAlertController(title: "すべてのメモを削除しますか", message: "この操作を取り消すことはできません。", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "削除",
+                    style: .destructive,
+                    handler: { action in
+                        self.memoArray = []
+                        self.userDefaults.set(self.memoArray, forKey: "memoArray")
+                        self.table.reloadData()
+                    }))
+            alert.addAction(
+                UIAlertAction(
+                    title: "キャンセル",
+                    style: .cancel
+                ))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
     
     @IBAction func back() {
         self.dismiss(animated: true, completion: nil)

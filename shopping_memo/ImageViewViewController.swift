@@ -13,12 +13,8 @@ import FirebaseStorage
 class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet var imageView: UIImageView!
-    @IBOutlet var plusButton: UIButton!
-    @IBOutlet var memoLabel: UILabel!
     @IBOutlet var noImageLabel: UILabel!
-    @IBOutlet var deleteButton: UIButton!
     @IBOutlet var upDateLabel: UILabel!
-    @IBOutlet var connection: UIImageView!
     
     var shoppingMemoName: String!
     var memoIdString: String!
@@ -26,32 +22,25 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     var userId: String!
     var list: String!
     var imageRef: StorageReference!
-    let nonCheck = "未チェック"
     let memo = "memo"
     var ref: DatabaseReference!
     let df = DateFormatter()
     let storage = Storage.storage()
     let activityIndicatorView = UIActivityIndicatorView()
     var connect = false
+    var menuBarButtonItem: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        memoLabel.text = shoppingMemoName
+        title = shoppingMemoName
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+
         noImageLabel.isHidden = true
-        
-        let image = UIImage(systemName: "plus")
-        plusButton.setImage(image, for: .normal)
-        plusButton.tintColor = .black
         
         upDateLabel.layer.cornerRadius = 5.0
         upDateLabel.clipsToBounds = true
         upDateLabel.layer.cornerCurve = .continuous
         
-        let image2 = UIImage(systemName: "trash")
-        deleteButton.setImage(image2, for: .normal)
-        deleteButton.tintColor = .systemRed
-        
-        memoLabel.adjustsFontSizeToFitWidth = true
         upDateLabel.adjustsFontSizeToFitWidth = true
         
         view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
@@ -75,10 +64,8 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
-                self.connection.image = UIImage(systemName: "wifi")
                 self.connect = true
             } else {
-                self.connection.image = UIImage(systemName: "wifi.slash")
                 self.connect = false
           }})
         
@@ -87,6 +74,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 return
             }
             guard let url = snapshot.value as? String else { return }
+            menu(url: url)
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
@@ -127,6 +115,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("users").child(uid).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
             activityIndicatorView.startAnimating()
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+            menu(url: url)
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
@@ -191,7 +180,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func openAlbum() {
+    func openAlbum() {
         if connect {
             if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
                 let picker = UIImagePickerController()
@@ -211,11 +200,10 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         }
     }
     
-    @IBAction func deleteImage() {
+    func deleteImage() {
         guard let uid = userId else { return }
         guard let memoId = memoIdString else { return }
         let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
-        
             if imageView.image == UIImage(systemName: "photo") {
                 let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
                 alert.addAction(
@@ -261,15 +249,30 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     alert.addAction(
                         UIAlertAction(
                             title: "OK",
-                            style: .default,
-                            handler: { action in
-                            }))
+                            style: .default
+                        ))
                     self.present(alert, animated: true, completion: nil)
                 }
             }
-        
     }
-    @IBAction func back() {
-        self.dismiss(animated: true, completion: nil)
+    
+    func menu(url: String) {
+        if url == "" {
+            menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
+            menuBarButtonItem.tintColor = .black
+        } else {
+            let Items = UIMenu(title: "", options: .displayInline, children: [
+                UIAction(title: "画像の変更", image: UIImage(systemName: "photo.on.rectangle.angled"), handler: { _ in self.openAlbum()}),
+            ])
+            let delete = UIAction(title: "画像を削除", attributes: .destructive, handler: { _ in self.deleteImage()})
+            let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, delete])
+            menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
+            menuBarButtonItem.tintColor = .black
+        }
+        self.navigationItem.rightBarButtonItem = menuBarButtonItem
+    }
+    
+    @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
+        openAlbum()
     }
 }
