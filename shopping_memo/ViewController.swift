@@ -367,7 +367,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 cell.imageButton.setImage(UIImage(systemName: "photo"), for: .normal)
                 cell.imageButton.tintColor = .label
             }
-            cell.checkMarkImageButton.setImage(UIImage(systemName: "square"), for: .normal)
+            cell.checkMarkImageButton.setImage(UIImage(systemName: "checkmark.square"), for: .normal)
             cell.checkMarkImageButton.tintColor = .label
         }
         

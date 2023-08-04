@@ -31,7 +31,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         menu()
                 
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
-                
+        
         view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         userId = Auth.auth().currentUser?.uid
@@ -101,6 +101,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomListCell") as! CustomListCell
         cell.listLabel?.text = listArray[indexPath.section].listName
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
