@@ -27,7 +27,7 @@
                         <state key="normal" title="Button"/>
                         <buttonConfiguration key="configuration" style="plain"/>
                         <connections>
-                            <action selector="check:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="xuH-E9-tv6"/>
+                            <action selector="check:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Qgv-ax-1aA"/>
                         </connections>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gEI-8C-xi0">
@@ -45,7 +45,7 @@
                         <state key="normal" title="Button"/>
                         <buttonConfiguration key="configuration" style="plain"/>
                         <connections>
-                            <action selector="image:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="bme-rh-ZSV"/>
+                            <action selector="image:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="OiP-Le-k5B"/>
                         </connections>
                     </button>
                 </subviews>
@@ -63,9 +63,9 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <color key="backgroundColor" systemColor="systemGray6Color"/>
             <connections>
-                <outlet property="checkMarkImageButton" destination="gLw-yx-FOk" id="aLd-Lb-e0E"/>
-                <outlet property="imageButton" destination="3ai-WH-ueo" id="7nL-s7-6kZ"/>
-                <outlet property="memoLabel" destination="gEI-8C-xi0" id="MFo-ar-Y0o"/>
+                <outlet property="checkMarkImageButton" destination="gLw-yx-FOk" id="Aar-s3-16i"/>
+                <outlet property="imageButton" destination="3ai-WH-ueo" id="fA9-nz-lMU"/>
+                <outlet property="memoLabel" destination="gEI-8C-xi0" id="vr3-K4-bub"/>
             </connections>
             <point key="canvasLocation" x="185.04672897196261" y="107.55939524838014"/>
         </tableViewCell>

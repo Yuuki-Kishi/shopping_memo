@@ -636,81 +636,65 @@ extension ViewController {
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if tableView.numberOfSections == 2 {
             if sourceIndexPath.section == 0 {
+                memoSortInt = 3
+                userDefaults.set(memoSortInt, forKey: "memoSortInt")
                 let memo = memoArray[sourceIndexPath.row]
                 memoArray.remove(at: sourceIndexPath.row)
                 memoArray.insert(memo, at: destinationIndexPath.row)
+                memoArraySort()
             } else {
+                checkedSortInt = 3
+                userDefaults.set(checkedSortInt, forKey: "checkedSortInt")
                 let memo = checkedArray[sourceIndexPath.row]
                 checkedArray.remove(at: sourceIndexPath.row)
                 checkedArray.insert(memo, at: destinationIndexPath.row)
+                checkedArraySort()
             }
         } else if tableView.numberOfSections == 1 {
             if checkedArray.isEmpty {
+                memoSortInt = 3
+                userDefaults.set(memoSortInt, forKey: "memoSortInt")
                 let memo = memoArray[sourceIndexPath.row]
                 memoArray.remove(at: sourceIndexPath.row)
                 memoArray.insert(memo, at: destinationIndexPath.row)
+                memoArraySort()
             } else if memoArray.isEmpty {
+                checkedSortInt = 3
+                userDefaults.set(checkedSortInt, forKey: "checkedSortInt")
                 let memo = checkedArray[sourceIndexPath.row]
                 checkedArray.remove(at: sourceIndexPath.row)
                 checkedArray.insert(memo, at: destinationIndexPath.row)
-            }
-        }
-        listSort(indexPath: sourceIndexPath)
-    }
-    
-    func listSort(indexPath: IndexPath) {
-        self.memoSortInt = 3
-        userDefaults.set(memoSortInt, forKey: "memoSortInt")
-        if table.numberOfSections == 2 {
-            if indexPath.section == 0 {
-                memoArraySort()
+                checkedArraySort()
             } else {
-                checkedArraySort()
-            }
-        } else if table.numberOfSections == 1 {
-            if checkedArray.isEmpty {
+                memoSortInt = 3
+                userDefaults.set(memoSortInt, forKey: "memoSortInt")
+                let memo = memoArray[sourceIndexPath.row]
+                memoArray.remove(at: sourceIndexPath.row)
+                memoArray.insert(memo, at: destinationIndexPath.row)
                 memoArraySort()
-            } else if memoArray.isEmpty {
-                checkedArraySort()
             }
         }
     }
     
     func memoArraySort() {
-        if memoArray.count != 0 {
-            for i in 0...memoArray.count - 1 {
-                let memoId = memoArray[i].memoId
-                var memoCount = memoArray[i].memoCount
-                let checkedCount = memoArray[i].checkedCount
-                let shoppingMemo = memoArray[i].shoppingMemo
-                let isChecked = memoArray[i].isChecked
-                let dateNow = memoArray[i].dateNow
-                let checkedTime = memoArray[i].checkedTime
-                let imageUrl = memoArray[i].imageUrl
-                
-                memoCount = i
-                memoArray[i] = (memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl)
-                self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount])
-            }
+        for i in 0...memoArray.count - 1 {
+            let memoId = memoArray[i].memoId
+            var memoCount = memoArray[i].memoCount
+            
+            memoCount = i
+            memoArray[i].memoCount = memoCount
+            self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount])
         }
     }
     
     func checkedArraySort() {
-        if checkedArray.count != 0 {
-            for i in 0...checkedArray.count - 1 {
-                let memoId = checkedArray[i].memoId
-                let memoCount = checkedArray[i].memoCount
-                var checkedCount = checkedArray[i].checkedCount
-                let shoppingMemo = checkedArray[i].shoppingMemo
-                let isChecked = checkedArray[i].isChecked
-                let dateNow = checkedArray[i].dateNow
-                let checkedTime = checkedArray[i].checkedTime
-                let imageUrl = checkedArray[i].imageUrl
-                
-                checkedCount = i
-                checkedArray[i] = (memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: dateNow, checkedTime: checkedTime, imageUrl: imageUrl)
-                self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["checkedCount": checkedCount])
-            }
+        for i in 0...checkedArray.count - 1 {
+            let memoId = checkedArray[i].memoId
+            var checkedCount = checkedArray[i].checkedCount
+            
+            checkedCount = i
+            checkedArray[i].checkedCount = checkedCount
+            self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["checkedCount": checkedCount])
         }
     }
     

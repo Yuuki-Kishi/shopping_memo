@@ -154,7 +154,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         if connect {
             var deleteAction: UIContextualAction
-            let list = listArray[indexPath.row].listId
+            let list = listArray[indexPath.section].listId
             // 削除処理
             deleteAction = UIContextualAction(style: .destructive, title: "削除") { (action, view, completionHandler) in
                 //削除処理を記述
@@ -178,8 +178,8 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var editAction: UIContextualAction
         if connect {
-            let listId = listArray[indexPath.row].listId
-            let listName = listArray[indexPath.row].listName
+            let listId = listArray[indexPath.section].listId
+            let listName = listArray[indexPath.section].listName
             // 編集処理
             editAction = UIContextualAction(style: .normal, title: "編集") { (action, view, completionHandler) in
                 // 編集処理を記述
@@ -202,7 +202,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                             handler: { action in
                                 if alertTextField.text != "" {
                                     let text = alertTextField.text!
-                                    self.listArray[indexPath.row].listName = text
+                                    self.listArray[indexPath.section].listName = text
                                     self.ref.child("users").child(self.userId).child(listId).updateChildValues(["name": text])
                                 }}))
                     self.present(alert, animated: true, completion: nil)

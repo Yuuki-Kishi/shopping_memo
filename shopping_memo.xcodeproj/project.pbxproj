@@ -49,7 +49,7 @@
 		DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */; };
 		DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975992620967F00AD695D /* NotViewController.swift */; };
 		DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975A1262A69D100AD695D /* CheckedViewController.swift */; };
-		DEF4F6BD2A79227D00140B05 /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */; };
+		DEE3D1532A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */; };
 		DEFD52DB291791C8007899AA /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFD52DA291791C8007899AA /* TableViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -112,7 +112,7 @@
 		DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotMakeNewMemoViewController.swift; sourceTree = "<group>"; };
 		DEC975992620967F00AD695D /* NotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotViewController.swift; sourceTree = "<group>"; };
 		DEC975A1262A69D100AD695D /* CheckedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedViewController.swift; sourceTree = "<group>"; };
-		DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
+		DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DEFD52DA291791C8007899AA /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,7 +179,7 @@
 		DE02CB812560D79B008012F6 /* shopping_memo */ = {
 			isa = PBXGroup;
 			children = (
-				DEF4F6BC2A79227D00140B05 /* NBGShoppingMemoIcon.png */,
+				DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
@@ -361,7 +361,7 @@
 				DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */,
 				DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */,
 				DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */,
-				DEF4F6BD2A79227D00140B05 /* NBGShoppingMemoIcon.png in Resources */,
+				DEE3D1532A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png in Resources */,
 				DE02CB8C2560D79C008012F6 /* Assets.xcassets in Resources */,
 				DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */,
 				DE02CB8A2560D79B008012F6 /* Main.storyboard in Resources */,
