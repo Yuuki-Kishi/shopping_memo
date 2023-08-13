@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE00691C2A84BCAD0096B25F /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */; };
 		DE02CB832560D79B008012F6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CB822560D79B008012F6 /* AppDelegate.swift */; };
 		DE02CB852560D79B008012F6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CB842560D79B008012F6 /* SceneDelegate.swift */; };
 		DE02CB872560D79B008012F6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CB862560D79B008012F6 /* ViewController.swift */; };
@@ -49,7 +50,6 @@
 		DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */; };
 		DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975992620967F00AD695D /* NotViewController.swift */; };
 		DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975A1262A69D100AD695D /* CheckedViewController.swift */; };
-		DEE3D1532A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */; };
 		DEFD52DB291791C8007899AA /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFD52DA291791C8007899AA /* TableViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +71,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DE02CB7F2560D79B008012F6 /* shopping_memo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shopping_memo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE02CB822560D79B008012F6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DE02CB842560D79B008012F6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -112,7 +113,6 @@
 		DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotMakeNewMemoViewController.swift; sourceTree = "<group>"; };
 		DEC975992620967F00AD695D /* NotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotViewController.swift; sourceTree = "<group>"; };
 		DEC975A1262A69D100AD695D /* CheckedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedViewController.swift; sourceTree = "<group>"; };
-		DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
 		DEFD52DA291791C8007899AA /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -179,13 +179,13 @@
 		DE02CB812560D79B008012F6 /* shopping_memo */ = {
 			isa = PBXGroup;
 			children = (
-				DEE3D1522A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png */,
+				DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
 				DEC975A1262A69D100AD695D /* CheckedViewController.swift */,
-				DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */,
 				DE1BA9BB2585B683003506E9 /* SigninViewController.swift */,
+				DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */,
 				DE1BAA162585F014003506E9 /* ResetViewController.swift */,
 				DE0C02AF258797CE005BB17F /* MemofileViewController.swift */,
 				DE0C02B72587A313005BB17F /* NewmemoViewController.swift */,
@@ -361,7 +361,7 @@
 				DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */,
 				DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */,
 				DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */,
-				DEE3D1532A7E8C0B0033B8BC /* NBGShoppingMemoIcon.png in Resources */,
+				DE00691C2A84BCAD0096B25F /* NBGShoppingMemoIcon.png in Resources */,
 				DE02CB8C2560D79C008012F6 /* Assets.xcassets in Resources */,
 				DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */,
 				DE02CB8A2560D79B008012F6 /* Main.storyboard in Resources */,

@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,7 +26,7 @@
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" red="0.68235294117647061" green="0.93725490196078431" blue="0.72156862745098038" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="MyGreen"/>
                         <constraints>
                             <constraint firstItem="0dV-6W-YF2" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="8Qf-lh-7fo"/>
                             <constraint firstItem="0dV-6W-YF2" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Lfy-Ks-by6"/>
@@ -41,5 +42,8 @@
     </scenes>
     <resources>
         <image name="NBGShoppingMemoIcon.png" width="1024" height="1024"/>
+        <namedColor name="MyGreen">
+            <color red="0.68627452850341797" green="0.93725490570068359" blue="0.72156864404678345" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

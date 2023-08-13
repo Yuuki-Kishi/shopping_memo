@@ -22,17 +22,19 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "再度ログイン"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
         
         emailTextField.delegate = self
         passwordTextField.delegate = self
         
         emailTextField.text = userDefaults.string(forKey: "email")
         
-        signInButton.layer.cornerRadius = 10.0
+        signInButton.layer.cornerRadius = 18.0
         signInButton.layer.cornerCurve = .continuous
         
-        signInButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-
         ref = Database.database().reference()
         
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
@@ -115,7 +117,7 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
                 if error == nil, let result = authResult {
                     self.userDefaults.set(email, forKey: "email")
                     self.userDefaults.set(password, forKey: "password")
-                    self.performSegue(withIdentifier: "toDeleteVC", sender: result.user)
+                    self.performSegue(withIdentifier: "toDVC", sender: result.user)
                     self.passwordTextField.text = ""
                 } else {
                     print("error: \(error!)")

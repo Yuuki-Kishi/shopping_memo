@@ -12,6 +12,7 @@ import FirebaseDatabase
 class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet var tableView: UITableView!
+    @IBOutlet var plusButton: UIButton!
             
     let dateFormatter = DateFormatter()
     var connect = false
@@ -27,13 +28,19 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         title = "リスト"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        navigationItem.hidesBackButton = true
         
         menu()
-                
+        
+        plusButton.layer.cornerRadius = 35.0
+        
+        plusButton.layer.shadowOpacity = 0.3
+        plusButton.layer.shadowRadius = 3
+        plusButton.layer.shadowColor = UIColor.gray.cgColor
+        plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+                        
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
-        
-        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         userId = Auth.auth().currentUser?.uid
         
         ref = Database.database().reference()
@@ -140,7 +147,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                     } catch let signOutError as NSError {
                         print ("Error signing out: %@", signOutError)
                     }
-                    self.dismiss(animated: true, completion: nil)
+                    self.navigationController?.popViewController(animated: true)
                 }))
         alert.addAction(
             UIAlertAction(
@@ -226,7 +233,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             menuBarButtonItem.tintColor = .black
         } else {
             let Items = UIMenu(title: "", options: .displayInline, children: [
-                UIAction(title: "リストの追加", image: UIImage(systemName: "plus"), handler: { _ in self.listPlus()}),
+//                UIAction(title: "リストの追加", image: UIImage(systemName: "plus"), handler: { _ in self.listPlus()}),
                 UIAction(title: "リストの編集", image: UIImage(systemName: "list.bullet"), handler: { _ in self.tableView.isEditing = true; self.menu()})
             ])
             let signOut = UIAction(title: "ログアウト", attributes: .destructive, handler: { _ in self.signOut()})
@@ -314,6 +321,10 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
+    }
+    
+    @IBAction func plus() {
+        listPlus()
     }
 }
 

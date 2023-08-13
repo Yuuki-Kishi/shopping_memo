@@ -57,9 +57,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
         
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        
-        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 184/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         ref = Database.database().reference()
         
         userId = Auth.auth().currentUser?.uid
@@ -344,22 +342,29 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         cell.indexPath = indexPath
         
         cell.checkMarkImageButton.isUserInteractionEnabled = !table.isEditing
-        
         if indexPath.section == 0 {
             cell.memoLabel.text = dataArray[indexPath.row].shoppingMemo
+            let isChecked = dataArray[indexPath.row].isChecked
             let imageUrl = dataArray[indexPath.row].imageUrl
+            let difference = Date().timeIntervalSince(dataArray[indexPath.row].checkedTime)
             if imageUrl == "" {
                 cell.imageButton.setImage(UIImage(systemName: "plus.viewfinder"), for: .normal)
                 cell.imageButton.tintColor = .label
             } else {
                 cell.imageButton.setImage(UIImage(systemName: "photo"), for: .normal)
                 cell.imageButton.tintColor = .label
+            }
+            if difference < 60 * 60 * 6 && isChecked {
+                cell.backgroundColor = .systemGray5
+            } else {
+                cell.backgroundColor = .systemGray6
             }
             cell.checkMarkImageButton.setImage(UIImage(systemName: "square"), for: .normal)
             cell.checkMarkImageButton.tintColor = .label
         } else if indexPath.section == 1 {
             cell.memoLabel.text = dataArray[memoArray.count + indexPath.row].shoppingMemo
             let imageUrl = dataArray[memoArray.count + indexPath.row].imageUrl
+            let difference = Date().timeIntervalSince(dataArray[memoArray.count + indexPath.row].checkedTime)
             if imageUrl == "" {
                 cell.imageButton.setImage(UIImage(systemName: "plus.viewfinder"), for: .normal)
                 cell.imageButton.tintColor = .label
@@ -367,10 +372,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 cell.imageButton.setImage(UIImage(systemName: "photo"), for: .normal)
                 cell.imageButton.tintColor = .label
             }
+            if difference < 60 * 60 * 6 {
+                cell.backgroundColor = .systemGray5
+            } else {
+                cell.backgroundColor = .systemGray6
+            }
             cell.checkMarkImageButton.setImage(UIImage(systemName: "checkmark.square"), for: .normal)
             cell.checkMarkImageButton.tintColor = .label
         }
-        
         return cell
     }
     

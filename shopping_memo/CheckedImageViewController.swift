@@ -54,9 +54,7 @@ class CheckedImageViewController: UIViewController, UIImagePickerControllerDeleg
         
         memoLabel.adjustsFontSizeToFitWidth = true
         upDateLabel.adjustsFontSizeToFitWidth = true
-        
-        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         userId = Auth.auth().currentUser?.uid
         ref = Database.database().reference()
         

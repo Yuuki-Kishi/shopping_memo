@@ -26,18 +26,18 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        signUpButton.layer.cornerRadius = 10.0
+        title = "新規登録"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        
+        signUpButton.layer.cornerRadius = 18.0
         signUpButton.layer.cornerCurve = .continuous
-        signUpButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         appIconImage.layer.cornerRadius = 30.0
         appIconImage.layer.cornerCurve = .continuous
                 
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordCheckTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(確認)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        
-        appIconImage.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         imageCountInt = userDefaults.integer(forKey: "imageCount")
         
         emailTextField.delegate = self
@@ -107,8 +107,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
                 self.userDefaults.set(email, forKey: "email")
                 let errorCode = (error as? NSError)?.code
                 if error == nil, let result = authResult {
-                    self.dismiss(animated: true, completion: nil)
-                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
+                    self.navigationController?.popViewController(animated: true)
+                    //                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                     alert.addAction(

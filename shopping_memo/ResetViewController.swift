@@ -19,10 +19,11 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "パスワード再設定"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
-        sendResetPasswordButton.layer.cornerRadius = 10.0
+        sendResetPasswordButton.layer.cornerRadius = 18.0
         sendResetPasswordButton.layer.cornerCurve = .continuous
-        sendResetPasswordButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
 
         emailTextField.text = ud.string(forKey: "email")
         

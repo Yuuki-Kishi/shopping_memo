@@ -27,19 +27,19 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     var userId: String!
     var ref: DatabaseReference!
     var connect = false
+    var menuBarButtonItem: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        signInButton.layer.cornerRadius = 10.0
+        title = "ログイン"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+
+        signInButton.layer.cornerRadius = 18.0
         signInButton.layer.cornerCurve = .continuous
-        signInButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         signUpButton.layer.cornerRadius = 10.0
-        nonSignInButton.layer.cornerRadius = 10.0
-        deleteButton.layer.cornerRadius = 10.0
         
         appIconImage.layer.cornerRadius = 30.0
         appIconImage.layer.cornerCurve = .continuous
-        appIconImage.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         appIconImage.layer.borderColor = UIColor.clear.cgColor
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
@@ -51,6 +51,8 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
                         
         ref = Database.database().reference()
+        
+        menu()
         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
@@ -107,7 +109,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(_ animated: Bool) {
         auth = Auth.auth()
         if auth.currentUser != nil {
-            performSegue(withIdentifier: "toHomevc", sender: auth.currentUser)
+            performSegue(withIdentifier: "toHomeVC", sender: auth.currentUser)
         }
     }
     
@@ -117,6 +119,14 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func signInBut() {
         signIn()
+    }
+    
+    @IBAction func signUp() {
+        self.performSegue(withIdentifier: "toSUVC", sender: nil)
+    }
+    
+    @IBAction func resetPassWord() {
+        self.performSegue(withIdentifier: "toRVC", sender: nil)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -150,7 +160,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
                 if error == nil, let result = authResult {
                     self.userDefaults.set(email, forKey: "email")
                     self.userDefaults.set(password, forKey: "password")
-                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
+                    self.performSegue(withIdentifier: "toHomeVC", sender: result.user)
                     self.passwordTextField.text = ""
                 } else {
                     print("error: \(error!)")
@@ -186,19 +196,17 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    @IBAction func toNSVC() {
-        self.performSegue(withIdentifier: "toNSVC", sender: nil)
-    }
-}
-
-extension UIColor {
-    static func dynamicColor(light: UIColor, dark: UIColor) -> UIColor {
-        return UIColor { (traitCollection:UITraitCollection) -> UIColor in
-            if traitCollection.userInterfaceStyle == .dark {
-                return dark
-            } else {
-                return light
-            }
-        }
+    func menu() {
+        let Item = UIMenu(title: "", options: .displayInline, children: [
+            UIAction(title: "ログインしないで使う", image: UIImage(systemName: "list.bullet"), handler: { _ in
+                self.performSegue(withIdentifier: "toNSVC", sender: nil)
+        })])
+        let delete = UIAction(title: "アカウント削除", image: UIImage(systemName: "person.badge.minus"), attributes: .destructive, handler: { _ in
+            self.performSegue(withIdentifier: "toRLIVC", sender: nil)
+        })
+        let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Item, delete])
+        menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
+        menuBarButtonItem.tintColor = .black
+        self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }
 }

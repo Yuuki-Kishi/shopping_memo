@@ -77,7 +77,6 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         menuButton.layer.cornerRadius = 10.0
         menuButton.layer.borderWidth = 2.0
         menuButton.layer.borderColor = UIColor.label.cgColor
-        menuButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
         
         searchTextField.layer.cornerRadius = 6.0
         searchTextField.layer.borderColor = UIColor.label.cgColor
@@ -87,10 +86,7 @@ class CheckedViewController: UIViewController, UITableViewDataSource, UITableVie
         searchButton.layer.cornerRadius = 10.0
         searchButton.layer.borderWidth = 2.0
         searchButton.layer.borderColor = UIColor.label.cgColor
-        searchButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
-        view.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         let image3 = UIImage(systemName: "multiply.circle")
         deleteButton.setImage(image3, for: .normal)
         deleteButton.tintColor = .gray

@@ -25,6 +25,8 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "アカウント削除"
+        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         email = userDefaults.string(forKey: "email")
         password = userDefaults.string(forKey: "password")
@@ -37,11 +39,9 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
         passwordLabel.layer.cornerRadius = 6.0
         passwordLabel.clipsToBounds = true
         
-        deleteButton.layer.cornerRadius = 10.0
+        deleteButton.layer.cornerRadius = 18.0
         deleteButton.layer.cornerCurve = .continuous
-        
-        deleteButton.backgroundColor = UIColor.dynamicColor(light: UIColor(red: 175/255, green: 239/255, blue: 183/255, alpha: 1), dark: UIColor(red: 147/255, green: 201/255, blue: 158/255, alpha: 1))
-        
+                
         ref = Database.database().reference()
         
         userId = Auth.auth().currentUser?.uid
@@ -53,6 +53,15 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
             } else {
                 self.connect = false
             }})
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        let firebaseAuth = Auth.auth()
+        do {
+            try firebaseAuth.signOut()
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+        }
     }
     
     @IBAction func delete() {
@@ -69,7 +78,8 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
                             if let error = error {
                                 print("error")
                             } else {
-                                self.dismiss(animated: true, completion: nil)
+                                let index = self.navigationController!.viewControllers.count - 3
+                                self.navigationController?.popToViewController(self.navigationController!.viewControllers[index], animated: true)
                             }
                         }
                     }
@@ -93,15 +103,5 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
                 ))
             self.present(alert, animated: true, completion: nil)
         }
-    }
-    
-    @IBAction func back() {
-        let firebaseAuth = Auth.auth()
-        do {
-            try firebaseAuth.signOut()
-        } catch let signOutError as NSError {
-            print ("Error signing out: %@", signOutError)
-        }
-        self.dismiss(animated: true, completion: nil)
     }
 }
