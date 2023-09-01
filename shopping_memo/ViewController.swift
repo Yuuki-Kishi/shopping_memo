@@ -48,7 +48,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         super.viewDidLoad()
         
         title = name
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         menu()
         
@@ -538,7 +537,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     func menu() {
         if table.isEditing {
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         } else {
             let title: String!
             let image: UIImage!
@@ -626,7 +625,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let clear = UIAction(title: "完了項目を削除", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { _ in self.clearChecked()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, clear])
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         }
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }

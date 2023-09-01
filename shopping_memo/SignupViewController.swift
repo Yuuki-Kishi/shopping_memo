@@ -27,7 +27,6 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "新規登録"
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         signUpButton.layer.cornerRadius = 18.0
         signUpButton.layer.cornerCurve = .continuous
@@ -107,8 +106,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
                 self.userDefaults.set(email, forKey: "email")
                 let errorCode = (error as? NSError)?.code
                 if error == nil, let result = authResult {
-                    self.navigationController?.popViewController(animated: true)
-                    //                    self.performSegue(withIdentifier: "toHomevc", sender: result.user)
+                    self.performSegue(withIdentifier: "toHomeVC", sender: result.user)
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                     alert.addAction(

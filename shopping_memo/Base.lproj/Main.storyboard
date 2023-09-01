@@ -37,7 +37,7 @@
                                     <constraint firstAttribute="width" constant="70" id="PLu-hc-bja"/>
                                     <constraint firstAttribute="height" constant="70" id="iE1-8X-h7Z"/>
                                 </constraints>
-                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" systemColor="labelColor"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="plus" catalog="system">
                                     <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="font" weight="regular">
@@ -173,7 +173,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="送信">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleColor" systemColor="labelColor"/>
                                 </state>
                                 <connections>
                                     <action selector="reset" destination="XkF-H7-Ro3" eventType="touchUpInside" id="sag-HH-sJg"/>
@@ -492,9 +492,9 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="zCz-qC-z8n"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                 <state key="normal" title="新規登録">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleColor" systemColor="labelColor"/>
                                 </state>
                                 <connections>
                                     <action selector="signUp:" destination="Tys-na-zat" eventType="touchUpInside" id="m6J-cR-JtC"/>
@@ -545,6 +545,7 @@
                         <outlet property="passwordCheckTextField" destination="WEF-k2-ZBS" id="h4s-Ja-8Ba"/>
                         <outlet property="passwordTextField" destination="VtE-2b-5hr" id="Xrd-xn-HmC"/>
                         <outlet property="signUpButton" destination="qFe-vr-Eo8" id="Hz9-Dh-sEg"/>
+                        <segue destination="Iq7-hd-tQL" kind="show" identifier="toHomeVC" id="olk-YQ-Pz1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wCx-Iu-OGz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -887,7 +888,7 @@
                                 <color key="backgroundColor" name="MyGreen"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="ログイン">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleColor" systemColor="labelColor"/>
                                 </state>
                                 <connections>
                                     <action selector="signInBut" destination="A03-sV-se6" eventType="touchUpInside" id="A1l-JV-ox3"/>
@@ -1049,9 +1050,9 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="pjh-Gp-tO5"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                 <state key="normal" title="ログイン">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleColor" systemColor="labelColor"/>
                                 </state>
                                 <connections>
                                     <action selector="signInBut" destination="waf-zd-Bdj" eventType="touchUpInside" id="UK7-0h-3K8"/>
@@ -1151,7 +1152,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zcd-aS-ehh">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="interactive" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zcd-aS-ehh">
                                 <rect key="frame" x="0.0" y="144" width="430" height="788"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
@@ -1358,7 +1359,7 @@
                         <navigationBarAppearance key="scrollEdgeAppearance">
                             <color key="backgroundColor" name="MyGreen"/>
                             <textAttributes key="titleTextAttributes">
-                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="textColor" systemColor="labelColor"/>
                             </textAttributes>
                         </navigationBarAppearance>
                     </navigationBar>
@@ -1372,6 +1373,9 @@
             <point key="canvasLocation" x="-2946" y="77"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="olk-YQ-Pz1"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="NBGShoppingMemoIcon.png" width="1024" height="1024"/>
         <image name="hourglass" catalog="system" width="103" height="128"/>

@@ -33,7 +33,6 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         title = shoppingMemoName
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         noImageLabel.isHidden = true
         
@@ -257,7 +256,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     func menu(url: String) {
         if url == "" {
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         } else {
             let Items = UIMenu(title: "", options: .displayInline, children: [
                 UIAction(title: "画像の変更", image: UIImage(systemName: "photo.on.rectangle.angled"), handler: { _ in self.openAlbum()}),
@@ -265,7 +264,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             let delete = UIAction(title: "画像を削除", attributes: .destructive, handler: { _ in self.deleteImage()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, delete])
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         }
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }

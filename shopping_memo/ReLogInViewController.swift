@@ -23,7 +23,6 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "再度ログイン"
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
         

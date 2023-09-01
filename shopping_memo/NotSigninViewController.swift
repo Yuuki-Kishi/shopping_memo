@@ -20,7 +20,7 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "メモ"
-                
+        
         table.register(UINib(nibName: "NotLogInTableViewCell", bundle: nil), forCellReuseIdentifier: "NotLogInTableViewCell")
                 
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
@@ -29,7 +29,7 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
             memoArray = userDefaults.array(forKey: "memoArray") as! [String]
             self.table.reloadData()
         }
-        
+                
         table.delegate = self
         table.dataSource = self
         titleTextField.delegate = self

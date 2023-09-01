@@ -26,7 +26,6 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "アカウント削除"
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         
         email = userDefaults.string(forKey: "email")
         password = userDefaults.string(forKey: "password")
@@ -78,8 +77,8 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
                             if let error = error {
                                 print("error")
                             } else {
-                                let index = self.navigationController!.viewControllers.count - 3
-                                self.navigationController?.popToViewController(self.navigationController!.viewControllers[index], animated: true)
+                                self.userDefaults.set("", forKey: "email")
+                                self.navigationController?.popToRootViewController(animated: true)
                             }
                         }
                     }

@@ -32,7 +32,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "ログイン"
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         signInButton.layer.cornerRadius = 18.0
         signInButton.layer.cornerCurve = .continuous
@@ -97,16 +96,16 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             }
             print("result2:", AppVersionCheck.result)
         }
-                
-        emailTextField.text = email
-
-        email = userDefaults.string(forKey: "email")
         
         emailTextField.delegate = self
         passwordTextField.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        email = userDefaults.string(forKey: "email")
+        if email != nil {
+            emailTextField.text = email
+        }
         auth = Auth.auth()
         if auth.currentUser != nil {
             performSegue(withIdentifier: "toHomeVC", sender: auth.currentUser)
@@ -206,7 +205,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         })
         let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Item, delete])
         menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
-        menuBarButtonItem.tintColor = .black
+        menuBarButtonItem.tintColor = .label
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }
 }

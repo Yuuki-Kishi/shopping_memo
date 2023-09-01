@@ -27,7 +27,6 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "リスト"
-        self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
         navigationItem.hidesBackButton = true
         
         menu()
@@ -147,7 +146,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
                     } catch let signOutError as NSError {
                         print ("Error signing out: %@", signOutError)
                     }
-                    self.navigationController?.popViewController(animated: true)
+                    self.navigationController?.popToRootViewController(animated: true)
                 }))
         alert.addAction(
             UIAlertAction(
@@ -230,7 +229,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     func menu() {
         if tableView.isEditing {
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         } else {
             let Items = UIMenu(title: "", options: .displayInline, children: [
 //                UIAction(title: "リストの追加", image: UIImage(systemName: "plus"), handler: { _ in self.listPlus()}),
@@ -239,7 +238,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             let signOut = UIAction(title: "ログアウト", attributes: .destructive, handler: { _ in self.signOut()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, signOut])
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
-            menuBarButtonItem.tintColor = .black
+            menuBarButtonItem.tintColor = .label
         }
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }
@@ -266,6 +265,7 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             alert.addTextField { textField in
                 alertTextField = textField
                 alertTextField.returnKeyType = .done
+                alertTextField.clearButtonMode = .always 
                 alert.addAction(
                     UIAlertAction(
                         title: "キャンセル",
