@@ -27,15 +27,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "新規登録"
-        
-        signUpButton.layer.cornerRadius = 18.0
-        signUpButton.layer.cornerCurve = .continuous
-        appIconImage.layer.cornerRadius = 30.0
-        appIconImage.layer.cornerCurve = .continuous
-                
-        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        passwordCheckTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(確認)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        UISetUp()
                 
         imageCountInt = userDefaults.integer(forKey: "imageCount")
         
@@ -58,6 +50,17 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
+    }
+    
+    func UISetUp() {
+        signUpButton.layer.cornerRadius = 18.0
+        signUpButton.layer.cornerCurve = .continuous
+        appIconImage.layer.cornerRadius = 30.0
+        appIconImage.layer.cornerCurve = .continuous
+                
+        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        passwordCheckTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(確認)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
     }
     
     @IBAction func signUp(_ sender: Any) {

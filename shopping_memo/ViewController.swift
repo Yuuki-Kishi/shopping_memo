@@ -46,30 +46,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         title = name
 
         menu()
+        setUpTable()
+        observeRealtimeDatabase()
         
         memoSortInt = userDefaults.integer(forKey: "memoSortInt")
         checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
         checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
         
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-                
-        ref = Database.database().reference()
-        
-        userId = Auth.auth().currentUser?.uid
-
-        table.dataSource = self
-        table.delegate = self
-                                
-        table.register(UINib(nibName: "CustomTableViewCell", bundle: .main), forCellReuseIdentifier: "CustomTableViewCell")
         
         titleTextField.delegate = self
                 
-        memoArray = []
-        
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
@@ -77,7 +67,46 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             } else {
                 self.connect = false
         }})
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        ref.child("users").child(userId).child(list).observe(.childChanged, with: { [self] snapshot in
+            guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
+            name = listName
+        })
+        table.reloadData()
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      UIApplication.shared.isIdleTimerDisabled = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+      super.viewWillDisappear(animated)
+      UIApplication.shared.isIdleTimerDisabled = false
+    }
+    
+    func setUpTable() {
+        table.dataSource = self
+        table.delegate = self
         
+        table.allowsMultipleSelection = true
+        table.sectionHeaderTopPadding = 0.01
+        table.sectionFooterHeight = 0.0
+        table.estimatedSectionHeaderHeight = 0.0
+        table.estimatedSectionFooterHeight = 0.0
+        
+        table.register(UINib(nibName: "CustomTableViewCell", bundle: .main), forCellReuseIdentifier: "CustomTableViewCell")
+    }
+    
+    func observeRealtimeDatabase() {
+        ref = Database.database().reference()
+        userId = Auth.auth().currentUser?.uid
         // nonCheckに追加されたとき、firebaseのデータを引っ張ってくる
         ref.child("users").child(userId).child(list).child(nonCheck).observe(.childAdded, with: { [self] snapshot in
             let memoId = snapshot.key // memo0とか
@@ -125,14 +154,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-            let time = date
+            let time = dateFormatter.date(from: checkedTime)
             
             if isChecked {
                 self.checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
             } else {
                 self.memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
             }
-            
             sort()
         })
         
@@ -151,7 +179,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
-            let time = Date()
+            let time = dateFormatter.date(from: checkedTime)
             
             memoSortInt = userDefaults.integer(forKey: "memoSortInt")
             
@@ -159,11 +187,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 if isChecked {
                     let index = memoArray.firstIndex(where: {$0.memoId == memoId})
                     memoArray.remove(at: index!)
-                    checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                    checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 } else {
                     let index = checkedArray.firstIndex(where: {$0.memoId == memoId})
                     checkedArray.remove(at: index!)
-                    memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                    memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 }
                 changedSwitch = false
                 userDefaults.set(changedSwitch, forKey: "changedSwitch")
@@ -173,18 +201,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                     let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId})
                     if cIndex == nil {
                         memoArray.remove(at: mIndex!)
-                        checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                        checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                     } else {
-                        checkedArray[cIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                        checkedArray[cIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                     }
                 } else {
                     let mIndex = memoArray.firstIndex(where: {$0.memoId == memoId})
                     let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId})
                     if mIndex == nil {
                         checkedArray.remove(at: cIndex!)
-                        memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                        memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                     } else {
-                        memoArray[mIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time, imageUrl: imageUrl))
+                        memoArray[mIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                     }
                 }
             }
@@ -198,42 +226,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 let memoId = snapshot.key
                 guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
                 if isChecked {
-                    let index = checkedArray.firstIndex(where: {$0.memoId == memoId})
-                    checkedArray.remove(at: index!)
+                    guard let index = checkedArray.firstIndex(where: {$0.memoId == memoId}) else { return }
+                    checkedArray.remove(at: index)
                 } else {
-                    let index = memoArray.firstIndex(where: {$0.memoId == memoId})
-                    memoArray.remove(at: index!)
+                    guard let index = memoArray.firstIndex(where: {$0.memoId == memoId}) else { return }
+                    memoArray.remove(at: index)
                 }
                 self.table.reloadData()
             }
         })
-
-        table.allowsMultipleSelection = true
-        table.sectionHeaderTopPadding = 0.01
-        table.sectionFooterHeight = 0.0
-        table.estimatedSectionHeaderHeight = 0.0
-        table.estimatedSectionFooterHeight = 0.0
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        ref.child("users").child(userId).child(list).observe(.childChanged, with: { [self] snapshot in
-            guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
-            name = listName
-        })
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-      super.viewWillAppear(animated)
-      UIApplication.shared.isIdleTimerDisabled = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-      super.viewWillDisappear(animated)
-      UIApplication.shared.isIdleTimerDisabled = false
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
@@ -353,13 +354,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 cell.imageButton.setImage(UIImage(systemName: "photo"), for: .normal)
                 cell.imageButton.tintColor = .label
             }
-            if difference < 60 * 60 * 6 && isChecked {
-                cell.backgroundColor = .systemGray5
+            if memoArray.isEmpty {
+                if difference < 60 * 60 * 6 {
+                    cell.backgroundColor = .systemGray5
+                } else {
+                    cell.backgroundColor = .systemGray6
+                }
+                cell.checkMarkImageButton.setImage(UIImage(systemName: "checkmark.square"), for: .normal)
+                cell.checkMarkImageButton.tintColor = .label
             } else {
                 cell.backgroundColor = .systemGray6
+                cell.checkMarkImageButton.setImage(UIImage(systemName: "square"), for: .normal)
+                cell.checkMarkImageButton.tintColor = .label
             }
-            cell.checkMarkImageButton.setImage(UIImage(systemName: "square"), for: .normal)
-            cell.checkMarkImageButton.tintColor = .label
         } else if indexPath.section == 1 {
             cell.memoLabel.text = dataArray[memoArray.count + indexPath.row].shoppingMemo
             let imageUrl = dataArray[memoArray.count + indexPath.row].imageUrl
@@ -482,38 +489,66 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             if tableView.numberOfSections == 2 {
                 if indexPath.section == 0 {
                     let memoId = self.memoArray[indexPath.row].memoId
-                    //削除処理を記述
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
-                    self.memoArray.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                    // 実行結果に関わらず記述
-                    completionHandler(true)
+                    if self.memoArray.count == 1 {
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.memoArray.remove(at: indexPath.row)
+                        tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
+                        completionHandler(true)
+                    } else {
+                        //削除処理を記述
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.memoArray.remove(at: indexPath.row)
+                        tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        // 実行結果に関わらず記述
+                        completionHandler(true)
+                    }
                 } else {
                     let memoId = self.checkedArray[indexPath.row].memoId
-                    //削除処理を記述
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
-                    self.checkedArray.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                    // 実行結果に関わらず記述
-                    completionHandler(true)
+                    if self.checkedArray.count == 1 {
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.checkedArray.remove(at: indexPath.row)
+                        tableView.deleteSections([1], with: UITableView.RowAnimation.automatic)
+                        completionHandler(true)
+                    } else {
+                        //削除処理を記述
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.checkedArray.remove(at: indexPath.row)
+                        tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        // 実行結果に関わらず記述
+                        completionHandler(true)
+                    }
                 }
             } else if tableView.numberOfSections == 1 {
                 if self.checkedArray.isEmpty {
                     let memoId = self.memoArray[indexPath.row].memoId
-                    //削除処理を記述
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
-                    self.memoArray.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                    // 実行結果に関わらず記述
-                    completionHandler(true)
+                    if self.memoArray.count == 1 {
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.memoArray.remove(at: indexPath.row)
+                        tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
+                        completionHandler(true)
+                    } else {
+                        //削除処理を記述
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.memoArray.remove(at: indexPath.row)
+                        tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        // 実行結果に関わらず記述
+                        completionHandler(true)
+                    }
                 } else if self.memoArray.isEmpty {
                     let memoId = self.checkedArray[indexPath.row].memoId
-                    //削除処理を記述
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
-                    self.checkedArray.remove(at: indexPath.row)
-                    tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                    // 実行結果に関わらず記述
-                    completionHandler(true)
+                    if self.checkedArray.count == 1 {
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.checkedArray.remove(at: indexPath.row)
+                        tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
+                        completionHandler(true)
+                    } else {
+                        //削除処理を記述
+                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.checkedArray.remove(at: indexPath.row)
+                        tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        // 実行結果に関わらず記述
+                        completionHandler(true)
+                    }
                 }
                 self.removeSwitch = false
                 self.userDefaults.set(self.removeSwitch, forKey: "removeSwitch")
@@ -805,8 +840,7 @@ extension ViewController: checkMarkDelegete {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = memoArray[indexPath.row].memoId
                     let isChecked = memoArray[indexPath.row].isChecked
-                    let time = Date()
-                    let cTime = dateFormatter.string(from: time)
+                    let cTime = dateFormatter.string(from: Date())
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -824,8 +858,7 @@ extension ViewController: checkMarkDelegete {
                 if !self.memoArray.isEmpty {
                     let memoId = memoArray[indexPath.row].memoId
                     let isChecked = memoArray[indexPath.row].isChecked
-                    let time = Date()
-                    let cTime = dateFormatter.string(from: time)
+                    let cTime = dateFormatter.string(from: Date())
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

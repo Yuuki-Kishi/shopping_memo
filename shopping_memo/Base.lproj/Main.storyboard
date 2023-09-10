@@ -569,6 +569,7 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="interactive" dataMode="prototypes" style="insetGrouped" allowsMultipleSelection="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="OWz-2S-Xsk">
                                 <rect key="frame" x="0.0" y="144" width="430" height="788"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <color key="sectionIndexColor" systemColor="labelColor"/>
                                 <color key="sectionIndexBackgroundColor" systemColor="systemGray6Color"/>
                                 <prototypes>
@@ -886,7 +887,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oK4-Mk-1RT">
                                 <rect key="frame" x="70" y="762" width="290" height="36"/>
                                 <color key="backgroundColor" name="MyGreen"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                 <state key="normal" title="ログイン">
                                     <color key="titleColor" systemColor="labelColor"/>
                                 </state>
@@ -1374,7 +1375,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="olk-YQ-Pz1"/>
+        <segue reference="5dJ-3b-XkT"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="NBGShoppingMemoIcon.png" width="1024" height="1024"/>

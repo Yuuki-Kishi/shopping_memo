@@ -33,30 +33,9 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         title = shoppingMemoName
-
-        noImageLabel.isHidden = true
         
-        upDateLabel.layer.cornerRadius = 5.0
-        upDateLabel.clipsToBounds = true
-        upDateLabel.layer.cornerCurve = .continuous
-        
-        upDateLabel.adjustsFontSizeToFitWidth = true
-                
-        userId = Auth.auth().currentUser?.uid
-        ref = Database.database().reference()
-        
-        guard let uid = userId else { return }
-        guard let list = list else { return }
-        guard let memoId = memoIdString else { return }
-        
-        activityIndicatorView.center = view.center
-        activityIndicatorView.style = .large
-        activityIndicatorView.color = .label
-        
-        print(imageView.center)
-        print(activityIndicatorView.center)
-        
-        imageView.addSubview(activityIndicatorView)
+        observeRealtimeDatabase()
+        UISetUp()
         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
@@ -65,6 +44,31 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             } else {
                 self.connect = false
           }})
+    }
+    
+    func UISetUp() {
+        noImageLabel.isHidden = true
+        
+        upDateLabel.layer.cornerRadius = 5.0
+        upDateLabel.clipsToBounds = true
+        upDateLabel.layer.cornerCurve = .continuous
+        
+        upDateLabel.adjustsFontSizeToFitWidth = true
+                
+        activityIndicatorView.center = view.center
+        activityIndicatorView.style = .large
+        activityIndicatorView.color = .label
+                
+        imageView.addSubview(activityIndicatorView)
+    }
+    
+    func observeRealtimeDatabase() {
+        ref = Database.database().reference()
+        userId = Auth.auth().currentUser?.uid
+        
+        guard let uid = userId else { return }
+        guard let list = list else { return }
+        guard let memoId = memoIdString else { return }
         
         ref.child("users").child(uid).child(list).child(memo).child(memoId).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
             if snapshot.value == nil {

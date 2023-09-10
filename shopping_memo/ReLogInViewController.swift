@@ -23,21 +23,14 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "再度ログイン"
-        
-        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
+        UISetUp()
         
         emailTextField.delegate = self
         passwordTextField.delegate = self
         
         emailTextField.text = userDefaults.string(forKey: "email")
         
-        signInButton.layer.cornerRadius = 18.0
-        signInButton.layer.cornerCurve = .continuous
-        
         ref = Database.database().reference()
-        
-        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
@@ -49,6 +42,14 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     }
     override func viewDidAppear(_ animated: Bool) {
         auth = Auth.auth()
+    }
+    
+    func UISetUp() {
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
+        signInButton.layer.cornerRadius = 18.0
+        signInButton.layer.cornerCurve = .continuous
+        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

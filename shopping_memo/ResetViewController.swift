@@ -51,7 +51,6 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
                 // @が含まれている時
                 Auth.auth().sendPasswordReset(withEmail: email) { error in
                     let errorCode = (error as? NSError)?.code
-                    print("errorCode:", errorCode!)
                     if error == nil{
                         let alert: UIAlertController = UIAlertController(title: "送信完了", message: "再設定メールが送れました。", preferredStyle: .alert)
                         alert.addAction(
@@ -60,7 +59,7 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
                                 style: .default,
                                 handler: { action in
                                     // OK押した時の処理
-                                    self.dismiss(animated: true, completion: nil)
+                                    self.navigationController?.popViewController(animated: true)
                                 }))
                         self.present(alert, animated: true, completion: nil)
                     } else {

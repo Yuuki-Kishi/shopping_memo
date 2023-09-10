@@ -32,23 +32,12 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "ログイン"
+        
+        UISetUp()
 
-        signInButton.layer.cornerRadius = 18.0
-        signInButton.layer.cornerCurve = .continuous
-        signUpButton.layer.cornerRadius = 10.0
-        
-        appIconImage.layer.cornerRadius = 30.0
-        appIconImage.layer.cornerCurve = .continuous
-        appIconImage.layer.borderColor = UIColor.clear.cgColor
-        
-        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
-                
         let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
         appVersionLabel.text = "Version: " + AppVer!
         
-        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-                        
         ref = Database.database().reference()
         
         menu()
@@ -63,8 +52,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         
         Task {
             let result = await AppVersionCheck.appVersionCheck()
-            
-            print("result:", AppVersionCheck.result)
             if result {
                 DispatchQueue.main.async {
                     let url = URL(string: "https://itunes.apple.com/jp/app/apple-store/id6448711012")!
@@ -78,23 +65,15 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
                                     if success {
                                         print("成功!")
                                     }
-                                }
-                            }
-                        )
-                    )
-                    
+                                }}))
                     alert.addAction(
                         UIAlertAction(
                             title: "キャンセル",
                             style: .cancel,
                             handler: { action in
-                            }
-                        )
-                    )
+                            }))
                     self.present(alert, animated: true, completion: nil)
-                }
-            }
-            print("result2:", AppVersionCheck.result)
+                }}
         }
         
         emailTextField.delegate = self
@@ -110,6 +89,21 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         if auth.currentUser != nil {
             performSegue(withIdentifier: "toHomeVC", sender: auth.currentUser)
         }
+    }
+    
+    func UISetUp() {
+        signInButton.layer.cornerRadius = 18.0
+        signInButton.layer.cornerCurve = .continuous
+        signUpButton.layer.cornerRadius = 10.0
+        
+        appIconImage.layer.cornerRadius = 30.0
+        appIconImage.layer.cornerCurve = .continuous
+        appIconImage.layer.borderColor = UIColor.clear.cgColor
+        
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
+        
+        emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+        passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

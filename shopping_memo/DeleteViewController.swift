@@ -26,23 +26,12 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "アカウント削除"
+        UISetUp()
         
         email = userDefaults.string(forKey: "email")
         password = userDefaults.string(forKey: "password")
         
-        emailLabel.text = " " + email
-        passwordLabel.text = " " + password
-        
-        emailLabel.layer.cornerRadius = 6.0
-        emailLabel.clipsToBounds = true
-        passwordLabel.layer.cornerRadius = 6.0
-        passwordLabel.clipsToBounds = true
-        
-        deleteButton.layer.cornerRadius = 18.0
-        deleteButton.layer.cornerCurve = .continuous
-                
         ref = Database.database().reference()
-        
         userId = Auth.auth().currentUser?.uid
         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
@@ -61,6 +50,19 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
         } catch let signOutError as NSError {
             print ("Error signing out: %@", signOutError)
         }
+    }
+    
+    func UISetUp() {
+        emailLabel.text = " " + email
+        passwordLabel.text = " " + password
+        
+        emailLabel.layer.cornerRadius = 6.0
+        emailLabel.clipsToBounds = true
+        passwordLabel.layer.cornerRadius = 6.0
+        passwordLabel.clipsToBounds = true
+        
+        deleteButton.layer.cornerRadius = 18.0
+        deleteButton.layer.cornerCurve = .continuous
     }
     
     @IBAction func delete() {

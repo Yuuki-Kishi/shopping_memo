@@ -27,23 +27,13 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "リスト"
-        navigationItem.hidesBackButton = true
         
         menu()
-        
-        plusButton.layer.cornerRadius = 35.0
-        
-        plusButton.layer.shadowOpacity = 0.3
-        plusButton.layer.shadowRadius = 3
-        plusButton.layer.shadowColor = UIColor.gray.cgColor
-        plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+        UISetUp()
+        observeRealtimeDatabase()
                         
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
                 
-        userId = Auth.auth().currentUser?.uid
-        
-        ref = Database.database().reference()
-        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -56,6 +46,22 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             } else {
                 self.connect = false
             }})
+    }
+    
+    func UISetUp() {
+        navigationItem.hidesBackButton = true
+
+        plusButton.layer.cornerRadius = 35.0
+        
+        plusButton.layer.shadowOpacity = 0.3
+        plusButton.layer.shadowRadius = 3
+        plusButton.layer.shadowColor = UIColor.gray.cgColor
+        plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+    }
+    
+    func observeRealtimeDatabase() {
+        ref = Database.database().reference()
+        userId = Auth.auth().currentUser?.uid
         
         ref.child("users").child(userId).observe(.childAdded, with: { [self] snapshot in
             let listId = snapshot.key
@@ -81,7 +87,6 @@ class NewmemoViewController: UIViewController, UITableViewDelegate, UITableViewD
             let index = listArray.firstIndex(where: {$0.listId == listId})
             self.tableView.reloadData()
         })
-        userId = Auth.auth().currentUser?.uid
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
