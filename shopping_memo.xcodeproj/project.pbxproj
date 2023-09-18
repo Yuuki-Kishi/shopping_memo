@@ -16,16 +16,14 @@
 		DE02CB8F2560D79C008012F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE02CB8D2560D79C008012F6 /* LaunchScreen.storyboard */; };
 		DE02CB9A2560D79D008012F6 /* shopping_memoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CB992560D79D008012F6 /* shopping_memoTests.swift */; };
 		DE02CBA52560D79D008012F6 /* shopping_memoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE02CBA42560D79D008012F6 /* shopping_memoUITests.swift */; };
-		DE0C02B0258797CE005BB17F /* MemofileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02AF258797CE005BB17F /* MemofileViewController.swift */; };
-		DE0C02B82587A313005BB17F /* NewmemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02B72587A313005BB17F /* NewmemoViewController.swift */; };
+		DE0C02B82587A313005BB17F /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0C02B72587A313005BB17F /* ListViewController.swift */; };
 		DE1BA9B42585B5A6003506E9 /* SignupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */; };
 		DE1BA9BC2585B683003506E9 /* SigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BA9BB2585B683003506E9 /* SigninViewController.swift */; };
 		DE1BAA172585F014003506E9 /* ResetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1BAA162585F014003506E9 /* ResetViewController.swift */; };
-		DE26EAF629E12BFA007AEC11 /* CheckedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26EAF429E12BFA007AEC11 /* CheckedTableViewCell.swift */; };
-		DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26EAF529E12BFA007AEC11 /* CheckedTableViewCell.xib */; };
+		DE26EAF629E12BFA007AEC11 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26EAF429E12BFA007AEC11 /* SettingTableViewCell.swift */; };
+		DE26EAF729E12BFA007AEC11 /* SettingTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26EAF529E12BFA007AEC11 /* SettingTableViewCell.xib */; };
 		DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE27F7C125735A3D007250EE /* GoogleService-Info.plist */; };
 		DE28F6E2261F270D0074934D /* NotSigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE28F6E1261F270D0074934D /* NotSigninViewController.swift */; };
-		DE361BBF25AABD4D00ADB360 /* MakeNewMemofileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE361BBE25AABD4D00ADB360 /* MakeNewMemofileViewController.swift */; };
 		DE5CBE222A42ED9C009DED0C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE212A42ED9C009DED0C /* FirebaseAnalytics */; };
 		DE5CBE242A42ED9C009DED0C /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE232A42ED9C009DED0C /* FirebaseAnalyticsSwift */; };
 		DE5CBE262A42ED9C009DED0C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE252A42ED9C009DED0C /* FirebaseAuth */; };
@@ -42,15 +40,25 @@
 		DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */; };
 		DE9BE8FE293A4F8D00992A9F /* CustomListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */; };
 		DE9BE8FF293A4F8D00992A9F /* CustomListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8FD293A4F8D00992A9F /* CustomListCell.xib */; };
-		DEA403E02929CE7600ABA7D1 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */; };
 		DEA403E32929E85C00ABA7D1 /* CustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA403E12929E85C00ABA7D1 /* CustomCell.swift */; };
 		DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEA403E22929E85C00ABA7D1 /* CustomCell.xib */; };
-		DEB6BBD42A1CF7D6001CC05A /* CheckedImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */; };
 		DEC30FC8293E055B006416C2 /* ImageViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */; };
-		DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */; };
-		DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975992620967F00AD695D /* NotViewController.swift */; };
-		DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC975A1262A69D100AD695D /* CheckedViewController.swift */; };
-		DEFD52DB291791C8007899AA /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFD52DA291791C8007899AA /* TableViewController.swift */; };
+		DEE6662F2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6662E2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift */; };
+		DEE666312AAD7A22006F3B04 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE666302AAD7A22006F3B04 /* ContentView.swift */; };
+		DEE666332AAD7A25006F3B04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEE666322AAD7A25006F3B04 /* Assets.xcassets */; };
+		DEE666362AAD7A25006F3B04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEE666352AAD7A25006F3B04 /* Preview Assets.xcassets */; };
+		DEE666392AAD7A25006F3B04 /* Watch shopping_memo Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DEE6662C2AAD7A22006F3B04 /* Watch shopping_memo Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DEEB53FD2AAD977A00ACC49A /* ShoppingMemoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB53FC2AAD977A00ACC49A /* ShoppingMemoListViewModel.swift */; };
+		DEEB53FF2AAD99CE00ACC49A /* ShoppingMemoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB53FE2AAD99CE00ACC49A /* ShoppingMemoListViewModel.swift */; };
+		DEEB54012AAF2F8400ACC49A /* RoomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB54002AAF2F8400ACC49A /* RoomViewController.swift */; };
+		DEEB54042AAF370C00ACC49A /* RoomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB54022AAF370C00ACC49A /* RoomTableViewCell.swift */; };
+		DEEB54052AAF370C00ACC49A /* RoomTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEEB54032AAF370C00ACC49A /* RoomTableViewCell.xib */; };
+		DEEB54072AAFFC3500ACC49A /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB54062AAFFC3500ACC49A /* SettingViewController.swift */; };
+		DEEB54092AB0C01100ACC49A /* MemberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB54082AB0C01100ACC49A /* MemberViewController.swift */; };
+		DEEB540C2AB1F1B900ACC49A /* ImageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB540A2AB1F1B900ACC49A /* ImageTableViewCell.swift */; };
+		DEEB540D2AB1F1B900ACC49A /* ImageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEEB540B2AB1F1B900ACC49A /* ImageTableViewCell.xib */; };
+		DEEB540F2AB2091D00ACC49A /* QRCodeReadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB540E2AB2091D00ACC49A /* QRCodeReadViewController.swift */; };
+		DEEB54112AB34AE300ACC49A /* AddMemberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEB54102AB34AE300ACC49A /* AddMemberViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,7 +76,28 @@
 			remoteGlobalIDString = DE02CB7E2560D79B008012F6;
 			remoteInfo = shopping_memo;
 		};
+		DEE666372AAD7A25006F3B04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE02CB772560D79B008012F6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE6662B2AAD7A22006F3B04;
+			remoteInfo = "Watch shopping_memo Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DEE6663A2AAD7A25006F3B04 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DEE666392AAD7A25006F3B04 /* Watch shopping_memo Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NBGShoppingMemoIcon.png; sourceTree = SOURCE_ROOT; };
@@ -86,16 +115,14 @@
 		DE02CBA02560D79D008012F6 /* shopping_memoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = shopping_memoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE02CBA42560D79D008012F6 /* shopping_memoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = shopping_memoUITests.swift; sourceTree = "<group>"; };
 		DE02CBA62560D79D008012F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DE0C02AF258797CE005BB17F /* MemofileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemofileViewController.swift; sourceTree = "<group>"; };
-		DE0C02B72587A313005BB17F /* NewmemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewmemoViewController.swift; sourceTree = "<group>"; };
+		DE0C02B72587A313005BB17F /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupViewController.swift; sourceTree = "<group>"; };
 		DE1BA9BB2585B683003506E9 /* SigninViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigninViewController.swift; sourceTree = "<group>"; };
 		DE1BAA162585F014003506E9 /* ResetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetViewController.swift; sourceTree = "<group>"; };
-		DE26EAF429E12BFA007AEC11 /* CheckedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedTableViewCell.swift; sourceTree = "<group>"; };
-		DE26EAF529E12BFA007AEC11 /* CheckedTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CheckedTableViewCell.xib; sourceTree = "<group>"; };
+		DE26EAF429E12BFA007AEC11 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
+		DE26EAF529E12BFA007AEC11 /* SettingTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingTableViewCell.xib; sourceTree = "<group>"; };
 		DE27F7C125735A3D007250EE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DE28F6E1261F270D0074934D /* NotSigninViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotSigninViewController.swift; sourceTree = "<group>"; };
-		DE361BBE25AABD4D00ADB360 /* MakeNewMemofileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MakeNewMemofileViewController.swift; sourceTree = "<group>"; };
 		DE5CBE312A4475D2009DED0C /* AppVersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionCheck.swift; sourceTree = "<group>"; };
 		DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReLogInViewController.swift; sourceTree = "<group>"; };
 		DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteViewController.swift; sourceTree = "<group>"; };
@@ -105,15 +132,25 @@
 		DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomTableViewCell.xib; sourceTree = "<group>"; };
 		DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListCell.swift; sourceTree = "<group>"; };
 		DE9BE8FD293A4F8D00992A9F /* CustomListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomListCell.xib; sourceTree = "<group>"; };
-		DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		DEA403E12929E85C00ABA7D1 /* CustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCell.swift; sourceTree = "<group>"; };
 		DEA403E22929E85C00ABA7D1 /* CustomCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomCell.xib; sourceTree = "<group>"; };
-		DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedImageViewController.swift; sourceTree = "<group>"; };
 		DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewViewController.swift; sourceTree = "<group>"; };
-		DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotMakeNewMemoViewController.swift; sourceTree = "<group>"; };
-		DEC975992620967F00AD695D /* NotViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotViewController.swift; sourceTree = "<group>"; };
-		DEC975A1262A69D100AD695D /* CheckedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckedViewController.swift; sourceTree = "<group>"; };
-		DEFD52DA291791C8007899AA /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		DEE6662C2AAD7A22006F3B04 /* Watch shopping_memo Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Watch shopping_memo Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE6662E2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Watch_shopping_memoApp.swift; sourceTree = "<group>"; };
+		DEE666302AAD7A22006F3B04 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DEE666322AAD7A25006F3B04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DEE666352AAD7A25006F3B04 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DEEB53FC2AAD977A00ACC49A /* ShoppingMemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingMemoListViewModel.swift; sourceTree = "<group>"; };
+		DEEB53FE2AAD99CE00ACC49A /* ShoppingMemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingMemoListViewModel.swift; sourceTree = "<group>"; };
+		DEEB54002AAF2F8400ACC49A /* RoomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomViewController.swift; sourceTree = "<group>"; };
+		DEEB54022AAF370C00ACC49A /* RoomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomTableViewCell.swift; sourceTree = "<group>"; };
+		DEEB54032AAF370C00ACC49A /* RoomTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RoomTableViewCell.xib; sourceTree = "<group>"; };
+		DEEB54062AAFFC3500ACC49A /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		DEEB54082AB0C01100ACC49A /* MemberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberViewController.swift; sourceTree = "<group>"; };
+		DEEB540A2AB1F1B900ACC49A /* ImageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTableViewCell.swift; sourceTree = "<group>"; };
+		DEEB540B2AB1F1B900ACC49A /* ImageTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImageTableViewCell.xib; sourceTree = "<group>"; };
+		DEEB540E2AB2091D00ACC49A /* QRCodeReadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeReadViewController.swift; sourceTree = "<group>"; };
+		DEEB54102AB34AE300ACC49A /* AddMemberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMemberViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +182,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE666292AAD7A22006F3B04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -161,6 +205,7 @@
 				DE02CB812560D79B008012F6 /* shopping_memo */,
 				DE02CB982560D79D008012F6 /* shopping_memoTests */,
 				DE02CBA32560D79D008012F6 /* shopping_memoUITests */,
+				DEE6662D2AAD7A22006F3B04 /* Watch shopping_memo Watch App */,
 				DE02CB802560D79B008012F6 /* Products */,
 				DA5C2D6B8D6E384877F1FE14 /* Frameworks */,
 			);
@@ -172,6 +217,7 @@
 				DE02CB7F2560D79B008012F6 /* shopping_memo.app */,
 				DE02CB952560D79D008012F6 /* shopping_memoTests.xctest */,
 				DE02CBA02560D79D008012F6 /* shopping_memoUITests.xctest */,
+				DEE6662C2AAD7A22006F3B04 /* Watch shopping_memo Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,35 +228,37 @@
 				DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
-				DE02CB862560D79B008012F6 /* ViewController.swift */,
-				DEC975A1262A69D100AD695D /* CheckedViewController.swift */,
 				DE1BA9BB2585B683003506E9 /* SigninViewController.swift */,
 				DE1BA9B32585B5A6003506E9 /* SignupViewController.swift */,
 				DE1BAA162585F014003506E9 /* ResetViewController.swift */,
-				DE0C02AF258797CE005BB17F /* MemofileViewController.swift */,
-				DE0C02B72587A313005BB17F /* NewmemoViewController.swift */,
-				DE361BBE25AABD4D00ADB360 /* MakeNewMemofileViewController.swift */,
+				DEEB54002AAF2F8400ACC49A /* RoomViewController.swift */,
+				DE0C02B72587A313005BB17F /* ListViewController.swift */,
+				DE02CB862560D79B008012F6 /* ViewController.swift */,
 				DE28F6E1261F270D0074934D /* NotSigninViewController.swift */,
-				DEC975912620944C00AD695D /* NotMakeNewMemoViewController.swift */,
-				DEC975992620967F00AD695D /* NotViewController.swift */,
-				DEFD52DA291791C8007899AA /* TableViewController.swift */,
-				DEA403DF2929CE7600ABA7D1 /* ListViewController.swift */,
 				DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */,
-				DEB6BBD32A1CF7D6001CC05A /* CheckedImageViewController.swift */,
+				DEEB54082AB0C01100ACC49A /* MemberViewController.swift */,
+				DEEB540E2AB2091D00ACC49A /* QRCodeReadViewController.swift */,
+				DEEB54102AB34AE300ACC49A /* AddMemberViewController.swift */,
+				DEEB54062AAFFC3500ACC49A /* SettingViewController.swift */,
 				DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */,
 				DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */,
 				DE02CB882560D79B008012F6 /* Main.storyboard */,
 				DEA403E12929E85C00ABA7D1 /* CustomCell.swift */,
 				DEA403E22929E85C00ABA7D1 /* CustomCell.xib */,
+				DEEB54022AAF370C00ACC49A /* RoomTableViewCell.swift */,
+				DEEB54032AAF370C00ACC49A /* RoomTableViewCell.xib */,
 				DE74EA6E2A19BEA300C87A7E /* NotLogInTableViewCell.swift */,
 				DE74EA6F2A19BEA300C87A7E /* NotLogInTableViewCell.xib */,
 				DE9BE8F8293A3CC200992A9F /* CustomTableViewCell.swift */,
 				DE9BE8F9293A3CC200992A9F /* CustomTableViewCell.xib */,
-				DE26EAF429E12BFA007AEC11 /* CheckedTableViewCell.swift */,
-				DE26EAF529E12BFA007AEC11 /* CheckedTableViewCell.xib */,
+				DE26EAF429E12BFA007AEC11 /* SettingTableViewCell.swift */,
+				DE26EAF529E12BFA007AEC11 /* SettingTableViewCell.xib */,
+				DEEB540A2AB1F1B900ACC49A /* ImageTableViewCell.swift */,
+				DEEB540B2AB1F1B900ACC49A /* ImageTableViewCell.xib */,
 				DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */,
 				DE9BE8FD293A4F8D00992A9F /* CustomListCell.xib */,
 				DE5CBE312A4475D2009DED0C /* AppVersionCheck.swift */,
+				DEEB53FE2AAD99CE00ACC49A /* ShoppingMemoListViewModel.swift */,
 				DE02CB8B2560D79C008012F6 /* Assets.xcassets */,
 				DE02CB8D2560D79C008012F6 /* LaunchScreen.storyboard */,
 				DE27F7C125735A3D007250EE /* GoogleService-Info.plist */,
@@ -237,6 +285,26 @@
 			path = shopping_memoUITests;
 			sourceTree = "<group>";
 		};
+		DEE6662D2AAD7A22006F3B04 /* Watch shopping_memo Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				DEE6662E2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift */,
+				DEE666302AAD7A22006F3B04 /* ContentView.swift */,
+				DEEB53FC2AAD977A00ACC49A /* ShoppingMemoListViewModel.swift */,
+				DEE666322AAD7A25006F3B04 /* Assets.xcassets */,
+				DEE666342AAD7A25006F3B04 /* Preview Content */,
+			);
+			path = "Watch shopping_memo Watch App";
+			sourceTree = "<group>";
+		};
+		DEE666342AAD7A25006F3B04 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				DEE666352AAD7A25006F3B04 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -247,10 +315,12 @@
 				DE02CB7B2560D79B008012F6 /* Sources */,
 				DE02CB7C2560D79B008012F6 /* Frameworks */,
 				DE02CB7D2560D79B008012F6 /* Resources */,
+				DEE6663A2AAD7A25006F3B04 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DEE666382AAD7A25006F3B04 /* PBXTargetDependency */,
 			);
 			name = shopping_memo;
 			packageProductDependencies = (
@@ -305,13 +375,30 @@
 			productReference = DE02CBA02560D79D008012F6 /* shopping_memoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		DEE6662B2AAD7A22006F3B04 /* Watch shopping_memo Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE6663D2AAD7A25006F3B04 /* Build configuration list for PBXNativeTarget "Watch shopping_memo Watch App" */;
+			buildPhases = (
+				DEE666282AAD7A22006F3B04 /* Sources */,
+				DEE666292AAD7A22006F3B04 /* Frameworks */,
+				DEE6662A2AAD7A22006F3B04 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Watch shopping_memo Watch App";
+			productName = "Watch shopping_memo Watch App";
+			productReference = DEE6662C2AAD7A22006F3B04 /* Watch shopping_memo Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		DE02CB772560D79B008012F6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1210;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					DE02CB7E2560D79B008012F6 = {
@@ -324,6 +411,9 @@
 					DE02CB9F2560D79D008012F6 = {
 						CreatedOnToolsVersion = 12.1;
 						TestTargetID = DE02CB7E2560D79B008012F6;
+					};
+					DEE6662B2AAD7A22006F3B04 = {
+						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
 			};
@@ -346,6 +436,7 @@
 				DE02CB7E2560D79B008012F6 /* shopping_memo */,
 				DE02CB942560D79D008012F6 /* shopping_memoTests */,
 				DE02CB9F2560D79D008012F6 /* shopping_memoUITests */,
+				DEE6662B2AAD7A22006F3B04 /* Watch shopping_memo Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -358,12 +449,14 @@
 				DE02CB8F2560D79C008012F6 /* LaunchScreen.storyboard in Resources */,
 				DE9BE8FF293A4F8D00992A9F /* CustomListCell.xib in Resources */,
 				DE74EA712A19BEA300C87A7E /* NotLogInTableViewCell.xib in Resources */,
-				DE26EAF729E12BFA007AEC11 /* CheckedTableViewCell.xib in Resources */,
+				DE26EAF729E12BFA007AEC11 /* SettingTableViewCell.xib in Resources */,
 				DEA403E42929E85C00ABA7D1 /* CustomCell.xib in Resources */,
 				DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */,
 				DE00691C2A84BCAD0096B25F /* NBGShoppingMemoIcon.png in Resources */,
 				DE02CB8C2560D79C008012F6 /* Assets.xcassets in Resources */,
 				DE9BE8FB293A3CC200992A9F /* CustomTableViewCell.xib in Resources */,
+				DEEB540D2AB1F1B900ACC49A /* ImageTableViewCell.xib in Resources */,
+				DEEB54052AAF370C00ACC49A /* RoomTableViewCell.xib in Resources */,
 				DE02CB8A2560D79B008012F6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -379,6 +472,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE6662A2AAD7A22006F3B04 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEE666362AAD7A25006F3B04 /* Preview Assets.xcassets in Resources */,
+				DEE666332AAD7A25006F3B04 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,28 +557,28 @@
 			files = (
 				DE5CBE322A4475D2009DED0C /* AppVersionCheck.swift in Sources */,
 				DE74EA6B2A19BD5600C87A7E /* ReLogInViewController.swift in Sources */,
-				DEC975922620944C00AD695D /* NotMakeNewMemoViewController.swift in Sources */,
-				DEFD52DB291791C8007899AA /* TableViewController.swift in Sources */,
+				DEEB54092AB0C01100ACC49A /* MemberViewController.swift in Sources */,
 				DE02CB872560D79B008012F6 /* ViewController.swift in Sources */,
 				DE1BA9BC2585B683003506E9 /* SigninViewController.swift in Sources */,
+				DEEB53FF2AAD99CE00ACC49A /* ShoppingMemoListViewModel.swift in Sources */,
+				DEEB540C2AB1F1B900ACC49A /* ImageTableViewCell.swift in Sources */,
+				DEEB54072AAFFC3500ACC49A /* SettingViewController.swift in Sources */,
 				DE74EA6D2A19BD9F00C87A7E /* DeleteViewController.swift in Sources */,
-				DE361BBF25AABD4D00ADB360 /* MakeNewMemofileViewController.swift in Sources */,
-				DEC975A2262A69D100AD695D /* CheckedViewController.swift in Sources */,
-				DEB6BBD42A1CF7D6001CC05A /* CheckedImageViewController.swift in Sources */,
+				DEEB54042AAF370C00ACC49A /* RoomTableViewCell.swift in Sources */,
+				DEEB540F2AB2091D00ACC49A /* QRCodeReadViewController.swift in Sources */,
 				DEA403E32929E85C00ABA7D1 /* CustomCell.swift in Sources */,
 				DE02CB832560D79B008012F6 /* AppDelegate.swift in Sources */,
 				DE1BA9B42585B5A6003506E9 /* SignupViewController.swift in Sources */,
 				DE74EA702A19BEA300C87A7E /* NotLogInTableViewCell.swift in Sources */,
 				DE9BE8FA293A3CC200992A9F /* CustomTableViewCell.swift in Sources */,
-				DEA403E02929CE7600ABA7D1 /* ListViewController.swift in Sources */,
-				DE26EAF629E12BFA007AEC11 /* CheckedTableViewCell.swift in Sources */,
+				DE26EAF629E12BFA007AEC11 /* SettingTableViewCell.swift in Sources */,
+				DEEB54112AB34AE300ACC49A /* AddMemberViewController.swift in Sources */,
 				DEC30FC8293E055B006416C2 /* ImageViewViewController.swift in Sources */,
 				DE1BAA172585F014003506E9 /* ResetViewController.swift in Sources */,
 				DE28F6E2261F270D0074934D /* NotSigninViewController.swift in Sources */,
-				DE0C02B82587A313005BB17F /* NewmemoViewController.swift in Sources */,
+				DE0C02B82587A313005BB17F /* ListViewController.swift in Sources */,
 				DE9BE8FE293A4F8D00992A9F /* CustomListCell.swift in Sources */,
-				DE0C02B0258797CE005BB17F /* MemofileViewController.swift in Sources */,
-				DEC9759A2620967F00AD695D /* NotViewController.swift in Sources */,
+				DEEB54012AAF2F8400ACC49A /* RoomViewController.swift in Sources */,
 				DE02CB852560D79B008012F6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -497,6 +599,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE666282AAD7A22006F3B04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEEB53FD2AAD977A00ACC49A /* ShoppingMemoListViewModel.swift in Sources */,
+				DEE666312AAD7A22006F3B04 /* ContentView.swift in Sources */,
+				DEE6662F2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -509,6 +621,11 @@
 			isa = PBXTargetDependency;
 			target = DE02CB7E2560D79B008012F6 /* shopping_memo */;
 			targetProxy = DE02CBA12560D79D008012F6 /* PBXContainerItemProxy */;
+		};
+		DEE666382AAD7A25006F3B04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE6662B2AAD7A22006F3B04 /* Watch shopping_memo Watch App */;
+			targetProxy = DEE666372AAD7A25006F3B04 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -651,6 +768,7 @@
 		DE02CBAA2560D79D008012F6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -676,6 +794,7 @@
 		DE02CBAB2560D79D008012F6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -778,6 +897,68 @@
 			};
 			name = Release;
 		};
+		DEE6663B2AAD7A25006F3B04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Watch shopping_memo Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = 85MXHZWC2N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Watch shopping_memo";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.Kishi.Yuki.shoppingmemo;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+			};
+			name = Debug;
+		};
+		DEE6663C2AAD7A25006F3B04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Watch shopping_memo Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = 85MXHZWC2N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Watch shopping_memo";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.Kishi.Yuki.shoppingmemo;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -813,6 +994,15 @@
 			buildConfigurations = (
 				DE02CBB02560D79D008012F6 /* Debug */,
 				DE02CBB12560D79D008012F6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEE6663D2AAD7A25006F3B04 /* Build configuration list for PBXNativeTarget "Watch shopping_memo Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE6663B2AAD7A25006F3B04 /* Debug */,
+				DEE6663C2AAD7A25006F3B04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

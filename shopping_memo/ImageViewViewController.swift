@@ -16,13 +16,13 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet var noImageLabel: UILabel!
     @IBOutlet var upDateLabel: UILabel!
     
-    var shoppingMemoName: String!
-    var memoIdString: String!
-    var imageUrlString: String!
     var userId: String!
-    var list: String!
+    var roomIdString: String!
+    var listIdString: String!
+    var memoIdString: String!
+    var shoppingMemoName: String!
+    var imageUrlString: String!
     var imageRef: StorageReference!
-    let memo = "memo"
     var ref: DatabaseReference!
     let df = DateFormatter()
     let storage = Storage.storage()
@@ -66,11 +66,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
         
-        guard let uid = userId else { return }
-        guard let list = list else { return }
-        guard let memoId = memoIdString else { return }
-        
-        ref.child("users").child(uid).child(list).child(memo).child(memoId).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoIdString).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
             if snapshot.value == nil {
                 return
             }
@@ -113,7 +109,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             print(error.localizedDescription)
         }
         
-        ref.child("users").child(uid).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childChanged, with: { [self] snapshot in
             activityIndicatorView.startAnimating()
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             menu(url: url)
@@ -154,6 +150,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        //.originalImageにするとトリミングなしになる
         guard let image = info[.originalImage] as? UIImage else { return }
         guard let imageData = image.jpegData(compressionQuality: 0.3) /*as? UIImage*/ else { return }
         guard let uid = userId else { return }
@@ -170,14 +167,11 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 imageRef.downloadURL { (url, error) in
                     guard let downloadURL = url else { return }
                     let imageUrl = downloadURL.absoluteString
-                    self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": imageUrl])
+                    self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["imageUrl": imageUrl])
                 }
             }
         }
-        //.originalImageにするとトリミングなしになる
-        //imageView.image = info[.originalImage] as? UIImage
         imageView.image = nil
-//        upDateLabel.text = ""
         dismiss(animated: true, completion: nil)
     }
     
@@ -227,7 +221,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                                     if let error = error {
                                         print(error)
                                     } else {
-                                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["imageUrl": ""])
+                                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["imageUrl": ""])
                                         self.imageView.contentMode = .center
                                         self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
                                         self.imageView.image = UIImage(systemName: "photo")

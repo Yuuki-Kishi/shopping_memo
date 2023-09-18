@@ -12,12 +12,9 @@ class AppVersionCheck {
     static var result = false
     
     static func appVersionCheck() async -> Bool {
-        print("1")
         guard let info = Bundle.main.infoDictionary,
             let appVersion = info["CFBundleShortVersionString"] as? String,
             let url = URL(string: "https://itunes.apple.com/jp/lookup?id=6448711012") else { return false }
-         print("2")
-        print("url:", url)
         
         do {
             let (data, response) = try await URLSession.shared.data(from: url)

@@ -12,6 +12,7 @@ import FirebaseAuth
 class SignupViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var signUpButton: UIButton!
+    @IBOutlet weak var userNameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var passwordCheckTextField: UITextField!
@@ -58,6 +59,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         appIconImage.layer.cornerRadius = 30.0
         appIconImage.layer.cornerCurve = .continuous
                 
+        userNameTextField.attributedPlaceholder = NSAttributedString(string: "ユーザーネーム",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordCheckTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(確認)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
@@ -78,6 +80,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     }
     
     func createAccount() {
+        let userName = userNameTextField.text!
         let email = emailTextField.text!
         let password = passwordTextField.text!
         if emailTextField.text == "" {
@@ -88,6 +91,12 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
             alert.addAction(ok)
         } else if passwordTextField.text == "" {
             let alert = UIAlertController(title: "新規登録できません", message: "パスワードが入力されていません。", preferredStyle: .alert)
+            present(alert, animated: true, completion: nil)
+            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
+            }
+            alert.addAction(ok)
+        } else if userNameTextField.text == "" {
+            let alert = UIAlertController(title: "新規登録できません", message: "ユーザーネームが入力されいません。", preferredStyle: .alert)
             present(alert, animated: true, completion: nil)
             let ok = UIAlertAction(title: "OK", style: .default) { (action) in
             }
@@ -109,7 +118,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
                 self.userDefaults.set(email, forKey: "email")
                 let errorCode = (error as? NSError)?.code
                 if error == nil, let result = authResult {
-                    self.performSegue(withIdentifier: "toHomeVC", sender: result.user)
+                    self.userDefaults.set(userName, forKey: "userName")
+                    self.performSegue(withIdentifier: "toRoomVC", sender: result.user)
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                     alert.addAction(

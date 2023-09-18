@@ -19,23 +19,22 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     var checkedSwitch = false
     var removeSwitch = false
     var connect = false
-    var name: String!
-    var memoIdString: String!
-    var imageUrlString: String!
     
     @IBOutlet var table: UITableView!
     @IBOutlet var titleTextField: UITextField!
     var auth: Auth!
     var userId: String!
-    var list: String!
+    var roomIdString: String!
+    var listIdString: String!
+    var listNameString: String!
+    var memoIdString: String!
     var shoppingMemoName: String!
+    var imageUrlString: String!
     
     @IBOutlet var menuButton: UIButton!
-    let checked = "チェック済み"
-    let nonCheck = "未チェック"
-    let memo = "memo"
     var ref: DatabaseReference!
     var menuBarButtonItem: UIBarButtonItem!
+    var viewModel = ShoppingMemoListViewModel()
 
     // String型の配列
     var memoArray = [(memoId: String, memoCount: Int, checkedCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, checkedTime: Date, imageUrl: String)]()
@@ -46,12 +45,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = name
+        title = listNameString
 
         menu()
         setUpTable()
         observeRealtimeDatabase()
-        
+//        sendMessage()
+                
         memoSortInt = userDefaults.integer(forKey: "memoSortInt")
         checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
         checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
@@ -70,9 +70,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        ref.child("users").child(userId).child(list).observe(.childChanged, with: { [self] snapshot in
+        ref.child("users").child(userId).child(listIdString).observe(.childChanged, with: { [self] snapshot in
             guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
-            name = listName
+            listNameString = listName
         })
         table.reloadData()
     }
@@ -107,24 +107,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     func observeRealtimeDatabase() {
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
-        // nonCheckに追加されたとき、firebaseのデータを引っ張ってくる
-        ref.child("users").child(userId).child(list).child(nonCheck).observe(.childAdded, with: { [self] snapshot in
-            let memoId = snapshot.key // memo0とか
-            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
-            let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
-            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-                        
-            ref.child("users").child(userId).child(list).child(nonCheck).child(memoId).removeValue()
-            ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
-            
-            sort()
-        })
         
-        ref.child("users").child(userId).child(list).child(checked).observe(.childAdded, with: { [self] snapshot in
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childAdded, with: { [self] snapshot in
             let memoId = snapshot.key // memo0とか
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
             guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
@@ -133,29 +117,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
             let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
             guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-                        
-            ref.child("users").child(userId).child(list).child(checked).child(memoId).removeValue()
-            ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
-            
-            sort()
-        })
-        
-        ref.child("users").child(userId).child(list).child(memo).observe(.childAdded, with: { [self] snapshot in
-            let memoId = snapshot.key // memo0とか
-            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
-            let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
-            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-            
+
             dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
             dateFormatter.locale = Locale(identifier: "en_US_POSIX")
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
             let time = dateFormatter.date(from: checkedTime)
-            
+
             if isChecked {
                 self.checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
             } else {
@@ -164,8 +132,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             sort()
         })
         
-        ref.child("users").child(userId).child(list).child(memo).observe(.childChanged, with: { [self] snapshot in
-            changedSwitch = userDefaults.bool(forKey: "changedSwitch")
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childChanged, with: { [self] snapshot in
             let memoId = snapshot.key // memo0とか
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
             guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
@@ -181,6 +148,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let date = dateFormatter.date(from: dateNow)
             let time = dateFormatter.date(from: checkedTime)
             
+            changedSwitch = userDefaults.bool(forKey: "changedSwitch")
             memoSortInt = userDefaults.integer(forKey: "memoSortInt")
             
             if changedSwitch {
@@ -197,30 +165,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 userDefaults.set(changedSwitch, forKey: "changedSwitch")
             } else {
                 if isChecked {
-                    let mIndex = memoArray.firstIndex(where: {$0.memoId == memoId})
                     let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId})
-                    if cIndex == nil {
-                        memoArray.remove(at: mIndex!)
-                        checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                    } else {
-                        checkedArray[cIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                    }
+                    checkedArray[cIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 } else {
                     let mIndex = memoArray.firstIndex(where: {$0.memoId == memoId})
-                    let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId})
-                    if mIndex == nil {
-                        checkedArray.remove(at: cIndex!)
-                        memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                    } else {
-                        memoArray[mIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                    }
+                    memoArray[mIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 }
             }
             sort()
+//            sendMessage()
         })
         
 //         memoの中身が消えたとき
-        ref.child("users").child(userId).child(list).child(memo).observe(.childRemoved, with: { [self] snapshot in
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { [self] snapshot in
             self.removeSwitch = userDefaults.bool(forKey: "removeSwitch")
             if !removeSwitch {
                 let memoId = snapshot.key
@@ -235,6 +192,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 self.table.reloadData()
             }
         })
+    }
+    //MARK: - sendMessage
+    func sendMessage() {
+        let messages: [String: Any] = ["memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "isChecked": self.memoArray.map {$0.isChecked}, "imageUrl": self.memoArray.map {$0.imageUrl}]
+        self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
+            print(error.localizedDescription)
+        }
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
@@ -311,7 +275,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
 
         title.translatesAutoresizingMaskIntoConstraints = false
         title.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
-        title.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
+        title.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 10).isActive = true
 
         return headerView
     }
@@ -394,7 +358,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         var alertTextField: UITextField!
         let index = indexPath.row
         var memoId = ""
-        var isCheckedBool: Bool!
         tableView.deselectRow(at: indexPath, animated: true)
         
         let alert: UIAlertController = UIAlertController(title: "メモの変更", message: "変更後のメモを記入してください。", preferredStyle: .alert)
@@ -406,46 +369,26 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 if indexPath.section == 0 {
                     memoId = self.memoArray[indexPath.row].memoId
                     alertTextField.text = self.memoArray[index].shoppingMemo
-                    isCheckedBool = false
                 } else if indexPath.section == 1 {
                     memoId = self.checkedArray[indexPath.row].memoId
                     alertTextField.text = self.checkedArray[index].shoppingMemo
-                    isCheckedBool = true
                 }
             } else if tableView.numberOfSections == 1 {
                 if self.checkedArray.isEmpty {
                     memoId = self.memoArray[indexPath.row].memoId
                     alertTextField.text = self.memoArray[index].shoppingMemo
-                    isCheckedBool = false
                 } else if self.memoArray.isEmpty {
                     memoId = self.checkedArray[indexPath.row].memoId
                     alertTextField.text = self.checkedArray[index].shoppingMemo
-                    isCheckedBool = true
                 }
             }
             
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                        if alertTextField.text != "" {
-                            let text = alertTextField.text!
-                            if isCheckedBool {
-                                self.checkedArray[index].shoppingMemo = text
-                            } else {
-                                self.memoArray[index].shoppingMemo = text
-                            }
-                            self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["shoppingMemo": text])
-                            self.table.reloadData()
-                        }
-                    })
-                )
-            alert.addAction(
-                UIAlertAction(
-                    title: "キャンセル",
-                    style: .cancel
-                ))
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                if alertTextField.text != "" {
+                    let text = alertTextField.text!
+                    self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["shoppingMemo": text])
+                }}))
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
         }
     }
@@ -459,23 +402,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let time = dateFormatter.string(from: Date())
             if titleTextField.text == "" {
                 let alert: UIAlertController = UIAlertController(title: "メモを追加できません。", message: "記入欄が空白です。", preferredStyle: .alert)
-                alert.addAction(
-                    UIAlertAction(
-                        title: "OK",
-                        style: .default,
-                        handler: { action in
-                        }
-                    )
-                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                self.ref.child("users").child(userId).child(list).child(memo).child("memo\(time)").updateChildValues(["memoCount": -1, "checkedCount": 0, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
+                self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child("memo\(time)").updateChildValues(["memoCount": -1, "checkedCount": 0, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
             }
         } else {
             alert()
         }
-        
         //終わりの文
         return true
     }
@@ -490,31 +425,27 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 if indexPath.section == 0 {
                     let memoId = self.memoArray[indexPath.row].memoId
                     if self.memoArray.count == 1 {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.memoArray.remove(at: indexPath.row)
                         tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
                         completionHandler(true)
                     } else {
-                        //削除処理を記述
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.memoArray.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                        // 実行結果に関わらず記述
                         completionHandler(true)
                     }
                 } else {
                     let memoId = self.checkedArray[indexPath.row].memoId
                     if self.checkedArray.count == 1 {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.checkedArray.remove(at: indexPath.row)
                         tableView.deleteSections([1], with: UITableView.RowAnimation.automatic)
                         completionHandler(true)
                     } else {
-                        //削除処理を記述
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.checkedArray.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                        // 実行結果に関わらず記述
                         completionHandler(true)
                     }
                 }
@@ -522,13 +453,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 if self.checkedArray.isEmpty {
                     let memoId = self.memoArray[indexPath.row].memoId
                     if self.memoArray.count == 1 {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.memoArray.remove(at: indexPath.row)
                         tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
                         completionHandler(true)
                     } else {
-                        //削除処理を記述
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.memoArray.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
                         // 実行結果に関わらず記述
@@ -537,13 +467,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 } else if self.memoArray.isEmpty {
                     let memoId = self.checkedArray[indexPath.row].memoId
                     if self.checkedArray.count == 1 {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.checkedArray.remove(at: indexPath.row)
                         tableView.deleteSections([0], with: UITableView.RowAnimation.automatic)
                         completionHandler(true)
                     } else {
                         //削除処理を記述
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                         self.checkedArray.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
                         // 実行結果に関わらず記述
@@ -562,9 +492,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toImageViewVC" {
             let next = segue.destination as? ImageViewViewController
-            next?.shoppingMemoName = shoppingMemoName
+            next?.roomIdString = roomIdString
+            next?.listIdString = listIdString
             next?.memoIdString = memoIdString
-            next?.list = list
+            next?.shoppingMemoName = shoppingMemoName
             next?.imageUrlString = imageUrlString
         }
     }
@@ -722,22 +653,16 @@ extension ViewController {
     func memoArraySort() {
         for i in 0...memoArray.count - 1 {
             let memoId = memoArray[i].memoId
-            var memoCount = memoArray[i].memoCount
-            
-            memoCount = i
-            memoArray[i].memoCount = memoCount
-            self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["memoCount": memoCount])
+            memoArray[i].memoCount = i
+            self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoId).updateChildValues(["memoCount": i])
         }
     }
     
     func checkedArraySort() {
         for i in 0...checkedArray.count - 1 {
             let memoId = checkedArray[i].memoId
-            var checkedCount = checkedArray[i].checkedCount
-            
-            checkedCount = i
-            checkedArray[i].checkedCount = checkedCount
-            self.ref.child("users").child(userId).child(list).child(memo).child(memoId).updateChildValues(["checkedCount": checkedCount])
+            checkedArray[i].checkedCount = i
+            self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoId).updateChildValues(["checkedCount": i])
         }
     }
     
@@ -780,37 +705,24 @@ extension ViewController {
         if self.checkedArray.count != 0 {
             if self.connect {
                 let alert: UIAlertController = UIAlertController(title: "本当に削除しますか？", message: "この操作は取り消すことができません。", preferredStyle: .alert)
-                alert.addAction(
-                    UIAlertAction(
-                        title: "削除",
-                        style: .destructive,
-                        handler: { action in
+                alert.addAction(UIAlertAction(title: "削除", style: .destructive, handler: { action in
                             self.removeSwitch = true
                             self.userDefaults.set(self.removeSwitch, forKey: "removeSwitch")
                             for i in 0...self.checkedArray.count - 1 {
                                 let memoId = self.checkedArray[i].memoId
-                                self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).removeValue()
+                                self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                             }
                             self.checkedArray.removeAll()
                             self.table.reloadData()
                         }))
-                alert.addAction(
-                    UIAlertAction(
-                        title: "キャンセル",
-                        style: .cancel
-                    ))
+                alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                 self.present(alert, animated: true, completion: nil)
             } else {
                 self.alert()
             }
         } else {
             let alert: UIAlertController = UIAlertController(title: "削除できません", message: "削除できる完了項目がありません。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         }
         self.removeSwitch = false
@@ -844,14 +756,14 @@ extension ViewController: checkMarkDelegete {
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
                     }
                 } else if indexPath.section == 1 {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = checkedArray[indexPath.row].memoId
                     let isChecked = checkedArray[indexPath.row].isChecked
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked])
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["isChecked": !isChecked])
                     }
                 }
             } else if self.table.numberOfSections == 1 {
@@ -862,14 +774,14 @@ extension ViewController: checkMarkDelegete {
                     self.memoSortInt = 3
                     self.userDefaults.set(self.memoSortInt, forKey: "memoSortInt")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["isChecked": !isChecked, "checkedTime": cTime])
                     }
                 } else if !self.checkedArray.isEmpty {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
                     let memoId = checkedArray[indexPath.row].memoId
                     let isChecked = checkedArray[indexPath.row].isChecked
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.ref.child("users").child(self.userId).child(self.list).child(self.memo).child(memoId).updateChildValues(["isChecked": !isChecked])
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["isChecked": !isChecked])
                     }
                 }
             }
