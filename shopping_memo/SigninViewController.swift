@@ -81,7 +81,10 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
                     self.ref.child("users").child(userId!).child("metadata").updateChildValues(["email": email!])
                 }
             })
-            performSegue(withIdentifier: "toRoomVC", sender: auth.currentUser)
+            let isEmailVerified = auth.currentUser?.isEmailVerified
+            if isEmailVerified! {
+                performSegue(withIdentifier: "toRoomVC", sender: auth.currentUser)
+            }
         }
     }
     
@@ -137,10 +140,15 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         } else {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
-                    self.userDefaults.set(email, forKey: "email")
-                    self.userDefaults.set(password, forKey: "password")
-                    self.performSegue(withIdentifier: "toRoomVC", sender: result.user)
-                    self.passwordTextField.text = ""
+                    let isEmailVerified = self.auth.currentUser?.isEmailVerified
+                    if isEmailVerified! {
+                        self.userDefaults.set(email, forKey: "email")
+                        self.userDefaults.set(password, forKey: "password")
+                        self.performSegue(withIdentifier: "toRoomVC", sender: result.user)
+                        self.passwordTextField.text = ""
+                    } else {
+                        self.performSegue(withIdentifier: "toMCVC", sender: nil)
+                    }
                 } else {
                     print("error: \(error!)")
                     let errorCode = (error as? NSError)?.code

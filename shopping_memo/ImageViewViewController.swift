@@ -147,6 +147,61 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 }
             }
         })
+        
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { snapshot in
+            let memoId = snapshot.key
+            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
+            if memoId == self.memoIdString {
+                self.title = shoppingMemo
+            }
+        })
+        
+        ref.child("rooms").observe(.childRemoved, with:  { snapshot in
+            let roomId = snapshot.key
+            if roomId == self.roomIdString {
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 4], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
+        
+        ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { snapshot in
+            let listId = snapshot.key
+            if listId == self.listIdString {
+                let alert: UIAlertController = UIAlertController(title: "リストが削除されました。", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
+        
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { snapshot in
+            let memoId = snapshot.key
+            if memoId == self.memoIdString {
+                let alert: UIAlertController = UIAlertController(title: "「" + self.shoppingMemoName + "」が削除されました。", message: "詳しくは削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
+        
+        ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { snapshot in
+            let userId = snapshot.key
+            if userId == self.userId {
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 4], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -168,6 +223,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     guard let downloadURL = url else { return }
                     let imageUrl = downloadURL.absoluteString
                     self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["imageUrl": imageUrl])
+                    GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                 }
             }
         }
@@ -184,14 +240,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 present(picker, animated: true, completion: nil)
             }
         } else {
-            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
     
@@ -199,56 +248,39 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         guard let uid = userId else { return }
         guard let memoId = memoIdString else { return }
         let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
-            if imageView.image == UIImage(systemName: "photo") {
-                let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
-                alert.addAction(
-                    UIAlertAction(
-                        title: "OK",
-                        style: .default
-                    )
+        if imageView.image == UIImage(systemName: "photo") {
+            let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
+            alert.addAction(
+                UIAlertAction(
+                    title: "OK",
+                    style: .default
                 )
+            )
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            if connect {
+                let alert: UIAlertController = UIAlertController(title: "画像を削除", message: "画像を削除してもよろしいですか。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "削除", style: .destructive, handler: { action in
+                    self.activityIndicatorView.startAnimating()
+                    imageRef.delete { error in
+                        if let error = error {
+                            print(error)
+                        } else {
+                            self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["imageUrl": ""])
+                            GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
+                            self.imageView.contentMode = .center
+                            self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
+                            self.imageView.image = UIImage(systemName: "photo")
+                            self.imageView.tintColor = UIColor.label
+                            self.noImageLabel.isHidden = false
+                            self.upDateLabel.text = " 最終更新日時:"
+                        }}}))
+                alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                if connect {
-                    let alert: UIAlertController = UIAlertController(title: "画像を削除", message: "画像を削除してもよろしいですか。", preferredStyle: .alert)
-                    alert.addAction(
-                        UIAlertAction(
-                            title: "削除",
-                            style: .destructive,
-                            handler: { action in
-                                self.activityIndicatorView.startAnimating()
-                                imageRef.delete { error in
-                                    if let error = error {
-                                        print(error)
-                                    } else {
-                                        self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["imageUrl": ""])
-                                        self.imageView.contentMode = .center
-                                        self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-                                        self.imageView.image = UIImage(systemName: "photo")
-                                        self.imageView.tintColor = UIColor.label
-                                        self.noImageLabel.isHidden = false
-                                        self.upDateLabel.text = " 最終更新日時:"
-                                    }
-                                }
-                            })
-                    )
-                    alert.addAction(
-                        UIAlertAction(
-                            title: "キャンセル",
-                            style: .cancel
-                        )
-                    )
-                    self.present(alert, animated: true, completion: nil)
-                } else {
-                    let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-                    alert.addAction(
-                        UIAlertAction(
-                            title: "OK",
-                            style: .default
-                        ))
-                    self.present(alert, animated: true, completion: nil)
-                }
+                GeneralPurpose.notConnectAlert(VC: self)
             }
+        }
     }
     
     func menu(url: String) {

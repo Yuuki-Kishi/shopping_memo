@@ -16,13 +16,14 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     var ref: DatabaseReference!
     var userId: String!
     var dateFormatter = DateFormatter()
-    var sectionArray = ["アカウント情報"]
+    let userDefaults: UserDefaults = UserDefaults.standard
+    var sectionArray = ["自分の情報", "設定"]
 //    var rowArray: Dictionary = ["ユーザーネーム", "メールアドレス", "アカウント作成日", "運用日数", "最終ログイン日"]
     var rowArray = [(Item: String, ItemData: String)]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "アカウント情報"
+        title = "情報・設定"
         tableViewSetUp()
         observeRealtimeDatabase()
         setUpInfo()
@@ -31,6 +32,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableViewSetUp() {
         tableView.register(UINib(nibName: "SettingTableViewCell", bundle: nil), forCellReuseIdentifier: "SettingTableViewCell")
         tableView.register(UINib(nibName: "ImageTableViewCell", bundle: nil), forCellReuseIdentifier: "ImageTableViewCell")
+        tableView.register(UINib(nibName: "SwitchTableViewCell", bundle: nil), forCellReuseIdentifier: "SwitchTableViewCell")
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -111,12 +113,14 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rowArray.count
+        if section == 0 { return rowArray.count }
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "SettingTableViewCell") as! SettingTableViewCell
-        let imageCell = tableView.dequeueReusableCell(withIdentifier: "ImageTableViewCell") as! ImageTableViewCell
+        if indexPath.section == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SettingTableViewCell") as! SettingTableViewCell
+            let imageCell = tableView.dequeueReusableCell(withIdentifier: "ImageTableViewCell") as! ImageTableViewCell
             switch indexPath.row {
             case 0:
                 cell.selectionStyle = .default
@@ -135,6 +139,12 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.DataLabel.text = rowArray[indexPath.row].ItemData
                 return cell
             }
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchTableViewCell") as! SwitchTableViewCell
+            cell.ItemLabel.text = "メモを表示しているときスリープをオフにする"
+            cell.Switch.isOn = userDefaults.bool(forKey: "notSleepSwitch")
+            return cell
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -148,16 +158,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alertTextField.returnKeyType = .done
                 alertTextField.clearButtonMode = .always
                 if userName != "未設定" {alertTextField.text = userName}
-                alert.addAction(
-                    UIAlertAction(
-                        title: "キャンセル",
-                        style: .cancel
-                    ))
-                alert.addAction(
-                    UIAlertAction(
-                        title: "設定",
-                        style: .default,
-                        handler: { action in
+                alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+                alert.addAction(UIAlertAction(title: "設定", style: .default, handler: { action in
                             if textField.text != "" {
                                 let text = textField.text
                                 self.ref.child("users").child(self.userId).child("metadata").updateChildValues(["userName": text!])
@@ -169,7 +171,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func makeQRImage(str: String) -> UIImage {
         let data = str.data(using: String.Encoding.utf8)!
-        
         let qr = CIFilter(name: "CIQRCodeGenerator", parameters: ["inputMessage": data, "inputCorrectionLevel": "M"])!
         let sizeTransform = CGAffineTransform(scaleX: 10, y: 10)
         let qrImage = qr.outputImage!.transformed(by: sizeTransform)

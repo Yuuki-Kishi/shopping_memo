@@ -19,6 +19,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     var checkedSwitch = false
     var removeSwitch = false
     var connect = false
+    var linking = false
     
     @IBOutlet var table: UITableView!
     @IBOutlet var titleTextField: UITextField!
@@ -34,7 +35,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     @IBOutlet var menuButton: UIButton!
     var ref: DatabaseReference!
     var menuBarButtonItem: UIBarButtonItem!
-    var viewModel = ShoppingMemoListViewModel()
+    var viewModel = iPhoneViewModel()
 
     // String型の配列
     var memoArray = [(memoId: String, memoCount: Int, checkedCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, checkedTime: Date, imageUrl: String)]()
@@ -46,12 +47,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         title = listNameString
-
-        menu()
-        setUpTable()
-        observeRealtimeDatabase()
-//        sendMessage()
-                
+        
         memoSortInt = userDefaults.integer(forKey: "memoSortInt")
         checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
         checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
@@ -59,7 +55,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
         titleTextField.delegate = self
-                
+        
+        setUpTable()
+        menu()
+                        
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
@@ -70,11 +69,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        ref.child("users").child(userId).child(listIdString).observe(.childChanged, with: { [self] snapshot in
-            guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
-            listNameString = listName
-        })
-        table.reloadData()
+        observeRealtimeDatabase()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -83,7 +78,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     override func viewWillAppear(_ animated: Bool) {
       super.viewWillAppear(animated)
-      UIApplication.shared.isIdleTimerDisabled = true
+        if userDefaults.bool(forKey: "notSleepSwitch") { UIApplication.shared.isIdleTimerDisabled = true }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -150,7 +145,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             
             changedSwitch = userDefaults.bool(forKey: "changedSwitch")
             memoSortInt = userDefaults.integer(forKey: "memoSortInt")
+            linking = userDefaults.bool(forKey: "linking")
             
+            //MARK: 見直し
             if changedSwitch {
                 if isChecked {
                     let index = memoArray.firstIndex(where: {$0.memoId == memoId})
@@ -173,7 +170,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 }
             }
             sort()
-//            sendMessage()
+            if linking { sendMessage(notice: "sendData") }
         })
         
 //         memoの中身が消えたとき
@@ -192,13 +189,48 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 self.table.reloadData()
             }
         })
-    }
-    //MARK: - sendMessage
-    func sendMessage() {
-        let messages: [String: Any] = ["memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "isChecked": self.memoArray.map {$0.isChecked}, "imageUrl": self.memoArray.map {$0.imageUrl}]
-        self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
-            print(error.localizedDescription)
-        }
+        
+        ref.child("rooms").observe(.childRemoved, with: { snapshot in
+            let roomId = snapshot.key
+            if roomId == self.roomIdString {
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
+        
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).observe(.childChanged, with: { snapshot in
+            guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
+            self.listNameString = listName
+            self.title = self.listNameString
+            if self.linking { self.sendMessage(notice: "sendData")}
+        })
+        
+        ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { snapshot in
+            let listId = snapshot.key
+            if listId == self.listIdString {
+                let alert: UIAlertController = UIAlertController(title: "リストが削除されました。", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(alert, animated: true)
+            }
+        })
+        
+        ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { snapshot in
+            let userId = snapshot.key
+            if userId == self.userId {
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
+        })
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
@@ -387,6 +419,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 if alertTextField.text != "" {
                     let text = alertTextField.text!
                     self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).updateChildValues(["shoppingMemo": text])
+                    GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                 }}))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
@@ -407,9 +440,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             } else {
                 self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child("memo\(time)").updateChildValues(["memoCount": -1, "checkedCount": 0, "shoppingMemo": titleTextField.text!, "isChecked": false, "dateNow": time, "checkedTime": time, "imageUrl": ""])
                 titleTextField.text = ""
+                GeneralPurpose.updateEditHistory(roomId: roomIdString)
             }
         } else {
-            alert()
+            GeneralPurpose.notConnectAlert(VC: self)
         }
         //終わりの文
         return true
@@ -482,6 +516,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 }
                 self.removeSwitch = false
                 self.userDefaults.set(self.removeSwitch, forKey: "removeSwitch")
+                GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                 self.table.reloadData()
             }
         }
@@ -505,8 +540,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "checkmark"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
             menuBarButtonItem.tintColor = .label
         } else {
-            let title: String!
-            let image: UIImage!
+            let checkedTitle: String!
+            let checkedImage: UIImage!
+            let watchTitle: String!
+            let watchImage: UIImage!
             let Item1 = [
                 UIAction(title: "五十音順", image: UIImage(systemName: "a.circle"), handler: { _ in
                     self.memoSortInt = 0
@@ -567,14 +604,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             })
             
             if checkedSwitch {
-                title = "完了項目を表示"
-                image = UIImage(systemName: "eye")
+                checkedTitle = "完了項目を表示"
+                checkedImage = UIImage(systemName: "eye")
             } else {
-                title = "完了項目を非表示"
-                image = UIImage(systemName: "eye.slash")
+                checkedTitle = "完了項目を非表示"
+                checkedImage = UIImage(systemName: "eye.slash")
             }
             
-            let Item4 = UIAction(title: title, image: image, handler: { _ in
+            let Item4 = UIAction(title: checkedTitle, image: checkedImage, handler: { _ in
                 if self.checkedSwitch {
                     self.checkedSwitch = false
                 } else {
@@ -584,10 +621,21 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
                 self.menu()
                 self.table.reloadData()
             })
+            
+            if linking {
+                watchTitle = "Apple Watchを切断"
+                watchImage = UIImage(systemName: "applewatch.slash")
+            } else {
+                watchTitle = "Apple Watchに接続"
+                watchImage = UIImage(systemName: "applewatch.radiowaves.left.and.right")
+            }
+            
+            let Item5 = UIAction(title: watchTitle, image: watchImage, handler: { _ in self.watchLink()})
+            
             let sort1 = UIMenu(title: "未完了を並び替え", image: UIImage(systemName: "square"),  children: Item1)
             let sort2 = UIMenu(title: "完了を並び替え", image: UIImage(systemName: "checkmark.square"), children: Item2)
             
-            let Items = UIMenu(title: "", options: .displayInline, children: [sort1, sort2, Item3, Item4])
+            let Items = UIMenu(title: "", options: .displayInline, children: [sort1, sort2, Item3, Item4, Item5])
             let clear = UIAction(title: "完了項目を削除", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { _ in self.clearChecked()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, clear])
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
@@ -599,6 +647,44 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
         table.isEditing = false
         menu()
+    }
+    
+    func watchLink() {
+        if linking {
+            let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切りますか？", message: "再度利用するには再度接続する必要があります。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .destructive, handler: { anction in
+                self.sendMessage(notice: "clear")
+            }))
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            let alert: UIAlertController = UIAlertController(title: "Apple Watchは接続されていますか？", message: "このデバイスに接続されていないとデータを送ることができません。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                self.linking = true
+                self.userDefaults.set(self.linking, forKey: "linking")
+                self.sendMessage(notice: "sendData")
+            }))
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    //MARK: - sendMessage
+    func sendMessage(notice: String) {
+        if notice == "sendData" {
+            print("sendMessage")
+            let messages: [String: Any] = ["notice": notice, "listName": self.listNameString!, "memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "imageUrl": self.memoArray.map {$0.imageUrl}]
+            self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
+                print(error.localizedDescription)
+            }
+            print("messages:", messages)
+            menu()
+        } else if notice == "clear" {
+            let messages = ["notice": "clear"]
+            self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -648,10 +734,11 @@ extension ViewController {
                 memoArraySort()
             }
         }
+        GeneralPurpose.updateEditHistory(roomId: roomIdString)
     }
     
     func memoArraySort() {
-        for i in 0...memoArray.count - 1 {
+        for i in 0 ..< memoArray.count {
             let memoId = memoArray[i].memoId
             memoArray[i].memoCount = i
             self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoId).updateChildValues(["memoCount": i])
@@ -659,7 +746,7 @@ extension ViewController {
     }
     
     func checkedArraySort() {
-        for i in 0...checkedArray.count - 1 {
+        for i in 0 ..< checkedArray.count {
             let memoId = checkedArray[i].memoId
             checkedArray[i].checkedCount = i
             self.ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoId).updateChildValues(["checkedCount": i])
@@ -691,16 +778,6 @@ extension ViewController {
         self.table.reloadData()
     }
     
-    func alert() {
-        let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(
-                title: "OK",
-                style: .default
-            ))
-        self.present(alert, animated: true, completion: nil)
-    }
-    
     func clearChecked() {
         if self.checkedArray.count != 0 {
             if self.connect {
@@ -713,12 +790,13 @@ extension ViewController {
                                 self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("memo").child(memoId).removeValue()
                             }
                             self.checkedArray.removeAll()
+                            GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                             self.table.reloadData()
                         }))
                 alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                self.alert()
+                GeneralPurpose.notConnectAlert(VC: self)
             }
         } else {
             let alert: UIAlertController = UIAlertController(title: "削除できません", message: "削除できる完了項目がありません。", preferredStyle: .alert)
@@ -786,7 +864,7 @@ extension ViewController: checkMarkDelegete {
                 }
             }
         } else {
-            alert()
+            GeneralPurpose.notConnectAlert(VC: self)
             table.reloadData()
         }
     }
@@ -819,7 +897,7 @@ extension ViewController: imageButtonDelegate {
             }
             self.performSegue(withIdentifier: "toImageViewVC", sender: nil)
         } else {
-            self.alert()
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
 }

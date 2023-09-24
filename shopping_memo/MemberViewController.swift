@@ -89,9 +89,9 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
         ref.child("rooms").child(roomIdString).child("members").observe(.childChanged, with: { [self] snapshot in
             let userId = snapshot.key
             guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { return }
-            if let gIndex = guestArray.firstIndex(where: {$0.guestId == userId}) {
-                let userName = guestArray[gIndex].guestName
-                guestArray.remove(at: gIndex)
+            if let index = guestArray.firstIndex(where: {$0.guestId == userId}) {
+                let userName = guestArray[index].guestName
+                guestArray.remove(at: index)
                 memberArray.append((memberId: userId, memberName: userName, memberEmail: email))
                 tableView.reloadData()
             }
@@ -123,16 +123,37 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
         ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { [self] snapshot in
             let userId = snapshot.key
             guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
-            if authority == "member" {
-                if let mIndex = memberArray.firstIndex(where: {$0.memberId == userId}) {
-                    memberArray.remove(at: mIndex)
+            if userId == self.userId {
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            } else {
+                if authority == "member" {
+                    if let mIndex = memberArray.firstIndex(where: {$0.memberId == userId}) {
+                        memberArray.remove(at: mIndex)
+                    }
+                } else if authority == "guest" {
+                    if let gIndex = guestArray.firstIndex(where: {$0.guestId == userId}) {
+                        guestArray.remove(at: gIndex)
+                    }
                 }
-            } else if authority == "guest" {
-                if let gIndex = guestArray.firstIndex(where: {$0.guestId == userId}) {
-                    guestArray.remove(at: gIndex)
-                }
+                tableView.reloadData()
             }
-            tableView.reloadData()
+        })
+        
+        ref.child("rooms").observe(.childRemoved, with: { snapshot in
+            let roomId = snapshot.key
+            if roomId == self.roomIdString {
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    let viewControllers = self.navigationController?.viewControllers
+                    self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            }
         })
     }
     
@@ -259,7 +280,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 }
             }
         } else {
-            alert()
+            GeneralPurpose.notConnectAlert(VC: self)
             return UISwipeActionsConfiguration(actions: [])
         }
         return UISwipeActionsConfiguration(actions: [])
@@ -269,32 +290,17 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var deleteAction: UIContextualAction
         // 削除処理
         deleteAction = UIContextualAction(style: .destructive, title: "追放") { (action, view, completionHandler) in
-            //削除処理を記述
-            self.ref.child("rooms").child(self.roomIdString).child("members").child(userId).removeValue()
-            self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-            self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-            let time = self.dateFormatter.string(from: Date())
-            self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
-            self.ref.child("users").child(userId).child("rooms").child(self.roomIdString).removeValue()
-            if self.guestArray.isEmpty {
-                if self.memberArray.count == 1 {
-                    self.memberArray.remove(at: indexPath.row)
-                    self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
-                } else {
-                    self.memberArray.remove(at: indexPath.row)
-                    self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                }
-            } else if self.memberArray.isEmpty {
-                if self.guestArray.count == 1 {
-                    self.guestArray.remove(at: indexPath.row)
-                    self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
-                } else {
-                    self.guestArray.remove(at: indexPath.row)
-                    self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
-                }
-            } else {
-                if indexPath.section == 1 {
+            let alert: UIAlertController = UIAlertController(title: "本当に追放しますか。", message: "追放された人はこのルームに入れなくなります。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "追放", style: .destructive, handler:  { actioin in
+                //削除処理を記述
+                self.ref.child("rooms").child(self.roomIdString).child("members").child(userId).removeValue()
+                self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+                self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
+                let time = self.dateFormatter.string(from: Date())
+                self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
+                self.ref.child("users").child(userId).child("rooms").child(self.roomIdString).removeValue()
+                if self.guestArray.isEmpty {
                     if self.memberArray.count == 1 {
                         self.memberArray.remove(at: indexPath.row)
                         self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
@@ -302,7 +308,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.memberArray.remove(at: indexPath.row)
                         self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
                     }
-                } else if indexPath.section == 2 {
+                } else if self.memberArray.isEmpty {
                     if self.guestArray.count == 1 {
                         self.guestArray.remove(at: indexPath.row)
                         self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
@@ -310,24 +316,34 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         self.guestArray.remove(at: indexPath.row)
                         self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
                     }
+                } else {
+                    if indexPath.section == 1 {
+                        if self.memberArray.count == 1 {
+                            self.memberArray.remove(at: indexPath.row)
+                            self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
+                        } else {
+                            self.memberArray.remove(at: indexPath.row)
+                            self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        }
+                    } else if indexPath.section == 2 {
+                        if self.guestArray.count == 1 {
+                            self.guestArray.remove(at: indexPath.row)
+                            self.tableView.deleteSections([indexPath.section], with: UITableView.RowAnimation.automatic)
+                        } else {
+                            self.guestArray.remove(at: indexPath.row)
+                            self.tableView.deleteRows(at: [indexPath as IndexPath], with: UITableView.RowAnimation.automatic)
+                        }
+                    }
                 }
-            }
+            }))
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             // 実行結果に関わらず記述
             completionHandler(true)
+            self.present(alert, animated: true)
         }
         self.tableView.reloadData()
         // 定義したアクションをセット
         return UISwipeActionsConfiguration(actions: [deleteAction])
-    }
-    
-    func alert() {
-        let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(
-                title: "OK",
-                style: .default
-            ))
-        self.present(alert, animated: true, completion: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -340,29 +356,14 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     @IBAction func memberPlus() {
         let alert: UIAlertController = UIAlertController(title: "メンバーを追加", message: "メンバーを追加する方法を選択してください。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(
-                title: "キャンセル",
-                style: .cancel
-            ))
-        
-        alert.addAction(
-            UIAlertAction(
-                title: "QRコード",
-                style: .default,
-                handler: { action in
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        alert.addAction(UIAlertAction(title: "QRコード", style: .default, handler: { action in
                     self.performSegue(withIdentifier: "toQRCRVC", sender: true)
-                }
-            ))
-        alert.addAction(
-            UIAlertAction(
-                title: "手入力",
-                style: .default,
-                handler: { action in
+                }))
+        alert.addAction(UIAlertAction(title: "手入力", style: .default, handler: { action in
                     self.handyPlus()
                 }))
         self.present(alert, animated: true, completion: nil)
-        
     }
     
     func handyPlus() {
@@ -372,16 +373,8 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
             alertTextField = textField
             alertTextField.clearButtonMode = UITextField.ViewMode.always
             alertTextField.returnKeyType = .done
-            alert.addAction(
-                UIAlertAction(
-                    title: "キャンセル",
-                    style: .cancel
-                ))
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                         if alertTextField.text != "" {
                             let text = alertTextField.text
                             self.ref.child("users").child(text!).observe(.childAdded, with: { snapshot in
@@ -389,12 +382,11 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                                 let email = snapshot.childSnapshot(forPath: "email").value as? String
                                 if item == "metadata" {
                                     self.ref.child("rooms").child(self.roomIdString).child("members").child(text!).updateChildValues(["authority": "guest", "email": email!])
-                                    self.ref.child("users").child(text!).child("rooms").updateChildValues(["\(self.roomIdString!)": ""])
+                                    self.ref.child("users").child(text!).child("rooms").updateChildValues(["\(self.roomIdString!)": "guest"])
                                     self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
                                     self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                                     self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                                     let time = self.dateFormatter.string(from: Date())
-                                    self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
                                 }})
                             self.wrongUserId()
                         }}))}
@@ -403,11 +395,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func wrongUserId() {
         let alert: UIAlertController = UIAlertController(title: "ユーザーが見つかりません。", message: "入力したユーザーIDが間違っています。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(
-                title: "OK",
-                style: .default
-            ))
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
     }
 }

@@ -71,12 +71,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         ref.child("rooms").child(roomIdString).child("lists").observe(.childAdded, with: { [self] snapshot in
             let listId = snapshot.key
+            print("listId:", listId)
             ref.child("rooms").child(roomIdString).child("lists").child(listId).observe(.childAdded, with: { [self] snapshot in
+                print("listId2:", listId)
                 guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
                 guard let listCount = snapshot.childSnapshot(forPath: "listCount").value as? Int else { return }
                 let index = listArray.firstIndex(where: {$0.listId == listId})
+                print("index:", index)
                 if index == nil {
                     listArray.append((listId: listId, listName: listName, listCount: listCount))
+                    print("listArray:", listArray)
                     listArray.sort {$0.listCount < $1.listCount}
                     tableView.reloadData()
                 }
@@ -94,8 +98,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         ref.child("rooms").child(roomIdString).child("lists").observe(.childChanged, with: { [self] snapshot in
             let listId = snapshot.key
-            ref.child("rooms").child(roomIdString).child("lists").child(listId).observe(.childChanged, with: { [self] snapshot in
-                guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
+            print("listId:", listId)
+            ref.child("rooms").child(roomIdString).child("lists").child(listId).observe(.childAdded, with: { [self] snapshot in
+                guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
                 let listCount = (snapshot.childSnapshot(forPath: "listCount").value as? Int) ?? 0
                 guard let index = listArray.firstIndex(where: {$0.listId == listId}) else { return }
                 listArray[index] = ((listId: listId, listName: listName, listCount: listCount))
@@ -106,7 +111,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         ref.child("rooms").child(roomIdString).observe(.childChanged, with: { snapshot in
             guard let roomName = snapshot.childSnapshot(forPath: "roomName").value as? String else { return }
-            self.title = roomName
+            self.roomNameString = roomName
+            self.title = self.roomNameString
         })
         
         ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { [self] snapshot in
@@ -118,8 +124,28 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
-            if roomId == roomIdString {
-                roomDeleted()
+            if myAuthority != "administrator" {
+                if roomId == roomIdString {
+                    let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                        self.navigationController?.popViewController(animated: true)
+                    }))
+                    self.present(alert, animated: true, completion: nil)
+                }
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+        })
+        
+        ref.child("users").child(userId).child("rooms").observe(.childRemoved, with: { snapshot in
+            let roomId = snapshot.key
+            let authority = snapshot.value as? String
+            if roomId == self.roomIdString && authority! != "administrator" {
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
             }
         })
     }
@@ -132,6 +158,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             let listId = snapshot.key
             guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
             let listCount = (snapshot.childSnapshot(forPath: "listCount").value as? Int) ?? 0
+            ref.child("users").child(userId).child(listId).child("name").removeValue()
             ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").updateChildValues(["listCount": listCount, "listName": listName])
             // nonCheckに追加されたとき、firebaseのデータを引っ張ってくる
             ref.child("users").child(userId).child(listId).child("未チェック").observe(.childAdded, with: { [self] snapshot in
@@ -170,22 +197,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                 guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
                 guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
                 let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
-                guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-                
-//                ref.child("users").child(userId).child(listId).child("memo").child(memoId).removeValue()
-                ref.child("rooms").child(roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
-                
-                let imageRef = Storage.storage().reference(forURL: imageUrl)
-                print("url:", imageUrl)
-                print("imageRef:", imageRef)
-                print("roomId:", roomIdString!)
+                let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String
+                ref.child("users").child(userId).child(listId).child("memo").child(memoId).removeValue()
+                ref.child("rooms").child(roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl!])
+                if imageUrl == "" { return }
+
+                let imageRef = Storage.storage().reference(forURL: imageUrl!)
                 imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
                         print(error)
                     } else {
-                        print("get")
-                        let imageRef = Storage.storage().reference().child("/\(String(describing: self.roomIdString))/\(String(describing: listId))/\(memoId).jpg")
-                        print("imageRef2:", imageRef)
+                        let imageRef = Storage.storage().reference().child("/\(self.roomIdString!)/\(listId)/\(memoId).jpg")
                         imageRef.putData(data!, metadata: nil) { (metadata, error) in
                             if let error = error {
                                 print(error)
@@ -253,13 +275,17 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             listNameString = listArray[indexPath.section].listName
             self.performSegue(withIdentifier: "toVC", sender: nil)
         } else {
-            alert()
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
     
     func deleteRoom() {
         let alert: UIAlertController = UIAlertController(title: "本当に削除しますか？", message: "この操作は取り消すことができません.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "削除", style: .destructive, handler: { action in
+            self.ref.child("rooms").child(self.roomIdString).child("members").observe(.childAdded, with: { snapshot in
+                let userId = snapshot.key
+                self.ref.child("users").child(userId).child("rooms").child(self.roomIdString).removeValue()
+            })
             self.ref.child("rooms").child(self.roomIdString).removeValue()
             self.navigationController?.popViewController(animated: true)
         }))
@@ -275,13 +301,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             // 削除処理
             deleteAction = UIContextualAction(style: .destructive, title: "削除") { (action, view, completionHandler) in
                 //削除処理を記述
-                self.ref.child("rooms").child(self.roomIdString).child("lists").child(listId).removeValue()
-                self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let time = self.dateFormatter.string(from: Date())
-                self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
                 self.listArray.remove(at: indexPath.section)
+                self.ref.child("rooms").child(self.roomIdString).child("lists").child(listId).removeValue()
+                GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                 let indexSet = NSMutableIndexSet()
                 indexSet.add(indexPath.section)
                 tableView.deleteSections(indexSet as IndexSet, with: UITableView.RowAnimation.left )
@@ -292,57 +314,47 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             // 定義したアクションをセット
             return UISwipeActionsConfiguration(actions: [deleteAction])
         } else {
-            alert()
+            GeneralPurpose.notConnectAlert(VC: self)
             return UISwipeActionsConfiguration(actions: [])
         }
     }
     
-//    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-//        var editAction: UIContextualAction
-//        if connect {
-//            let listId = listArray[indexPath.section].listId
-//            let listName = listArray[indexPath.section].listName
-//            // 編集処理
-//            editAction = UIContextualAction(style: .normal, title: "編集") { (action, view, completionHandler) in
-//                // 編集処理を記述
-//                var alertTextField: UITextField!
-//                let alert: UIAlertController = UIAlertController(title: "リストの名称変更", message: "新しいリストの名前を入力してください。", preferredStyle: .alert)
-//                alert.addTextField { textField in
-//                    alertTextField = textField
-//                    alertTextField.clearButtonMode = UITextField.ViewMode.always
-//                    alertTextField.returnKeyType = .done
-//                    alertTextField.text = listName
-//                    alert.addAction(
-//                        UIAlertAction(
-//                            title: "キャンセル",
-//                            style: .cancel
-//                        ))
-//                    alert.addAction(
-//                        UIAlertAction(
-//                            title: "OK",
-//                            style: .default,
-//                            handler: { action in
-//                                if alertTextField.text != "" {
-//                                    let time = self.dateFormatter.string(from: Date())
-//                                    self.ref.child("rooms").child(self.roomIdString).updateChildValues(["lastEditTime": time])
-//                                    let text = alertTextField.text!
-//                                    self.listArray[indexPath.section].listName = text
-//                                    self.ref.child("rooms").child(self.roomIdString).child("lists").child(listId).updateChildValues(["name": text])
-//                                }}))
-//                    self.present(alert, animated: true, completion: nil)
-//                }
-//                // 実行結果に関わらず記述
-//                completionHandler(true)
-//            }
-//            editAction.backgroundColor = UIColor.systemBlue
-//            self.tableView.reloadData()
-//            // 定義したアクションをセット
-//            return UISwipeActionsConfiguration(actions: [editAction])
-//        } else {
-//            alert()
-//            return UISwipeActionsConfiguration(actions: [])
-//        }
-//    }
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        var editAction: UIContextualAction
+        if connect {
+            let listName = listArray[indexPath.section].listName
+            // 編集処理
+            editAction = UIContextualAction(style: .normal, title: "編集") { (action, view, completionHandler) in
+                // 編集処理を記述
+                var alertTextField: UITextField!
+                let alert: UIAlertController = UIAlertController(title: "リストの名称変更", message: "新しいリストの名前を入力してください。", preferredStyle: .alert)
+                alert.addTextField { textField in
+                    alertTextField = textField
+                    alertTextField.clearButtonMode = UITextField.ViewMode.always
+                    alertTextField.returnKeyType = .done
+                    alertTextField.text = listName
+                    alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+                                if alertTextField.text != "" {
+                                    let text = alertTextField.text!
+                                    self.listArray[indexPath.section].listName = text
+                                    self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("info").updateChildValues(["listName": text])
+                                    GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
+                                }}))
+                    self.present(alert, animated: true, completion: nil)
+                }
+                // 実行結果に関わらず記述
+                completionHandler(true)
+            }
+            editAction.backgroundColor = UIColor.systemBlue
+            self.tableView.reloadData()
+            // 定義したアクションをセット
+            return UISwipeActionsConfiguration(actions: [editAction])
+        } else {
+            GeneralPurpose.notConnectAlert(VC: self)
+            return UISwipeActionsConfiguration(actions: [])
+        }
+    }
     
     func menu() {
         if tableView.isEditing {
@@ -382,21 +394,6 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             menu()
     }
     
-    func alert() {
-        let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-        alert.addAction(
-            UIAlertAction(title: "OK", style: .default))
-        self.present(alert, animated: true, completion: nil)
-    }
-    
-    func roomDeleted() {
-        let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
-            self.navigationController?.popViewController(animated: true)
-        }))
-        self.present(alert, animated: true, completion: nil)
-    }
-    
     func withdrawal() {
         let alert: UIAlertController = UIAlertController(title: "本当にルームを脱退しますか。", message: "再度加入するには管理者に招待してもらう必要があります。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "脱退", style: .destructive, handler: { anction in
@@ -431,46 +428,31 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                                 self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                                 self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                                 let time = self.dateFormatter.string(from: Date())
-                                self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
+                                GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                                 let text = textField.text!
                                 let date = self.dateFormatter.string(from: Date())
-                                self.ref.child("rooms").child(self.roomIdString).child("lists").child("list\(date)").child("info").updateChildValues(["name": text, "listCount": -1])
+                                self.ref.child("rooms").child(self.roomIdString).child("lists").child("list\(date)").child("info").updateChildValues(["listName": text, "listCount": -1])
                                 textField.text = ""
                             }}))}
             self.present(alert, animated: true, completion: nil)
         } else {
-            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
     
     func roomNameChange() {
         var alertTextField: UITextField!
-        let alert: UIAlertController = UIAlertController(title: "リストの名称変更", message: "新しいリストの名前を入力してください。", preferredStyle: .alert)
+        let alert: UIAlertController = UIAlertController(title: "ルームの名称変更", message: "新しいルームの名前を入力してください。", preferredStyle: .alert)
         alert.addTextField { textField in
             alertTextField = textField
             alertTextField.clearButtonMode = UITextField.ViewMode.always
             alertTextField.returnKeyType = .done
             alertTextField.text = self.roomNameString
-            alert.addAction(
-                UIAlertAction(
-                    title: "キャンセル",
-                    style: .cancel
-                ))
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+            alert.addAction(UIAlertAction(title: "変更", style: .default, handler: { action in
                         if alertTextField.text != "" {
                             let time = self.dateFormatter.string(from: Date())
-                            self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
+                            GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                             let text = alertTextField.text
                             self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["roomName": text!])
                         }}))
@@ -483,10 +465,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             let listId = listArray[i].listId
             var listCount = listArray[i].listCount
             listCount = i
-            self.ref.child("rooms").child(roomIdString).child("lists").child(listId).updateChildValues(["listCount": listCount])
+            self.ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").updateChildValues(["listCount": listCount])
         }
         let time = self.dateFormatter.string(from: Date())
-        self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
+        GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
     }
     
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {

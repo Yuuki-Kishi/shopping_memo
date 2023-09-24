@@ -26,10 +26,11 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "アカウント削除"
-        UISetUp()
         
         email = userDefaults.string(forKey: "email")
         password = userDefaults.string(forKey: "password")
+        
+        UISetUp()
         
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid

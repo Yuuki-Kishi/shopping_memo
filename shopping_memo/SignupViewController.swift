@@ -117,9 +117,10 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
             auth.createUser(withEmail: email, password: password) { (authResult, error) in
                 self.userDefaults.set(email, forKey: "email")
                 let errorCode = (error as? NSError)?.code
-                if error == nil, let result = authResult {
+                if error == nil {
+                    if let error = error { return }
                     self.userDefaults.set(userName, forKey: "userName")
-                    self.performSegue(withIdentifier: "toRoomVC", sender: result.user)
+                    self.performSegue(withIdentifier: "toMCVC", sender: nil)
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                     alert.addAction(

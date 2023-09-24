@@ -11,6 +11,7 @@ class RoomTableViewCell: UITableViewCell {
 
     @IBOutlet var roomNameLabel: UILabel!
     @IBOutlet var lastEditTimeLabel: UILabel!
+    @IBOutlet var editorLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -21,6 +22,7 @@ class RoomTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
         roomNameLabel.adjustsFontSizeToFitWidth = true
         lastEditTimeLabel.adjustsFontSizeToFitWidth = true
+        editorLabel.adjustsFontSizeToFitWidth = true
     }
     
 }

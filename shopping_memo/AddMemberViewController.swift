@@ -20,7 +20,6 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
     var email: String!
     var userName: String!
     var roomIdString: String!
-    var cancelButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,10 +35,7 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
         addButton.layer.cornerRadius = 18.0
         addButton.layer.cornerCurve = .continuous
         addButton.layer.cornerRadius = 10.0
-        
-        cancelButton = UIBarButtonItem(title: "キャンセル", style: .done, target: self, action: #selector(cancelButton(_:)))
-        navigationItem.leftBarButtonItem = cancelButton
-        
+                
         observeRealtimeDatabase()
     }
     
@@ -129,12 +125,11 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
                     let email = snapshot.childSnapshot(forPath: "email").value as? String
                     if item == "metadata" {
                         self.ref.child("rooms").child(self.roomIdString).child("members").child(self.userIdString).updateChildValues(["authority": "guest", "email": email!])
-                        self.ref.child("users").child(self.userIdString).child("rooms").updateChildValues(["\(self.roomIdString!)": ""])
+                        self.ref.child("users").child(self.userIdString).child("rooms").updateChildValues(["\(self.roomIdString!)": "guset"])
                         self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
                         self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                         self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
                         let time = self.dateFormatter.string(from: Date())
-                        self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
                     }})
                 let viewControllers = self.navigationController?.viewControllers
                 self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -144,7 +139,7 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
         })
     }
     
-    @objc func cancelButton(_ sender: UIBarButtonItem) {
+    @IBAction func cancel() {
         let viewControllers = self.navigationController?.viewControllers
         self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
     }

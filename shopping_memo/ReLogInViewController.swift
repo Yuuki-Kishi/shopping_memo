@@ -60,14 +60,7 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
         if connect {
             signIn()
         } else {
-            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
     
