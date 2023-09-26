@@ -21,6 +21,7 @@ struct ContentView: View {
             NavigationView {
                 List {
                     ForEach(0 ..< memoArray.count) { index in
+                        //MARK: out of range
                         let shoppingMemo = memoArray[index].shoppingMemo
                         let imageUrl = memoArray[index].imageUrl
                         HStack {
@@ -45,14 +46,23 @@ struct ContentView: View {
                 .navigationTitle(listName)
                 .environment(\.defaultMinListRowHeight, 25)
             }
+        } else {
+            VStack {
+                Image(systemName: "iphone.gen3.slash")
+                    .resizable()
+                    .foregroundColor(Color.red)
+                    .frame(width: 50, height: 50)
+                
+                Text("データがありません。")
+            }
             .onAppear {
-                viewModel.delegate = self
+                viewModel.watchDelegate = self
             }
         }
     }
     
     private func sendMessage(index: Int) {
-        let messages: [String : Any] = ["index": index]
+        let messages: [String : Any] = ["request": "check", "index": index]
         self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
             print(error.localizedDescription)
         }
@@ -63,6 +73,7 @@ extension ContentView: WatchViewModelDelegate {
     func reloadData() {
         listName = viewModel.listName
         memoArray = viewModel.memoArray
+        print("memoArray:", memoArray)
     }
     
     

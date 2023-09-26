@@ -12,6 +12,8 @@ import UIKit
 final class iPhoneViewModel: NSObject {
     var memoArray = [(memoId: String, memoCount: Int, checkedCount: Int, shoppingMemo: String, isChecked: Bool, dateNow: Date, checkedTime: Date, imageUrl: String)]()
     var session: WCSession
+    
+    var iPhoneDelegate: iPhoneViewModelDelegate? = nil
 
     init(session: WCSession = .default) {
         self.session = session
@@ -32,12 +34,23 @@ extension iPhoneViewModel: WCSessionDelegate {
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         DispatchQueue.main.async {
-            guard let index = message["index"] as? IndexPath else { return }
-            ViewController().buttonTapped(indexPath: index)
+            let request = message["request"] as? String ?? ""
+            if request == "check" {
+                guard let index = message["index"] as? IndexPath else { return }
+                self.iPhoneDelegate?.check(indexPath: index)
+            } else if request == "clearData" {
+                self.iPhoneDelegate?.cleared()
+            }
         }
     }
     func sessionDidBecomeInactive(_ session: WCSession) {
     }
     func sessionDidDeactivate(_ session: WCSession) {
     }
+}
+
+protocol iPhoneViewModelDelegate {
+    func check(indexPath: IndexPath)
+    func getData()
+    func cleared()
 }

@@ -15,7 +15,7 @@ final class WatchViewModel: NSObject {
     
     var listName = ""
     
-    var delegate: WatchViewModelDelegate? = nil
+    var watchDelegate: WatchViewModelDelegate? = nil
     
     init(session: WCSession = .default) {
         self.session = session
@@ -35,29 +35,34 @@ extension WatchViewModel: WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-           DispatchQueue.main.async {
-               print("ReceiveMessage")
-               let notice = message["notice"] as? String ?? ""
-               if notice == "sendData" {
-                   print("notice")
-                   guard let listName = message["listName"] as? String else { return }
-                   guard let memoIdArray = message["memoId"] as? Array<String> else { return }
-                   guard let shoppingMemoArray = message["shoppingMemo"] as? Array<String> else { return }
-                   guard let imageUrlArray = message["imageUrl"] as? Array<String> else { return }
-                   for i in 0 ..< memoIdArray.count {
-                       self.memoArray.append((memoId: memoIdArray[i], shoppingMemo: shoppingMemoArray[i], imageUrl: imageUrlArray[i]))
-                   }
-                   print("memoArray:", self.memoArray)
-                   
-                   self.listName = listName
-                   
-                   self.delegate?.reloadData()
-                   
-//                   ContentView().listName = listName
-//                   ContentView().memoArray = self.memoArray
-                   print("ContentView().memoArray:", ContentView().memoArray)
+        print("receive")
+        DispatchQueue.main.async {
+            let notice = message["notice"] as? String ?? ""
+            if notice == "sendData" {
+                print("sendData")
+                guard let listName = message["listName"] as? String else { return }
+                guard let memoIdArray = message["memoId"] as? Array<String> else { return }
+                guard let shoppingMemoArray = message["shoppingMemo"] as? Array<String> else { return }
+                guard let imageUrlArray = message["imageUrl"] as? Array<String> else { return }
+                for i in 0 ..< memoIdArray.count {
+                    self.memoArray.append((memoId: memoIdArray[i], shoppingMemo: shoppingMemoArray[i], imageUrl: imageUrlArray[i]))
+                }
+                self.listName = listName
+                self.watchDelegate?.reloadData()
+                print("memoArray:", self.memoArray)
+                let messages: [String : Any] = ["request": "getData"]
+                session.sendMessage(messages, replyHandler: nil) { (error) in
+                    print(error.localizedDescription)
+                }
             } else if notice == "clear" {
-                
+                self.listName = ""
+                self.memoArray.removeAll()
+                self.watchDelegate?.reloadData()
+                print("memoArray:", self.memoArray)
+                let messages: [String : Any] = ["request": "clearData"]
+                session.sendMessage(messages, replyHandler: nil) { (error) in
+                    print(error.localizedDescription)
+                }
             }
         }
     }

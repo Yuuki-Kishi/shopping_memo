@@ -15,7 +15,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     let dateFormatter = DateFormatter()
     var memoSortInt = 3
     var checkedSortInt = 2
-    var changedSwitch = false
+//    var changedSwitch = false
     var checkedSwitch = false
     var removeSwitch = false
     var connect = false
@@ -55,6 +55,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
         titleTextField.delegate = self
+        viewModel.iPhoneDelegate = self
         
         setUpTable()
         menu()
@@ -142,33 +143,26 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             dateFormatter.timeZone = TimeZone(identifier: "UTC")
             let date = dateFormatter.date(from: dateNow)
             let time = dateFormatter.date(from: checkedTime)
-            
-            changedSwitch = userDefaults.bool(forKey: "changedSwitch")
+                    
             memoSortInt = userDefaults.integer(forKey: "memoSortInt")
             linking = userDefaults.bool(forKey: "linking")
             
-            //MARK: 見直し
-            if changedSwitch {
-                if isChecked {
-                    let index = memoArray.firstIndex(where: {$0.memoId == memoId})
-                    memoArray.remove(at: index!)
-                    checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+            if let mIndex = memoArray.firstIndex(where: {$0.memoId == memoId}) {
+                if !isChecked {
+                    memoArray[mIndex] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 } else {
-                    let index = checkedArray.firstIndex(where: {$0.memoId == memoId})
-                    checkedArray.remove(at: index!)
+                    memoArray.remove(at: mIndex)
+                    checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                }
+            } else if let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId}) {
+                if isChecked {
+                    checkedArray[cIndex] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                } else {
+                    checkedArray.remove(at: cIndex)
                     memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
                 }
-                changedSwitch = false
-                userDefaults.set(changedSwitch, forKey: "changedSwitch")
-            } else {
-                if isChecked {
-                    let cIndex = checkedArray.firstIndex(where: {$0.memoId == memoId})
-                    checkedArray[cIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                } else {
-                    let mIndex = memoArray.firstIndex(where: {$0.memoId == memoId})
-                    memoArray[mIndex!] = ((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-                }
             }
+            table.reloadData()
             sort()
             if linking { sendMessage(notice: "sendData") }
         })
@@ -660,8 +654,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         } else {
             let alert: UIAlertController = UIAlertController(title: "Apple Watchは接続されていますか？", message: "このデバイスに接続されていないとデータを送ることができません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
-                self.linking = true
-                self.userDefaults.set(self.linking, forKey: "linking")
                 self.sendMessage(notice: "sendData")
             }))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
@@ -672,19 +664,30 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     //MARK: - sendMessage
     func sendMessage(notice: String) {
         if notice == "sendData" {
-            print("sendMessage")
             let messages: [String: Any] = ["notice": notice, "listName": self.listNameString!, "memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "imageUrl": self.memoArray.map {$0.imageUrl}]
-            self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
-                print(error.localizedDescription)
-            }
             print("messages:", messages)
-            menu()
+            self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
+                print("error:", error.localizedDescription)
+                self.sendMessage(notice: "sendMessage")
+            }
         } else if notice == "clear" {
             let messages = ["notice": "clear"]
             self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    func reply() {
+        self.linking = true
+        self.userDefaults.set(self.linking, forKey: "linking")
+        menu()
+    }
+    
+    func signalCut() {
+        self.linking = false
+        self.userDefaults.set(self.linking, forKey: "linking")
+        menu()
     }
 }
 
@@ -823,8 +826,6 @@ extension ViewController: checkMarkDelegete {
         print("⤴️buttonPressed成功!")
         let cell = table.dequeueReusableCell(withIdentifier: "CustomTableViewCell") as! CustomTableViewCell
         if connect {
-            self.changedSwitch = true
-            self.userDefaults.set(changedSwitch, forKey: "changedSwitch")
             if self.table.numberOfSections == 2 {
                 if indexPath.section == 0 {
                     cell.checkMarkImageButton.setImage(nil, for: .normal)
@@ -902,4 +903,8 @@ extension ViewController: imageButtonDelegate {
     }
 }
 
-
+extension ViewController: iPhoneViewModelDelegate {
+    func check(indexPath: IndexPath) { buttonPressed(indexPath: indexPath) }
+    func getData() { reply() }
+    func cleared() { signalCut() }
+}
