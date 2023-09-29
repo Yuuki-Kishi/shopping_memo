@@ -38,7 +38,7 @@ extension WatchViewModel: WCSessionDelegate {
         print("receive")
         DispatchQueue.main.async {
             let notice = message["notice"] as? String ?? ""
-            if notice == "sendData" {
+            if notice == "sendData" || notice == "reloadData" {
                 print("sendData")
                 guard let listName = message["listName"] as? String else { return }
                 guard let memoIdArray = message["memoId"] as? Array<String> else { return }
@@ -50,9 +50,11 @@ extension WatchViewModel: WCSessionDelegate {
                 self.listName = listName
                 self.watchDelegate?.reloadData()
                 print("memoArray:", self.memoArray)
-                let messages: [String : Any] = ["request": "getData"]
-                session.sendMessage(messages, replyHandler: nil) { (error) in
-                    print(error.localizedDescription)
+                if notice == "sendData" {
+                    let messages: [String : Any] = ["request": "getData"]
+                    session.sendMessage(messages, replyHandler: nil) { (error) in
+                        print(error.localizedDescription)
+                    }
                 }
             } else if notice == "clear" {
                 self.listName = ""

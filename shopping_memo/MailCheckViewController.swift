@@ -26,6 +26,7 @@ class MailCheckViewController: UIViewController {
     }
     
     @objc func foreground(notification: Notification) {
+        //MARK: Authをreload
         Auth.auth().currentUser?.reload()
         let isEmailVerified = Auth.auth().currentUser?.isEmailVerified
         if isEmailVerified! {

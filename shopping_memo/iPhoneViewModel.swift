@@ -33,11 +33,18 @@ extension iPhoneViewModel: WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        print("receive")
         DispatchQueue.main.async {
             let request = message["request"] as? String ?? ""
             if request == "check" {
-                guard let index = message["index"] as? IndexPath else { return }
-                self.iPhoneDelegate?.check(indexPath: index)
+                print("request:", request)
+                guard let index = message["index"] as? Int else { return }
+                print("index2:", index)
+                let indexPath = IndexPath(row: index, section: 0)
+                self.iPhoneDelegate?.check(indexPath: indexPath)
+            } else if request == "getData" {
+                print("getData")
+                self.iPhoneDelegate?.getData()
             } else if request == "clearData" {
                 self.iPhoneDelegate?.cleared()
             }

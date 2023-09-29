@@ -26,8 +26,9 @@ struct ContentView: View {
                         let imageUrl = memoArray[index].imageUrl
                         HStack {
                             Button(action: {
-                                memoArray.remove(at: index)
+//                                memoArray.remove(at: index)
                                 sendMessage(index: index)
+                                print("index1:", index)
                             }){
                                 Image(systemName: "square")
                                     .foregroundColor(.white)
@@ -63,8 +64,9 @@ struct ContentView: View {
     
     private func sendMessage(index: Int) {
         let messages: [String : Any] = ["request": "check", "index": index]
+        print("messages:", messages)
         self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
-            print(error.localizedDescription)
+            print("error:", error.localizedDescription)
         }
     }
 }

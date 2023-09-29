@@ -51,6 +51,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         memoSortInt = userDefaults.integer(forKey: "memoSortInt")
         checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
         checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
+        userDefaults.set(linking, forKey: "linking")
         
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
@@ -164,7 +165,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             }
             table.reloadData()
             sort()
-            if linking { sendMessage(notice: "sendData") }
+            print("linking:", linking)
+            if linking { sendMessage(notice: "reloadData") }
         })
         
 //         memoの中身が消えたとき
@@ -663,7 +665,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     //MARK: - sendMessage
     func sendMessage(notice: String) {
-        if notice == "sendData" {
+        if notice == "sendData" || notice == "reloadData" {
+            print("memoArray:", memoArray)
             let messages: [String: Any] = ["notice": notice, "listName": self.listNameString!, "memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "imageUrl": self.memoArray.map {$0.imageUrl}]
             print("messages:", messages)
             self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
@@ -682,6 +685,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.linking = true
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
+        print("linking2:", linking)
+        let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました。", message: "画面を戻ると接続は切断されます。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alert, animated: true, completion: nil)
     }
     
     func signalCut() {
