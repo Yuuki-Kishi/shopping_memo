@@ -35,21 +35,19 @@ extension WatchViewModel: WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        print("receive")
         DispatchQueue.main.async {
             let notice = message["notice"] as? String ?? ""
             if notice == "sendData" || notice == "reloadData" {
-                print("sendData")
                 guard let listName = message["listName"] as? String else { return }
                 guard let memoIdArray = message["memoId"] as? Array<String> else { return }
                 guard let shoppingMemoArray = message["shoppingMemo"] as? Array<String> else { return }
                 guard let imageUrlArray = message["imageUrl"] as? Array<String> else { return }
+                self.memoArray = []
                 for i in 0 ..< memoIdArray.count {
                     self.memoArray.append((memoId: memoIdArray[i], shoppingMemo: shoppingMemoArray[i], imageUrl: imageUrlArray[i]))
                 }
                 self.listName = listName
                 self.watchDelegate?.reloadData()
-                print("memoArray:", self.memoArray)
                 if notice == "sendData" {
                     let messages: [String : Any] = ["request": "getData"]
                     session.sendMessage(messages, replyHandler: nil) { (error) in
@@ -60,7 +58,6 @@ extension WatchViewModel: WCSessionDelegate {
                 self.listName = ""
                 self.memoArray.removeAll()
                 self.watchDelegate?.reloadData()
-                print("memoArray:", self.memoArray)
                 let messages: [String : Any] = ["request": "clearData"]
                 session.sendMessage(messages, replyHandler: nil) { (error) in
                     print(error.localizedDescription)

@@ -20,10 +20,10 @@ struct ContentView: View {
         if !memoArray.isEmpty {
             NavigationView {
                 List {
-                    ForEach(0 ..< memoArray.count) { index in
+                    ForEach(Array(memoArray.enumerated()), id: \.element.memoId) { index, memo in
                         //MARK: out of range
-                        let shoppingMemo = memoArray[index].shoppingMemo
-                        let imageUrl = memoArray[index].imageUrl
+                        let shoppingMemo = memo.shoppingMemo
+                        let imageUrl = memo.imageUrl
                         HStack {
                             Button(action: {
 //                                memoArray.remove(at: index)
@@ -54,7 +54,7 @@ struct ContentView: View {
                     .foregroundColor(Color.red)
                     .frame(width: 50, height: 50)
                 
-                Text("データがありません。")
+                Text("データがありません")
             }
             .onAppear {
                 viewModel.watchDelegate = self
@@ -64,7 +64,6 @@ struct ContentView: View {
     
     private func sendMessage(index: Int) {
         let messages: [String : Any] = ["request": "check", "index": index]
-        print("messages:", messages)
         self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
             print("error:", error.localizedDescription)
         }
@@ -75,7 +74,6 @@ extension ContentView: WatchViewModelDelegate {
     func reloadData() {
         listName = viewModel.listName
         memoArray = viewModel.memoArray
-        print("memoArray:", memoArray)
     }
     
     

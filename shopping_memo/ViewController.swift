@@ -13,6 +13,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         
     let userDefaults: UserDefaults = UserDefaults.standard
     let dateFormatter = DateFormatter()
+    var activityIndicatorView = UIActivityIndicatorView()
     var memoSortInt = 3
     var checkedSortInt = 2
 //    var changedSwitch = false
@@ -59,6 +60,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         viewModel.iPhoneDelegate = self
         
         setUpTable()
+        setActivityIndicatorView()
         menu()
                         
         let connectedRef = Database.database().reference(withPath: ".info/connected")
@@ -70,22 +72,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         }})
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        observeRealtimeDatabase()
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
       super.viewWillAppear(animated)
+        observeRealtimeDatabase()
         if userDefaults.bool(forKey: "notSleepSwitch") { UIApplication.shared.isIdleTimerDisabled = true }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-      super.viewWillDisappear(animated)
-      UIApplication.shared.isIdleTimerDisabled = false
+        super.viewWillDisappear(animated)
+        UIApplication.shared.isIdleTimerDisabled = false
+        sendMessage(notice: "clear")
     }
     
     func setUpTable() {
@@ -99,6 +99,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         table.estimatedSectionFooterHeight = 0.0
         
         table.register(UINib(nibName: "CustomTableViewCell", bundle: .main), forCellReuseIdentifier: "CustomTableViewCell")
+    }
+    
+    func setActivityIndicatorView() {
+        activityIndicatorView.frame = view.frame
+        activityIndicatorView.layer.contentsCenter = view.frame
+        activityIndicatorView.style = .large
+        activityIndicatorView.color = .label
+        view.addSubview(activityIndicatorView)
     }
     
     func observeRealtimeDatabase() {
@@ -336,7 +344,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         cell.checkMarkImageButton.isUserInteractionEnabled = !table.isEditing
         if indexPath.section == 0 {
             cell.memoLabel.text = dataArray[indexPath.row].shoppingMemo
-            let isChecked = dataArray[indexPath.row].isChecked
             let imageUrl = dataArray[indexPath.row].imageUrl
             let difference = Date().timeIntervalSince(dataArray[indexPath.row].checkedTime)
             if imageUrl == "" {
@@ -647,9 +654,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     func watchLink() {
         if linking {
-            let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切りますか？", message: "再度利用するには再度接続する必要があります。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .destructive, handler: { anction in
+            let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しますか？", message: "再度利用するには再度接続する必要があります。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "切断", style: .destructive, handler: { anction in
                 self.sendMessage(notice: "clear")
+                self.activityIndicatorView.startAnimating()
             }))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
@@ -657,6 +665,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let alert: UIAlertController = UIAlertController(title: "Apple Watchは接続されていますか？", message: "このデバイスに接続されていないとデータを送ることができません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                 self.sendMessage(notice: "sendData")
+                self.activityIndicatorView.startAnimating()
             }))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
@@ -666,12 +675,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     //MARK: - sendMessage
     func sendMessage(notice: String) {
         if notice == "sendData" || notice == "reloadData" {
-            print("memoArray:", memoArray)
             let messages: [String: Any] = ["notice": notice, "listName": self.listNameString!, "memoId": self.memoArray.map {$0.memoId}, "shoppingMemo": self.memoArray.map {$0.shoppingMemo}, "imageUrl": self.memoArray.map {$0.imageUrl}]
-            print("messages:", messages)
             self.viewModel.session.sendMessage(messages, replyHandler: nil) { (error) in
-                print("error:", error.localizedDescription)
-                self.sendMessage(notice: "sendMessage")
+                print(error.localizedDescription)
             }
         } else if notice == "clear" {
             let messages = ["notice": "clear"]
@@ -685,8 +691,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.linking = true
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
-        print("linking2:", linking)
-        let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました。", message: "画面を戻ると接続は切断されます。", preferredStyle: .alert)
+        self.activityIndicatorView.stopAnimating()
+        let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました。", message: "画面を移動すると接続は切断されます。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
     }
@@ -695,6 +701,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.linking = false
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
+        self.activityIndicatorView.stopAnimating()
+        let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しました。", message: "再度使用するには再度接続してください。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
