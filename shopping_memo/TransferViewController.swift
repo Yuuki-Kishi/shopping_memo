@@ -57,9 +57,9 @@ class TransferViewController: UIViewController, UITableViewDelegate, UITableView
             let userId = snapshot.key
             ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
                 guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                if let mIndex = memberArray.firstIndex(where: {$0.userName == userName}) {
+                if let mIndex = memberArray.firstIndex(where: {$0.uId == userId}) {
                     memberArray[mIndex].userName = userName
-                } else if let gIndex = guestArray.firstIndex(where: {$0.userName == userName}) {
+                } else if let gIndex = guestArray.firstIndex(where: {$0.uId == userId}) {
                     guestArray[gIndex].userName = userName
                 }
                 tableView.reloadData()

@@ -33,7 +33,7 @@ class MailCheckViewController: UIViewController {
         if isEmailVerified! {
             self.performSegue(withIdentifier: "toRVC", sender: nil)
         } else {
-            let alert = UIAlertController(title: "メールが確認されていません。", message: "再送してやり直してください。", preferredStyle: .alert)
+            let alert = UIAlertController(title: "メールが確認されていません", message: "確認メールを再送してやり直してください。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         }
@@ -45,7 +45,7 @@ class MailCheckViewController: UIViewController {
     
     func sendMail() {
         Auth.auth().currentUser?.sendEmailVerification() { error in
-            let alert = UIAlertController(title: "確認メールを送信しました。", message: "メールのURLをタップしてメールアドレスを認証してください。", preferredStyle: .alert)
+            let alert = UIAlertController(title: "確認メールを送信しました", message: "メールのURLをタップしてメールアドレスを認証してください。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         }

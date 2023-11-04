@@ -66,7 +66,7 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         if textField.text == "" {
-            let alert: UIAlertController = UIAlertController(title: "メモを追加できません。", message: "記入欄が空白です。", preferredStyle: .alert)
+            let alert: UIAlertController = UIAlertController(title: "メモを追加できません", message: "記入欄が空白です。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else {

@@ -115,7 +115,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let userId = snapshot.key
             guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
             if userId == self.userId {
-                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -134,7 +134,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
         ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
             if roomId == roomIdString {
-                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -276,7 +276,7 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func userDeleteSwipe(userId: String, indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var deleteAction: UIContextualAction
         deleteAction = UIContextualAction(style: .destructive, title: "追放") { (action, view, completionHandler) in
-            let alert: UIAlertController = UIAlertController(title: "本当に追放しますか。", message: "追放された人はこのルームに入れなくなります。", preferredStyle: .alert)
+            let alert: UIAlertController = UIAlertController(title: "本当に追放しますか？", message: "追放された人はこのルームに入れなくなります。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "追放", style: .destructive, handler:  { actioin in
                 self.ref.child("rooms").child(self.roomIdString).child("members").child(userId).removeValue()
                 self.ref.child("users").child(userId).child("rooms").child(self.roomIdString).removeValue()

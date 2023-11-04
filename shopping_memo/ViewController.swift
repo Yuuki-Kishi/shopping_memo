@@ -201,7 +201,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
             if roomId == roomIdString {
-                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -213,7 +213,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { [self] snapshot in
             let listId = snapshot.key
             if listId == listIdString {
-                let alert: UIAlertController = UIAlertController(title: "リストが削除されました。", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "リストが削除されました", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
                     self.navigationController?.popViewController(animated: true)
                 }))
@@ -224,7 +224,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { snapshot in
             let userId = snapshot.key
             if userId == self.userId {
-                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -668,7 +668,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
         self.activityIndicatorView.stopAnimating()
-        let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました。", message: "画面を移動すると接続は切断されます。", preferredStyle: .alert)
+        let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました", message: "画面を移動すると接続は切断されます。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
     }
@@ -678,7 +678,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
         self.activityIndicatorView.stopAnimating()
-        let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しました。", message: "再度使用するには再度接続してください。", preferredStyle: .alert)
+        let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しました", message: "再度使用するには再度接続してください。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
     }

@@ -104,10 +104,10 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
     @IBAction func add() {
         let alert: UIAlertController = UIAlertController(title: "本当にこのユーザーを招待しますか？", message: "後から招待したユーザーをルームから追放することができます。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-            self.ref.child("users").child(self.userIdString).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+            self.ref.child("users").child(self.userIdString!).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
                 let email = snapshot.childSnapshot(forPath: "email").value as! String
-                ref.child("rooms").child(roomIdString).child("members").child(userIdString).updateChildValues(["authority": "guest", "email": email])
-                ref.child("users").child(userIdString).child("rooms").updateChildValues([roomIdString: "guest"])
+                ref.child("rooms").child(roomIdString!).child("members").child(userIdString!).updateChildValues(["authority": "guest", "email": email])
+                ref.child("users").child(userIdString!).child("rooms").updateChildValues([roomIdString!: "guest"])
                 let viewControllers = self.navigationController?.viewControllers
                 self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
             })

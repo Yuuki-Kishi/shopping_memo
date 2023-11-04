@@ -52,7 +52,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             if result {
                 DispatchQueue.main.async {
                     let url = URL(string: "https://itunes.apple.com/jp/app/apple-store/id6448711012")!
-                    let alert: UIAlertController = UIAlertController(title: "最新バージョンではありません。", message: "AppStoreから更新してください。", preferredStyle: .alert)
+                    let alert: UIAlertController = UIAlertController(title: "古いバージョンです", message: "AppStoreから更新してください。", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "更新する", style: .default, handler: { action in
                                 UIApplication.shared.open(url, options: [:]) { success in
                                     if success {print("成功!")}}}))

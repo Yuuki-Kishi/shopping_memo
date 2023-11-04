@@ -156,7 +156,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("rooms").observe(.childRemoved, with:  { [self] snapshot in
             let roomId = snapshot.key
             if roomId == roomIdString {
-                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 4], animated: true)
@@ -168,7 +168,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { snapshot in
             let listId = snapshot.key
             if listId == self.listIdString {
-                let alert: UIAlertController = UIAlertController(title: "リストが削除されました。", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "リストが削除されました", message: "詳しくはリストを削除したメンバーにお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
@@ -180,7 +180,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { [self] snapshot in
             let memoId = snapshot.key
             if memoId == memoIdString {
-                let alert: UIAlertController = UIAlertController(title: "「" + self.shoppingMemoName + "」が削除されました。", message: "詳しくは削除したメンバーにお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "「" + self.shoppingMemoName + "」が削除されました", message: "詳しくは削除したメンバーにお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     self.navigationController?.popViewController(animated: true)
                 }))
@@ -191,7 +191,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { snapshot in
             let userId = snapshot.key
             if userId == self.userId {
-                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
                     self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 4], animated: true)
@@ -246,7 +246,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         guard let memoId = memoIdString else { return }
         let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
         if imageView.image == UIImage(systemName: "photo") {
-            let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
+            let alert: UIAlertController = UIAlertController(title: "削除できません", message: "削除できる画像がありません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else {

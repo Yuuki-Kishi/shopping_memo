@@ -84,34 +84,22 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         let password = passwordTextField.text!
         if emailTextField.text == "" {
             let alert = UIAlertController(title: "新規登録できません", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
-            present(alert, animated: true, completion: nil)
-            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
-            }
-            alert.addAction(ok)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
         } else if passwordTextField.text == "" {
             let alert = UIAlertController(title: "新規登録できません", message: "パスワードが入力されていません。", preferredStyle: .alert)
-            present(alert, animated: true, completion: nil)
-            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
-            }
-            alert.addAction(ok)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
         } else if userNameTextField.text == "" {
             let alert = UIAlertController(title: "新規登録できません", message: "ユーザーネームが入力されいません。", preferredStyle: .alert)
-            present(alert, animated: true, completion: nil)
-            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
-            }
-            alert.addAction(ok)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
         } else if password.count < minPasswordLength || password.isAlphanumeric() == false {
             let alert = UIAlertController(title: "新規登録できません", message: "パスワードは英数字で8文字以上です。", preferredStyle: .alert)
-            present(alert, animated: true, completion: nil)
-            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
-            }
-            alert.addAction(ok)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
         } else if !connect {
-            let alert = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            present(alert, animated: true, completion: nil)
-            let ok = UIAlertAction(title: "OK", style: .default) { (action) in
-            }
-            alert.addAction(ok)
+            GeneralPurpose.notConnectAlert(VC: self)
         } else {
             auth.createUser(withEmail: email, password: password) { (authResult, error) in
                 self.userDefaults.set(email, forKey: "email")
@@ -123,30 +111,14 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
                     }
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
-                    alert.addAction(
-                        UIAlertAction(
-                            title: "OK",
-                            style: .default,
-                            handler: {action in
-                            }
-                        )
-                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
                     self.present(alert, animated: true, completion: nil)
-                    
                 } else {
                     print("error: \(error!)")
                     let errorCode = (error as? NSError)?.code
-                    
                     if errorCode == 17007 {
-                        let alert: UIAlertController = UIAlertController(title: "そのメールアドレスは既に使われています。", message: "別のメールアドレスをお使いください。", preferredStyle: .alert)
-                        alert.addAction(
-                            UIAlertAction(
-                                title: "OK",
-                                style: .default,
-                                handler: { action in
-                                }
-                            )
-                        )
+                        let alert: UIAlertController = UIAlertController(title: "そのメールアドレスは既に使われています", message: "別のメールアドレスをお使いください。", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(alert, animated: true, completion: nil)
                     }
                 }

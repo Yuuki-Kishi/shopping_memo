@@ -43,7 +43,7 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
         self.view.endEditing(true)
     }
     
-    @IBAction func reset() {
+    func PWReset() {
         let email = emailTextField.text!
         if connect {
             if email.contains("@") {
@@ -64,51 +64,29 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
                 }
             } else {
                 if emailTextField.text == "" {
-                    let alert: UIAlertController = UIAlertController(title: "送信できません。", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
+                    let alert: UIAlertController = UIAlertController(title: "送信できません", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default))
                     self.present(alert, animated: true, completion: nil)
                 } else {
                     // @が含まれていない時
-                    let alert: UIAlertController = UIAlertController(title: "エラー", message: "@が含まれていません。", preferredStyle: .alert)
+                    let alert: UIAlertController = UIAlertController(title: "送信できません", message: "@が含まれていません。", preferredStyle: .alert)
                     alert.addAction(UIAlertAction( title: "OK", style: .default))
                     self.present(alert, animated: true, completion: nil)
                 }
             }
         } else {
-            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        let email = emailTextField.text!
-        if email.contains("@") {
-            // @が含まれている時
-            Auth.auth().sendPasswordReset(withEmail: email) { error in
-                if error == nil{
-                    let alert: UIAlertController = UIAlertController(title: "送信完了", message: "再設定メールが送れました。", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                        // OK押した時の処理
-                        self.navigationController?.popViewController(animated: true)
-                    }))
-                    self.present(alert, animated: true, completion: nil)
-                }
-            }
-        } else {
-            if emailTextField.text == "" {
-                let alert: UIAlertController = UIAlertController(title: "送信できません。", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                self.present(alert, animated: true, completion: nil)
-            } else {
-                // @が含まれていない時
-                let alert: UIAlertController = UIAlertController(title: "エラー", message: "@が含まれていません。", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                self.present(alert, animated: true, completion: nil)
-            }
-        }
+        PWReset()
         return true
+    }
+    
+    @IBAction func reset() {
+        PWReset()
     }
 }
 

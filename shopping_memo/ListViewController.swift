@@ -127,7 +127,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
             if roomId == roomIdString && myAuthority != "administrator" {
-                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     self.navigationController?.popViewController(animated: true)
                 }))
@@ -139,7 +139,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             let roomId = snapshot.key
             let authority = snapshot.value as? String
             if roomId == self.roomIdString && authority! != "administrator" {
-                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                let alert: UIAlertController = UIAlertController(title: "ルームを追放されました", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     self.navigationController?.popViewController(animated: true)
                 }))
@@ -397,7 +397,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func withdrawal() {
-        let alert: UIAlertController = UIAlertController(title: "本当にルームを脱退しますか。", message: "再度加入するには管理者に招待してもらう必要があります。", preferredStyle: .alert)
+        let alert: UIAlertController = UIAlertController(title: "本当にルームを脱退しますか？", message: "再度加入するには管理者に招待してもらう必要があります。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "脱退", style: .destructive, handler: { anction in
             self.ref.child("users").child(self.userId).child("rooms").child(self.roomIdString).removeValue()
             self.ref.child("rooms").child(self.roomIdString).child("members").child(self.userId).removeValue()

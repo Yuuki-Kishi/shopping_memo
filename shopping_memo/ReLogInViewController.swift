@@ -65,7 +65,6 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("textFieldShouldReturnが呼ばれました。")
         textField.resignFirstResponder()
         if connect {
             signIn()
@@ -79,7 +78,7 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
         let email = emailTextField.text!
         let password = passwordTextField.text!
         if emailTextField.text == "" {
-            let alert: UIAlertController = UIAlertController(title: "ログインできません。", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
+            let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else if !connect {
@@ -110,9 +109,5 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
-    }
-    
-    @IBAction func back() {
-        self.dismiss(animated: true, completion: nil)
     }
 }
