@@ -69,11 +69,7 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
     @IBAction func delete() {
         if connect {
             let alert: UIAlertController = UIAlertController(title: "アカウントを削除してもよろしいですか？", message: "この操作は取り消すことはできません。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "削除する",
-                    style: .destructive,
-                    handler: { action in
+            alert.addAction(UIAlertAction(title: "削除する", style: .destructive, handler: { action in
                         self.ref.child("users").child(self.userId).removeValue()
                         let user = Auth.auth().currentUser
                         user?.delete { error in
@@ -84,26 +80,11 @@ class DeleteViewController: UIViewController, UITextFieldDelegate {
                                 self.navigationController?.popToRootViewController(animated: true)
                             }
                         }
-                    }
-                )
-            )
-            alert.addAction(
-                UIAlertAction(
-                    title: "キャンセル",
-                    style: .cancel,
-                    handler: { action in
-                    }
-                )
-            )
+                    }))
+            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
         } else {
-            let alert: UIAlertController = UIAlertController(title: "アカウント削除不可", message: "インターネット未接続です。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default
-                ))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
     }
 }

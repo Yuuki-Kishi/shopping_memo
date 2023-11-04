@@ -18,15 +18,13 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     var dateFormatter = DateFormatter()
     let userDefaults: UserDefaults = UserDefaults.standard
     var sectionArray = ["自分の情報", "設定"]
-//    var rowArray: Dictionary = ["ユーザーネーム", "メールアドレス", "アカウント作成日", "運用日数", "最終ログイン日"]
     var rowArray = [(Item: String, ItemData: String)]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "情報・設定"
         tableViewSetUp()
-        observeRealtimeDatabase()
-        setUpInfo()
+        setUpAndObserveRealtimeDatabase()
     }
     
     func tableViewSetUp() {
@@ -38,45 +36,34 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.dataSource = self
     }
     
-    func observeRealtimeDatabase() {
+    func setUpAndObserveRealtimeDatabase() {
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
         
-        ref.child("users").child(userId).observe(.childAdded, with: { [self] snapshot in
-            let key = snapshot.key
-            let userName = snapshot.childSnapshot(forPath: "userName").value as? String
-            if key == "metadata" {
-                rowArray[0] = ((Item: "ユーザーネーム", ItemData: userName!))
-            }
-            tableView.reloadData()
-        })
-        
-        ref.child("users").child(userId).observe(.childChanged, with: { [self] snapshot in
-            let key = snapshot.key
-            let userName = (snapshot.childSnapshot(forPath: "userName").value as? String) ?? "未設定"
-            if key == "metadata" {
-                rowArray[0].ItemData = userName
-                tableView.reloadData()
-            }
-        })
-    }
-    
-    func setUpInfo() {
         dateFormatter.dateFormat = "yyyy/MM/dd"
         let email = Auth.auth().currentUser?.email
-        let userId = Auth.auth().currentUser?.uid
         let create = Auth.auth().currentUser?.metadata.creationDate
         let creationDate = dateFormatter.string(from: create!)
         let lastSignInDate = dateFormatter.string(from: (Auth.auth().currentUser?.metadata.lastSignInDate)!)
         let operationDays = (Calendar.current.dateComponents([.day], from: create!, to: Date()).day)! + 1
         
-        rowArray.append((Item: "ユーザーネーム", ItemData: "未設定"))
-        rowArray.append((Item: "メールアドレス", ItemData: email!))
-        rowArray.append((Item: "ユーザーID", ItemData: userId!))
-        rowArray.append((Item: "自分のQRコード", ItemData: ""))
-        rowArray.append((Item: "アカウント作成日", ItemData: creationDate))
-        rowArray.append((Item: "最終ログイン日", ItemData: lastSignInDate))
-        rowArray.append((Item: "運用日数", ItemData: String(operationDays) + "日目"))
+        ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+            let userName = (snapshot.childSnapshot(forPath: "userName").value as? String) ?? "未設定"
+            rowArray.append((Item: "ユーザーネーム", ItemData: userName))
+            rowArray.append((Item: "メールアドレス", ItemData: email!))
+            rowArray.append((Item: "ユーザーID", ItemData: userId!))
+            rowArray.append((Item: "自分のQRコード", ItemData: ""))
+            rowArray.append((Item: "アカウント作成日", ItemData: creationDate))
+            rowArray.append((Item: "最終ログイン日", ItemData: lastSignInDate))
+            rowArray.append((Item: "運用日数", ItemData: String(operationDays) + "日目"))
+            tableView.reloadData()
+        })
+        
+        ref.child("users").child(userId).observe(.childChanged, with: { [self] snapshot in
+            guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
+            rowArray[0].ItemData = userName
+            tableView.reloadData()
+        })
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -157,7 +144,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alertTextField = textField
                 alertTextField.returnKeyType = .done
                 alertTextField.clearButtonMode = .always
-                if userName != "未設定" {alertTextField.text = userName}
+                if userName != "未設定" { alertTextField.text = userName }
                 alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                 alert.addAction(UIAlertAction(title: "設定", style: .default, handler: { action in
                             if textField.text != "" {

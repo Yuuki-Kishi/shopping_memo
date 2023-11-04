@@ -22,14 +22,14 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
         title = "メモ"
         
         table.register(UINib(nibName: "CustomTableViewCell", bundle: nil), forCellReuseIdentifier: "CustomTableViewCell")
-                
+        
         self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         
         if userDefaults.array(forKey: "memoArray") != nil {
             memoArray = userDefaults.array(forKey: "memoArray") as! [String]
             self.table.reloadData()
         }
-                
+        
         table.delegate = self
         table.dataSource = self
         titleTextField.delegate = self
@@ -92,13 +92,13 @@ class NotSigninViewController: UIViewController, UITextFieldDelegate, UITableVie
                 alertTextField.text = memo
                 alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                            if alertTextField.text != "" {
-                                let text = alertTextField.text!
-                                self.memoArray[indexPath.row] = text
-                                self.userDefaults.set(self.memoArray, forKey: "memoArray")
-                                self.table.reloadData()
-                            }
-                        }))
+                    if alertTextField.text != "" {
+                        let text = alertTextField.text!
+                        self.memoArray[indexPath.row] = text
+                        self.userDefaults.set(self.memoArray, forKey: "memoArray")
+                        self.table.reloadData()
+                    }
+                }))
                 self.present(alert, animated: true, completion: nil)
             }
             completionHandler(true)

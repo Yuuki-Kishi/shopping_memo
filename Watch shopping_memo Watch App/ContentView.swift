@@ -15,33 +15,41 @@ struct ContentView: View {
     
     @State var listName: String!
     @State var memoArray = [(memoId: String, shoppingMemo: String, imageUrl: String)]()
+    @State var isShowProgressView = false
     
     var body: some View {
         if !memoArray.isEmpty {
             NavigationView {
-                List {
-                    ForEach(Array(memoArray.enumerated()), id: \.element.memoId) { index, memo in
-                        //MARK: out of range
-                        let shoppingMemo = memo.shoppingMemo
-                        let imageUrl = memo.imageUrl
-                        HStack {
-                            Button(action: {
-//                                memoArray.remove(at: index)
-                                sendMessage(index: index)
-                                print("index1:", index)
-                            }){
-                                Image(systemName: "square")
-                                    .foregroundColor(.white)
-                            }
-                            .frame(width: 30, height: 25)
-                            Text(shoppingMemo)
-                            Spacer()
-                            if imageUrl == "" {
-                                Image(systemName: "plus.viewfinder")
-                            } else {
-                                Image(systemName: "photo")
+                ZStack {
+                    List {
+                        ForEach(Array(memoArray.enumerated()), id: \.element.memoId) { index, memo in
+                            //MARK: out of range
+                            let shoppingMemo = memo.shoppingMemo
+                            let imageUrl = memo.imageUrl
+                            HStack {
+                                Button(action: {
+                                    sendMessage(index: index)
+                                    isShowProgressView = true
+                                }){
+                                    Image(systemName: "square")
+                                        .foregroundColor(.white)
+                                }
+                                .frame(width: 30, height: 25)
+                                Text(shoppingMemo)
+                                Spacer()
+                                if imageUrl == "" {
+                                    Image(systemName: "plus.viewfinder")
+                                } else {
+                                    Image(systemName: "photo")
+                                }
                             }
                         }
+                    }
+                    if isShowProgressView {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .scaleEffect(1.5)
+                            .tint(Color.white)
                     }
                 }
                 .navigationTitle(listName)
@@ -74,6 +82,7 @@ extension ContentView: WatchViewModelDelegate {
     func reloadData() {
         listName = viewModel.listName
         memoArray = viewModel.memoArray
+        isShowProgressView = false
     }
     
     

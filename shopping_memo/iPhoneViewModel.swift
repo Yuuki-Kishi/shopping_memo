@@ -33,27 +33,21 @@ extension iPhoneViewModel: WCSessionDelegate {
     }
     
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        print("receive")
         DispatchQueue.main.async {
             let request = message["request"] as? String ?? ""
             if request == "check" {
-                print("request:", request)
                 guard let index = message["index"] as? Int else { return }
-                print("index2:", index)
                 let indexPath = IndexPath(row: index, section: 0)
                 self.iPhoneDelegate?.check(indexPath: indexPath)
             } else if request == "getData" {
-                print("getData")
                 self.iPhoneDelegate?.getData()
             } else if request == "clearData" {
                 self.iPhoneDelegate?.cleared()
             }
         }
     }
-    func sessionDidBecomeInactive(_ session: WCSession) {
-    }
-    func sessionDidDeactivate(_ session: WCSession) {
-    }
+    func sessionDidBecomeInactive(_ session: WCSession) {}
+    func sessionDidDeactivate(_ session: WCSession) {}
 }
 
 protocol iPhoneViewModelDelegate {

@@ -38,8 +38,6 @@ class CustomTableViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
-        imageButton.layer.cornerRadius = 7.5
         memoLabel.adjustsFontSizeToFitWidth = true
         activityIndicatorView.frame = checkMarkImageButton.frame
         activityIndicatorView.center.x = 20

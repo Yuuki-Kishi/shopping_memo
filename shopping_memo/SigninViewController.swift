@@ -67,17 +67,14 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         email = userDefaults.string(forKey: "email")
-        if email != nil {
-            emailTextField.text = email
-        }
+        if email != nil { emailTextField.text = email }
         auth = Auth.auth()
         if auth.currentUser != nil {
             let userId = auth.currentUser?.uid
             let email = auth.currentUser?.email
-            ref.child("users").child(userId!).observe(.childAdded, with: { snapshot in
-                let item = snapshot.key
+            ref.child("users").child(userId!).child("metadata").observeSingleEvent(of: .value, with: { snapshot in
                 let userEmail = snapshot.childSnapshot(forPath: "email").value as? String
-                if userEmail == nil && item == "metadata" {
+                if userEmail == nil {
                     self.ref.child("users").child(userId!).child("metadata").updateChildValues(["email": email!])
                 }
             })
@@ -90,8 +87,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     
     func UISetUp() {
         signInButton.layer.cornerRadius = 18.0
-        signInButton.layer.cornerCurve = .continuous
-        signUpButton.layer.cornerRadius = 10.0
+        signUpButton.layer.cornerRadius = 18.0
         
         appIconImage.layer.cornerRadius = 30.0
         appIconImage.layer.cornerCurve = .continuous
@@ -120,7 +116,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("textFieldShouldReturnが呼ばれました。")
         textField.resignFirstResponder()
         signIn()
         return true
@@ -134,9 +129,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else if !connect {
-            let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "インターネット未接続です。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         } else {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
@@ -152,7 +145,6 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     print("error: \(error!)")
                     let errorCode = (error as? NSError)?.code
-                    
                     if errorCode == 17008 {
                         let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default))

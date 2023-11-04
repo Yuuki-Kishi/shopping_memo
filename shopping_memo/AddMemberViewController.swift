@@ -33,39 +33,27 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
         tableView.dataSource = self
         
         addButton.layer.cornerRadius = 18.0
-        addButton.layer.cornerCurve = .continuous
-        addButton.layer.cornerRadius = 10.0
                 
-        observeRealtimeDatabase()
+        setUpAndObserveRealtimeDatabase()
     }
     
-    func observeRealtimeDatabase() {
+    func setUpAndObserveRealtimeDatabase() {
         ref = Database.database().reference()
         
-        ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { [self] snapshot in
-            let userId = snapshot.key
-            if userId != userIdString {
-                ref.child("users").child(userIdString!).observe(.childAdded, with: { snapshot in
-                    let item = snapshot.key
-                    let email = snapshot.childSnapshot(forPath: "email").value as? String
-                    let userName = snapshot.childSnapshot(forPath: "userName").value as? String
-                    if item == "metadata" {
-                        self.email = email
-                        self.userName = userName
-                    }
-                    self.tableView.reloadData()
-                })}
+        ref.child("users").child(userIdString).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+            let email = snapshot.childSnapshot(forPath: "email").value as? String
+            let userName = snapshot.childSnapshot(forPath: "userName").value as? String
+            self.email = email
+            self.userName = userName
+            tableView.reloadData()
         })
         
         ref.child("users").child(userIdString).observe(.childChanged, with: { [self] snapshot in
-            let item = snapshot.key
             guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { return }
             guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-            if item == "metadata" {
-                self.email = email
-                self.userName = userName
-            }
-            self.tableView.reloadData()
+            self.email = email
+            self.userName = userName
+            tableView.reloadData()
         })
     }
     
@@ -114,29 +102,18 @@ class AddMemberViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     @IBAction func add() {
-        ref.child("rooms").child(roomIdString).child("members").getData(completion:  { error, snapshot in
-            guard error == nil else { return }
-            let userId = snapshot!.key
-            let thisUser = self.userIdString
-            let alert: UIAlertController = UIAlertController(title: "本当にこのユーザーを招待しますか？", message: "後から招待したユーザーをルームから追放することができます。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                self.ref.child("users").child(self.userIdString).observe(.childAdded, with: { snapshot in
-                    let item = snapshot.key
-                    let email = snapshot.childSnapshot(forPath: "email").value as? String
-                    if item == "metadata" {
-                        self.ref.child("rooms").child(self.roomIdString).child("members").child(self.userIdString).updateChildValues(["authority": "guest", "email": email!])
-                        self.ref.child("users").child(self.userIdString).child("rooms").updateChildValues(["\(self.roomIdString!)": "guset"])
-                        self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                        self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                        self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                        let time = self.dateFormatter.string(from: Date())
-                    }})
+        let alert: UIAlertController = UIAlertController(title: "本当にこのユーザーを招待しますか？", message: "後から招待したユーザーをルームから追放することができます。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            self.ref.child("users").child(self.userIdString).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let email = snapshot.childSnapshot(forPath: "email").value as! String
+                ref.child("rooms").child(roomIdString).child("members").child(userIdString).updateChildValues(["authority": "guest", "email": email])
+                ref.child("users").child(userIdString).child("rooms").updateChildValues([roomIdString: "guest"])
                 let viewControllers = self.navigationController?.viewControllers
                 self.navigationController?.popToViewController(viewControllers![viewControllers!.count - 3], animated: true)
-            }))
-            alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
-            self.present(alert, animated: true, completion: nil)
-        })
+            })
+        }))
+        alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+        self.present(alert, animated: true, completion: nil)
     }
     
     @IBAction func cancel() {

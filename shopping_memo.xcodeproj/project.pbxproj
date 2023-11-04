@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -41,6 +41,7 @@
 		DE9BE8FE293A4F8D00992A9F /* CustomListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */; };
 		DE9BE8FF293A4F8D00992A9F /* CustomListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE9BE8FD293A4F8D00992A9F /* CustomListCell.xib */; };
 		DEC30FC8293E055B006416C2 /* ImageViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */; };
+		DEE5AC572AEFD0B30082069C /* TransferViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE5AC562AEFD0B30082069C /* TransferViewController.swift */; };
 		DEE6662F2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE6662E2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift */; };
 		DEE666312AAD7A22006F3B04 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE666302AAD7A22006F3B04 /* ContentView.swift */; };
 		DEE666332AAD7A25006F3B04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEE666322AAD7A25006F3B04 /* Assets.xcassets */; };
@@ -133,6 +134,7 @@
 		DE9BE8FC293A4F8D00992A9F /* CustomListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListCell.swift; sourceTree = "<group>"; };
 		DE9BE8FD293A4F8D00992A9F /* CustomListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CustomListCell.xib; sourceTree = "<group>"; };
 		DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewViewController.swift; sourceTree = "<group>"; };
+		DEE5AC562AEFD0B30082069C /* TransferViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferViewController.swift; sourceTree = "<group>"; };
 		DEE6662C2AAD7A22006F3B04 /* Watch shopping_memo Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Watch shopping_memo Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE6662E2AAD7A22006F3B04 /* Watch_shopping_memoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Watch_shopping_memoApp.swift; sourceTree = "<group>"; };
 		DEE666302AAD7A22006F3B04 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -235,8 +237,9 @@
 				DEEB54002AAF2F8400ACC49A /* RoomViewController.swift */,
 				DE0C02B72587A313005BB17F /* ListViewController.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
-				DE28F6E1261F270D0074934D /* NotSigninViewController.swift */,
 				DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */,
+				DE28F6E1261F270D0074934D /* NotSigninViewController.swift */,
+				DEE5AC562AEFD0B30082069C /* TransferViewController.swift */,
 				DEEB54082AB0C01100ACC49A /* MemberViewController.swift */,
 				DEEB540E2AB2091D00ACC49A /* QRCodeReadViewController.swift */,
 				DEEB54102AB34AE300ACC49A /* AddMemberViewController.swift */,
@@ -573,6 +576,7 @@
 				DE9BE8FA293A3CC200992A9F /* CustomTableViewCell.swift in Sources */,
 				DE26EAF629E12BFA007AEC11 /* SettingTableViewCell.swift in Sources */,
 				DEEB54112AB34AE300ACC49A /* AddMemberViewController.swift in Sources */,
+				DEE5AC572AEFD0B30082069C /* TransferViewController.swift in Sources */,
 				DEC30FC8293E055B006416C2 /* ImageViewViewController.swift in Sources */,
 				DE1BAA172585F014003506E9 /* ResetViewController.swift in Sources */,
 				DE28F6E2261F270D0074934D /* NotSigninViewController.swift in Sources */,
@@ -801,7 +805,7 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 85MXHZWC2N;
 				INFOPLIST_FILE = shopping_memo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -924,7 +928,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -955,7 +959,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};

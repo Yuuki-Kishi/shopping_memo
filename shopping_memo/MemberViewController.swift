@@ -59,30 +59,25 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
             guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
             if userId == self.userId {myAuthority = authority}
             let email = (snapshot.childSnapshot(forPath: "email").value as? String) ?? ""
-            ref.child("users").child(userId).observe(.childAdded, with: { [self] snapshot in
+            ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
                 guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                print("authority:", authority)
                 if authority == "administrator" {
-                    let index = administratorArray.firstIndex {$0.administratorId == userId}
-                    print("index:", index)
-                    if index == nil {
-                        administratorArray.append((administratorId: userId, administratorName: userName, administratorEmail: email))
-                        print("administratorArray:", administratorArray)
-                    }
+                    let isContain = administratorArray.contains(where: {$0.administratorId == userId})
+                    if !isContain { administratorArray.append((administratorId: userId, administratorName: userName, administratorEmail: email)) }
                 } else if authority == "member" {
-                    let index = memberArray.firstIndex {$0.memberId == userId}
-                    if index == nil {
+                    let isContain = memberArray.contains(where:  {$0.memberId == userId})
+                    if !isContain {
                         memberArray.append((memberId: userId, memberName: userName, memberEmail: email))
                         memberArray.sort {$0.memberName < $1.memberName}
                     }
                 } else if authority == "guest" {
-                    let index = guestArray.firstIndex {$0.guestId == userId}
-                    if index == nil {
+                    let isContain = guestArray.contains(where: {$0.guestId == userId})
+                    if !isContain {
                         guestArray.append((guestId: userId, guestName: userName, guestEmail: email))
                         guestArray.sort {$0.guestName < $1.guestName}
                     }
                 }
-                if myAuthority != "administrator" {plusButton.isHidden = true}
+                if myAuthority != "administrator" { plusButton.isHidden = true }
                 tableView.reloadData()
             })})
         
@@ -102,11 +97,8 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
             ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { [self] snapshot in
                 let userId = snapshot.key
                 if userId == Id {
-                    ref.child("users").child(Id).observe(.childAdded, with: { [self] snapshot in
-                        let item = snapshot.key
+                    ref.child("users").child(Id).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
                         guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                        if item == "metadata" {
-                            print("item:", item)
                             if let index = administratorArray.firstIndex(where: {$0.administratorId == Id}) {
                                 administratorArray[index].administratorName = userName
                             }
@@ -114,11 +106,10 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                                 memberArray[index].memberName = userName
                             }
                             if let index = guestArray.firstIndex(where: {$0.guestId == Id}) {
-                                print("index:", index)
                                 guestArray[index].guestName = userName
                             }
                             tableView.reloadData()
-                        }})}})})
+                        })}})})
         
         ref.child("rooms").child(roomIdString).child("members").observe(.childRemoved, with: { [self] snapshot in
             let userId = snapshot.key
@@ -132,21 +123,17 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 self.present(alert, animated: true, completion: nil)
             } else {
                 if authority == "member" {
-                    if let mIndex = memberArray.firstIndex(where: {$0.memberId == userId}) {
-                        memberArray.remove(at: mIndex)
-                    }
+                    if let mIndex = memberArray.firstIndex(where: {$0.memberId == userId}) { memberArray.remove(at: mIndex) }
                 } else if authority == "guest" {
-                    if let gIndex = guestArray.firstIndex(where: {$0.guestId == userId}) {
-                        guestArray.remove(at: gIndex)
-                    }
+                    if let gIndex = guestArray.firstIndex(where: {$0.guestId == userId}) { guestArray.remove(at: gIndex) }
                 }
                 tableView.reloadData()
             }
         })
         
-        ref.child("rooms").observe(.childRemoved, with: { snapshot in
+        ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
-            if roomId == self.roomIdString {
+            if roomId == roomIdString {
                 let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
@@ -288,17 +275,10 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func userDeleteSwipe(userId: String, indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var deleteAction: UIContextualAction
-        // 削除処理
         deleteAction = UIContextualAction(style: .destructive, title: "追放") { (action, view, completionHandler) in
             let alert: UIAlertController = UIAlertController(title: "本当に追放しますか。", message: "追放された人はこのルームに入れなくなります。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "追放", style: .destructive, handler:  { actioin in
-                //削除処理を記述
                 self.ref.child("rooms").child(self.roomIdString).child("members").child(userId).removeValue()
-                self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let time = self.dateFormatter.string(from: Date())
-                self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["lastEditTime": time])
                 self.ref.child("users").child(userId).child("rooms").child(self.roomIdString).removeValue()
                 if self.guestArray.isEmpty {
                     if self.memberArray.count == 1 {
@@ -375,27 +355,29 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
             alertTextField.returnKeyType = .done
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                        if alertTextField.text != "" {
-                            let text = alertTextField.text
-                            self.ref.child("users").child(text!).observe(.childAdded, with: { snapshot in
-                                let item = snapshot.key
-                                let email = snapshot.childSnapshot(forPath: "email").value as? String
-                                if item == "metadata" {
-                                    self.ref.child("rooms").child(self.roomIdString).child("members").child(text!).updateChildValues(["authority": "guest", "email": email!])
-                                    self.ref.child("users").child(text!).child("rooms").updateChildValues(["\(self.roomIdString!)": "guest"])
-                                    self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                                    self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                                    self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                                    let time = self.dateFormatter.string(from: Date())
-                                }})
-                            self.wrongUserId()
-                        }}))}
+                if alertTextField.text != "" {
+                    let text = alertTextField.text
+                    var trueId = false
+                    self.ref.child("users").child(text!).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                        guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { self.afterAddAlert(trueId: trueId); return }
+                        ref.child("rooms").child(roomIdString).child("members").child(text!).updateChildValues(["authority": "guest", "email": email])
+                        ref.child("users").child(text!).child("rooms").updateChildValues(["\(roomIdString!)": "guest"])
+                        trueId = true
+                        self.afterAddAlert(trueId: trueId)
+                    })
+                }}))}
         self.present(alert, animated: true, completion: nil)
     }
     
-    func wrongUserId() {
-        let alert: UIAlertController = UIAlertController(title: "ユーザーが見つかりません。", message: "入力したユーザーIDが間違っています。", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        self.present(alert, animated: true, completion: nil)
+    func afterAddAlert(trueId: Bool) {
+        if trueId {
+            let alert: UIAlertController = UIAlertController(title: "招待が完了しました", message: "右からスワイプすることで招待を取り消すことができます。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
+        } else {
+            let alert: UIAlertController = UIAlertController(title: "招待できません", message: "招待できる人のIDではありません。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
+        }
     }
 }

@@ -14,7 +14,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     @IBOutlet var tableView: UITableView!
     @IBOutlet var plusButton: UIButton!
-            
+    
     let dateFormatter = DateFormatter()
     var connect = false
     let userDefaults: UserDefaults = UserDefaults.standard
@@ -32,27 +32,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         title = roomNameString
         
-        menu()
         UISetUp()
-                        
+        setUpData()
+        moveData()
+        
         tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
-                
+        
         tableView.delegate = self
         tableView.dataSource = self
         
         listArray = []
-        
-        let connectedRef = Database.database().reference(withPath: ".info/connected")
-        connectedRef.observe(.value, with: { snapshot in
-            if snapshot.value as? Bool ?? false {
-                self.connect = true
-            } else {
-                self.connect = false
-            }})
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        moveData()
         observeRealtimeDatabase()
     }
     
@@ -65,79 +57,85 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
     }
     
-    func observeRealtimeDatabase() {
+    func setUpData() {
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
         
+        ref.child("rooms").child(roomIdString).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
+            guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
+            myAuthority = authority
+            menu()
+        })
+        
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {
+                self.connect = true
+            } else {
+                self.connect = false
+            }
+        })
+    }
+    
+    func observeRealtimeDatabase() {
         ref.child("rooms").child(roomIdString).child("lists").observe(.childAdded, with: { [self] snapshot in
             let listId = snapshot.key
-            print("listId:", listId)
-            ref.child("rooms").child(roomIdString).child("lists").child(listId).observe(.childAdded, with: { [self] snapshot in
-                print("listId2:", listId)
+            ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
                 guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
                 guard let listCount = snapshot.childSnapshot(forPath: "listCount").value as? Int else { return }
-                let index = listArray.firstIndex(where: {$0.listId == listId})
-                print("index:", index)
-                if index == nil {
+                let isContain = listArray.contains(where: {$0.listId == listId})
+                if !isContain {
                     listArray.append((listId: listId, listName: listName, listCount: listCount))
-                    print("listArray:", listArray)
                     listArray.sort {$0.listCount < $1.listCount}
                     tableView.reloadData()
                 }
             })
         })
         
-        ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { snapshot in
+        ref.child("users").child(userId).child("rooms").observe(.childChanged, with: { [self] snapshot in
             let userId = snapshot.key
-            guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
-            if userId == self.userId {
-                self.myAuthority = authority
-                self.menu()
-            }
+            let newAuthority = snapshot.value as? String
+            myAuthority = newAuthority!
+            menu()
         })
         
         ref.child("rooms").child(roomIdString).child("lists").observe(.childChanged, with: { [self] snapshot in
             let listId = snapshot.key
-            print("listId:", listId)
-            ref.child("rooms").child(roomIdString).child("lists").child(listId).observe(.childAdded, with: { [self] snapshot in
+            ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
                 guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
                 let listCount = (snapshot.childSnapshot(forPath: "listCount").value as? Int) ?? 0
-                guard let index = listArray.firstIndex(where: {$0.listId == listId}) else { return }
-                listArray[index] = ((listId: listId, listName: listName, listCount: listCount))
-                listArray.sort {$0.listCount < $1.listCount}
+                if let index = listArray.firstIndex(where: {$0.listId == listId}) {
+                    listArray[index] = ((listId: listId, listName: listName, listCount: listCount))
+                    listArray.sort {$0.listCount < $1.listCount}
+                }
                 tableView.reloadData()
             })
         })
         
-        ref.child("rooms").child(roomIdString).observe(.childChanged, with: { snapshot in
+        ref.child("rooms").child(roomIdString).observe(.childChanged, with: { [self] snapshot in
             guard let roomName = snapshot.childSnapshot(forPath: "roomName").value as? String else { return }
-            self.roomNameString = roomName
-            self.title = self.roomNameString
+            roomNameString = roomName
+            title = roomName
         })
         
         ref.child("rooms").child(roomIdString).child("lists").observe(.childRemoved, with: { [self] snapshot in
             let listId = snapshot.key
-            guard let index = listArray.firstIndex(where: {$0.listId == listId}) else { return }
-            listArray.remove(at: index)
+            if let index = listArray.firstIndex(where: {$0.listId == listId}) { listArray.remove(at: index) }
             tableView.reloadData()
         })
         
         ref.child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
-            if myAuthority != "administrator" {
-                if roomId == roomIdString {
-                    let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
-                        self.navigationController?.popViewController(animated: true)
-                    }))
-                    self.present(alert, animated: true, completion: nil)
-                }
-            } else {
-                self.navigationController?.popViewController(animated: true)
+            if roomId == roomIdString && myAuthority != "administrator" {
+                let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
             }
         })
         
-        ref.child("users").child(userId).child("rooms").observe(.childRemoved, with: { snapshot in
+        ref.child("users").child(userId).child("rooms").observe(.childRemoved, with: { [self] snapshot in
             let roomId = snapshot.key
             let authority = snapshot.value as? String
             if roomId == self.roomIdString && authority! != "administrator" {
@@ -158,50 +156,47 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             let listId = snapshot.key
             guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
             let listCount = (snapshot.childSnapshot(forPath: "listCount").value as? Int) ?? 0
-            ref.child("users").child(userId).child(listId).child("name").removeValue()
             ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").updateChildValues(["listCount": listCount, "listName": listName])
-            // nonCheckに追加されたとき、firebaseのデータを引っ張ってくる
+            ref.child("users").child(userId).child(listId).child("name").removeValue()
             ref.child("users").child(userId).child(listId).child("未チェック").observe(.childAdded, with: { [self] snapshot in
-                let memoId = snapshot.key // memo0とか
-                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
                 guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
                 let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
                 guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
                 let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
                 guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-                            
-                ref.child("users").child(userId).child(listId).child("未チェック").child(memoId).removeValue()
                 ref.child("rooms").child(roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
+                ref.child("users").child(userId).child(listId).child("未チェック").child(memoId).removeValue()
             })
             
             ref.child("users").child(userId).child(listId).child("チェック済み").observe(.childAdded, with: { [self] snapshot in
-                let memoId = snapshot.key // memo0とか
-                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
                 guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
                 let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
                 guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
                 let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
                 guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-                            
-                ref.child("users").child(userId).child(listId).child("チェック済み").child(memoId).removeValue()
                 ref.child("rooms").child(roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl])
+                ref.child("users").child(userId).child(listId).child("チェック済み").child(memoId).removeValue()
             })
             
             ref.child("users").child(userId).child(listId).child("memo").observe(.childAdded, with: { [self] snapshot in
-                let memoId = snapshot.key // memo0とか
-                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
                 guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
                 let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
                 guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
                 let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
                 let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String
-                ref.child("users").child(userId).child(listId).child("memo").child(memoId).removeValue()
                 ref.child("rooms").child(roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl!])
+                ref.child("users").child(userId).child(listId).child("memo").child(memoId).removeValue()
                 if imageUrl == "" { return }
-
+                
                 let imageRef = Storage.storage().reference(forURL: imageUrl!)
                 imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
@@ -265,6 +260,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         } else if segue.identifier == "toMVC" {
             let next = segue.destination as? MemberViewController
             next?.roomIdString = roomIdString
+        } else if segue.identifier == "toTVC" {
+            let next = segue.destination as? TransferViewController
+            next?.roomIdString = roomIdString
         }
     }
     
@@ -280,7 +278,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func deleteRoom() {
-        let alert: UIAlertController = UIAlertController(title: "本当に削除しますか？", message: "この操作は取り消すことができません.", preferredStyle: .alert)
+        let alert: UIAlertController = UIAlertController(title: "本当に削除しますか？", message: "脱退したい場合は管理者権限を譲渡してから脱退してください。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "削除", style: .destructive, handler: { action in
             self.ref.child("rooms").child(self.roomIdString).child("members").observe(.childAdded, with: { snapshot in
                 let userId = snapshot.key
@@ -306,7 +304,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                 GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
                 let indexSet = NSMutableIndexSet()
                 indexSet.add(indexPath.section)
-                tableView.deleteSections(indexSet as IndexSet, with: UITableView.RowAnimation.left )
+                tableView.deleteSections(indexSet as IndexSet, with: UITableView.RowAnimation.left)
                 // 実行結果に関わらず記述
                 completionHandler(true)
             }
@@ -322,6 +320,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var editAction: UIContextualAction
         if connect {
+            let listId = listArray[indexPath.section].listId
             let listName = listArray[indexPath.section].listName
             // 編集処理
             editAction = UIContextualAction(style: .normal, title: "編集") { (action, view, completionHandler) in
@@ -335,12 +334,12 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                     alertTextField.text = listName
                     alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
                     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-                                if alertTextField.text != "" {
-                                    let text = alertTextField.text!
-                                    self.listArray[indexPath.section].listName = text
-                                    self.ref.child("rooms").child(self.roomIdString).child("lists").child(self.listIdString).child("info").updateChildValues(["listName": text])
-                                    GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
-                                }}))
+                        if alertTextField.text != "" {
+                            let text = alertTextField.text!
+                            self.listArray[indexPath.section].listName = text
+                            self.ref.child("rooms").child(self.roomIdString).child("lists").child(listId).child("info").updateChildValues(["listName": text])
+                            GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
+                        }}))
                     self.present(alert, animated: true, completion: nil)
                 }
                 // 実行結果に関わらず記述
@@ -375,10 +374,13 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                     }
                 })
             ])
+            let transfer = UIAction(title: "管理者権限を譲渡", image: UIImage(systemName: "person.line.dotted.person.fill"), attributes: .destructive, handler: { _ in
+                self.performSegue(withIdentifier: "toTVC", sender: true)
+            })
             let delete = UIAction(title: "ルームを削除", image: UIImage(systemName: "trash"), attributes: .destructive, handler: { _ in self.deleteRoom()})
             let withdrawal = UIAction(title: "ルームを脱退", image: UIImage(systemName: "door.right.hand.open"), attributes: .destructive, handler: { _ in self.withdrawal()})
             if myAuthority == "administrator" {
-                let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, delete])
+                let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, transfer, delete])
                 menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
             } else {
                 let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, withdrawal])
@@ -390,8 +392,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
-            tableView.isEditing = false
-            menu()
+        tableView.isEditing = false
+        menu()
     }
     
     func withdrawal() {
@@ -412,28 +414,19 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             alert.addTextField { textField in
                 alertTextField = textField
                 alertTextField.returnKeyType = .done
-                alertTextField.clearButtonMode = .always 
-                alert.addAction(
-                    UIAlertAction(
-                        title: "キャンセル",
-                        style: .cancel
-                    ))
-                alert.addAction(
-                    UIAlertAction(
-                        title: "新規作成",
-                        style: .default,
-                        handler: { action in
-                            if textField.text != "" {
-                                self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                                self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                                self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                                let time = self.dateFormatter.string(from: Date())
-                                GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
-                                let text = textField.text!
-                                let date = self.dateFormatter.string(from: Date())
-                                self.ref.child("rooms").child(self.roomIdString).child("lists").child("list\(date)").child("info").updateChildValues(["listName": text, "listCount": -1])
-                                textField.text = ""
-                            }}))}
+                alertTextField.clearButtonMode = .always
+                alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+                alert.addAction(UIAlertAction(title: "新規作成", style: .default, handler: { action in
+                    if textField.text != "" {
+                        self.dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+                        self.dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                        self.dateFormatter.timeZone = TimeZone(identifier: "UTC")
+                        let date = self.dateFormatter.string(from: Date())
+                        GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
+                        let text = textField.text!
+                        self.ref.child("rooms").child(self.roomIdString).child("lists").child("list\(date)").child("info").updateChildValues(["listName": text, "listCount": -1])
+                        textField.text = ""
+                    }}))}
             self.present(alert, animated: true, completion: nil)
         } else {
             GeneralPurpose.notConnectAlert(VC: self)
@@ -450,12 +443,11 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
             alertTextField.text = self.roomNameString
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             alert.addAction(UIAlertAction(title: "変更", style: .default, handler: { action in
-                        if alertTextField.text != "" {
-                            let time = self.dateFormatter.string(from: Date())
-                            GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
-                            let text = alertTextField.text
-                            self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["roomName": text!])
-                        }}))
+                if alertTextField.text != "" {
+                    GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
+                    let text = alertTextField.text
+                    self.ref.child("rooms").child(self.roomIdString).child("info").updateChildValues(["roomName": text!])
+                }}))
             self.present(alert, animated: true, completion: nil)
         }
     }
@@ -463,11 +455,8 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     func listSort() {
         for i in 0...listArray.count - 1 {
             let listId = listArray[i].listId
-            var listCount = listArray[i].listCount
-            listCount = i
-            self.ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").updateChildValues(["listCount": listCount])
+            self.ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").updateChildValues(["listCount": i])
         }
-        let time = self.dateFormatter.string(from: Date())
         GeneralPurpose.updateEditHistory(roomId: self.roomIdString)
     }
     

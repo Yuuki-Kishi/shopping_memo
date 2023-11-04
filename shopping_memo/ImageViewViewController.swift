@@ -11,7 +11,6 @@ import FirebaseAuth
 import FirebaseStorage
 
 class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     @IBOutlet var imageView: UIImageView!
     @IBOutlet var noImageLabel: UILabel!
     @IBOutlet var upDateLabel: UILabel!
@@ -43,7 +42,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                 self.connect = true
             } else {
                 self.connect = false
-          }})
+            }})
     }
     
     func UISetUp() {
@@ -54,11 +53,11 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         upDateLabel.layer.cornerCurve = .continuous
         
         upDateLabel.adjustsFontSizeToFitWidth = true
-                
+        
         activityIndicatorView.center = view.center
         activityIndicatorView.style = .large
         activityIndicatorView.color = .label
-                
+        
         imageView.addSubview(activityIndicatorView)
     }
     
@@ -151,14 +150,12 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { snapshot in
             let memoId = snapshot.key
             guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
-            if memoId == self.memoIdString {
-                self.title = shoppingMemo
-            }
+            if memoId == self.memoIdString { self.title = shoppingMemo }
         })
         
-        ref.child("rooms").observe(.childRemoved, with:  { snapshot in
+        ref.child("rooms").observe(.childRemoved, with:  { [self] snapshot in
             let roomId = snapshot.key
-            if roomId == self.roomIdString {
+            if roomId == roomIdString {
                 let alert: UIAlertController = UIAlertController(title: "ルームが削除されました。", message: "詳しくはルームの管理者にお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     let viewControllers = self.navigationController?.viewControllers
@@ -180,9 +177,9 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             }
         })
         
-        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { snapshot in
+        ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childRemoved, with: { [self] snapshot in
             let memoId = snapshot.key
-            if memoId == self.memoIdString {
+            if memoId == memoIdString {
                 let alert: UIAlertController = UIAlertController(title: "「" + self.shoppingMemoName + "」が削除されました。", message: "詳しくは削除したメンバーにお問い合わせください。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                     self.navigationController?.popViewController(animated: true)
@@ -250,12 +247,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
         if imageView.image == UIImage(systemName: "photo") {
             let alert: UIAlertController = UIAlertController(title: "削除できません。", message: "削除できる画像がありません。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default
-                )
-            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else {
             if connect {

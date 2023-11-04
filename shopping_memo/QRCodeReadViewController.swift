@@ -13,10 +13,11 @@ import FirebaseDatabase
 class QRCodeReadViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
 
     var ref = DatabaseReference()
+    var userId: String!
     var userIdString: String!
     var roomIdString: String!
     
-    var userIdArray = [String]()
+    var memberUserIdArray = [String]()
 
     //カメラ用のAVsessionインスタンス作成
     private let AVsession = AVCaptureSession()
@@ -30,11 +31,11 @@ class QRCodeReadViewController: UIViewController, AVCaptureMetadataOutputObjects
         super.viewDidLoad()
         title = "QRコードリーダー"
         cameraInit()
-        userIdString = Auth.auth().currentUser?.uid
+        userId = Auth.auth().currentUser?.uid
         ref = Database.database().reference()
-        ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { snapshot in
+        ref.child("rooms").child(roomIdString!).child("members").observe(.childAdded, with: { [self] snapshot in
             let userId = snapshot.key
-            self.userIdArray.append(userId)
+            memberUserIdArray.append(userId)
         })
     }
     
@@ -80,37 +81,49 @@ class QRCodeReadViewController: UIViewController, AVCaptureMetadataOutputObjects
     }
     
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-        
-            //カメラ画像にオブジェクトがあるか確認
-            if metadataObjects.count == 0 {
-                return
-            }
-            //オブジェクトの中身を確認
+        //カメラ画像にオブジェクトがあるか確認
+        if metadataObjects.count == 0 { return }
+        //オブジェクトの中身を確認
         for metadata in metadataObjects as! [AVMetadataMachineReadableCodeObject] {
             // metadataのtype： metadata.type
             // QRの中身： metadata.stringValue
             guard let value = metadata.stringValue else { return }
-            //一旦て停止
+            //一旦停止
             AVsession.stopRunning()
             
-            if userIdArray.contains(value) {
-                let alert: UIAlertController = UIAlertController(title: "招待する必要はありません。", message: "このユーザーはすでに招待されています。", preferredStyle: .alert)
+            if self.userId == value {
+                let alert: UIAlertController = UIAlertController(title: "招待できません", message: "このQRコードは自分のQRコードです。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler:  { action in
+                    self.navigationController?.popViewController(animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+            } else if memberUserIdArray.contains(value) {
+                let alert: UIAlertController = UIAlertController(title: "招待する必要はありません", message: "このユーザーはすでに招待されているか、メンバーになっています。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler:  { action in
                     self.navigationController?.popViewController(animated: true)
                 }))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                let ac = UIAlertController(title: "読み取ったQRコード", message: value, preferredStyle: .alert)
-                ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                    self.userIdString = value
-                    self.performSegue(withIdentifier: "toAMVC", sender: nil)
-                }))
-                ac.addAction(UIAlertAction(title: "リトライ", style: .cancel, handler: { _ in
-                    self.AVsession.startRunning()
-                }))
-                self.present(ac, animated: true)
+                if !value.contains(".") && !value.contains("#") && !value.contains("$") && !value.contains("[") && !value.contains("]") {
+                    ref.child("users").child(value).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                        guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { wrongUserId(); return }
+                        let alert = UIAlertController(title: "読み取ったQRコード", message: value, preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                            self.userIdString = value
+                            self.performSegue(withIdentifier: "toAMVC", sender: nil)
+                        }))
+                        alert.addAction(UIAlertAction(title: "リトライ", style: .cancel, handler: { _ in self.AVsession.startRunning() }))
+                        self.present(alert, animated: true)
+                    })
+                } else { wrongUserId() }
             }
         }
+    }
+    
+    func wrongUserId() {
+        let alert: UIAlertController = UIAlertController(title: "招待できません", message: "招待できる人のQRコードではありません。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler:  { action in self.AVsession.startRunning() }))
+        self.present(alert, animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

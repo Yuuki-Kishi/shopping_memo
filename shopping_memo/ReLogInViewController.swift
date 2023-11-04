@@ -70,14 +70,7 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
         if connect {
             signIn()
         } else {
-            let alert: UIAlertController = UIAlertController(title: "インターネット未接続", message: "ネットワークの接続状態を確認してください。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         }
         return true
     }
@@ -87,24 +80,10 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
         let password = passwordTextField.text!
         if emailTextField.text == "" {
             let alert: UIAlertController = UIAlertController(title: "ログインできません。", message: "メールアドレスが入力されていません。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }
-                )
-            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         } else if !connect {
-            let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "インターネット未接続です。", preferredStyle: .alert)
-            alert.addAction(
-                UIAlertAction(
-                    title: "OK",
-                    style: .default,
-                    handler: { action in
-                    }))
-            self.present(alert, animated: true, completion: nil)
+            GeneralPurpose.notConnectAlert(VC: self)
         } else {
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
@@ -115,41 +94,17 @@ class ReLogInViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     print("error: \(error!)")
                     let errorCode = (error as? NSError)?.code
-                    
                     if errorCode == 17008 {
-                        let alert: UIAlertController = UIAlertController(title: "ログインできません。", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
-                        alert.addAction(
-                            UIAlertAction(
-                                title: "OK",
-                                style: .default,
-                                handler: { action in
-                                }
-                            )
-                        )
+                        let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(alert, animated: true, completion: nil)
                     } else if errorCode == 17009 {
-                        let alert: UIAlertController = UIAlertController(title: "ログインできません。", message: "パスワードが正しくありません。", preferredStyle: .alert)
-                        alert.addAction(
-                            UIAlertAction(
-                                title: "OK",
-                                style: .default,
-                                handler: { action in
-                                }
-                            )
-                        )
+                        let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "パスワードが正しくありません。", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(alert, animated: true, completion: nil)
-                        
                     } else if errorCode == 17011 {
-                        let alert: UIAlertController = UIAlertController(title: "ログインできません。", message: "アカウントが存在しません。", preferredStyle: .alert)
-                        alert.addAction(
-                            UIAlertAction(
-                                title: "OK",
-                                style: .default,
-                                handler: { action in
-                                    
-                                }
-                            )
-                        )
+                        let alert: UIAlertController = UIAlertController(title: "ログインできません", message: "アカウントが存在しません。", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(alert, animated: true, completion: nil)
                     }
                 }
