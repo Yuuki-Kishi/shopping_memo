@@ -68,10 +68,13 @@ class TransferViewController: UIViewController, UITableViewDelegate, UITableView
         
         ref.child("rooms").child(roomIdString).child("members").observe(.childChanged, with: { [self] snapshot in
             let userId = snapshot.key
-            if let mIndex = memberArray.firstIndex(where: {$0.uId == userId}) {
-                memberArray[mIndex].uId = userId
-            } else if let gIndex = guestArray.firstIndex(where: {$0.uId == userId}) {
-                guestArray[gIndex].uId = userId
+            guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
+            if authority == "member" {
+                guard let index = guestArray.firstIndex(where: {$0.uId == userId}) else { return }
+                let userName = guestArray[index].userName
+                let email = guestArray[index].email
+                guestArray.remove(at: index)
+                memberArray.append((uId: userId, userName: userName, authority: authority, email: email))
             }
             tableView.reloadData()
         })
