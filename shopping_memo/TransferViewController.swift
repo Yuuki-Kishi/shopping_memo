@@ -37,19 +37,28 @@ class TransferViewController: UIViewController, UITableViewDelegate, UITableView
         userId = Auth.auth().currentUser?.uid
         
         ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let userId = snapshot.key
-            guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
-            guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { return }
-            ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
-                guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                if authority == "member" {
-                    memberArray.append((uId: userId, userName: userName, authority: authority, email: email))
-                } else if authority == "guest" {
-                    guestArray.append((uId: userId, userName: userName, authority: authority, email: email))
-                } else {
-                    administratorArray.append((uId: userId, userName: userName, authority: authority, email: email))
-                }
-                tableView.reloadData()
+            ref.child("rooms").child(roomIdString).child("members").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let userCount = snapshot.childrenCount
+                ref.child("rooms").child(roomIdString).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
+                    guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
+                    guard let email = snapshot.childSnapshot(forPath: "email").value as? String else { return }
+                    ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                        guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
+                        if authority == "member" {
+                            memberArray.append((uId: userId, userName: userName, authority: authority, email: email))
+                        } else if authority == "guest" {
+                            guestArray.append((uId: userId, userName: userName, authority: authority, email: email))
+                        } else {
+                            administratorArray.append((uId: userId, userName: userName, authority: authority, email: email))
+                        }
+                        if userCount == administratorArray.count + memberArray.count + guestArray.count {
+                            GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get")
+                        }
+                        tableView.reloadData()
+                    })
+                })
             })
         })
         

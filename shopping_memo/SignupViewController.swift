@@ -27,22 +27,8 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "新規登録"
         UISetUp()
-                
-        imageCountInt = userDefaults.integer(forKey: "imageCount")
-        
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
-        passwordCheckTextField.delegate = self
-        
-        let connectedRef = Database.database().reference(withPath: ".info/connected")
-        connectedRef.observe(.value, with: { snapshot in
-          if snapshot.value as? Bool ?? false {
-              self.connect = true
-          } else {
-              self.connect = false
-          }})
+        setUpDataAndDelegate()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -54,6 +40,7 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
     }
     
     func UISetUp() {
+        title = "新規登録"
         signUpButton.layer.cornerRadius = 18.0
         appIconImage.layer.cornerRadius = 30.0
         appIconImage.layer.cornerCurve = .continuous
@@ -62,6 +49,21 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordCheckTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(確認)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+    }
+    
+    func setUpDataAndDelegate() {
+        imageCountInt = userDefaults.integer(forKey: "imageCount")
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
+        passwordCheckTextField.delegate = self
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {
+                self.connect = true
+            } else {
+                self.connect = false
+            }
+        })
     }
     
     @IBAction func signUp(_ sender: Any) {
@@ -101,14 +103,14 @@ class SignupViewController: UIViewController, UITextFieldDelegate {
         } else if !connect {
             GeneralPurpose.notConnectAlert(VC: self)
         } else {
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "signUp")
             auth.createUser(withEmail: email, password: password) { (authResult, error) in
                 self.userDefaults.set(email, forKey: "email")
                 let errorCode = (error as? NSError)?.code
                 if error == nil {
-                    Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                        self.userDefaults.set(userName, forKey: "userName")
-                        self.performSegue(withIdentifier: "toMCVC", sender: nil)
-                    }
+                    self.userDefaults.set(userName, forKey: "userName")
+                    GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "signUp")
+                    self.performSegue(withIdentifier: "toMCVC", sender: nil)
                 } else if errorCode == 17008{
                     let alert: UIAlertController = UIAlertController(title: "新規登録できません", message: "メールアドレスが正しくありません。", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default))

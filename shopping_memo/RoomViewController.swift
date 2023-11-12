@@ -28,9 +28,7 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "ルーム"
-        navigationItem.hidesBackButton = true
-        
+        setUpNavigation()
         tableViewSetUp()
         UISetUp()
         menu()
@@ -39,6 +37,11 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewWillAppear(_ animated: Bool) {
         observeRealtimeDatabase()
+    }
+    
+    func setUpNavigation() {
+        title = "ホーム"
+        navigationItem.hidesBackButton = true
     }
     
     func tableViewSetUp() {
@@ -50,7 +53,6 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func UISetUp() {
         plusButton.layer.cornerRadius = 35.0
-        
         plusButton.layer.shadowOpacity = 0.3
         plusButton.layer.shadowRadius = 3
         plusButton.layer.shadowColor = UIColor.gray.cgColor
@@ -86,33 +88,40 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
         otherArray = []
         
         ref.child("users").child(userId).child("rooms").observe(.childAdded, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let roomId = snapshot.key
-            ref.child("rooms").child(roomId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
-                guard let roomName = snapshot.childSnapshot(forPath: "roomName").value as? String else { return }
-                guard let time = snapshot.childSnapshot(forPath: "lastEditTime").value as? String else { return }
-                guard let lastEditorId = snapshot.childSnapshot(forPath: "lastEditor").value as? String else { return }
-                dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-                dateFormatter.timeZone = TimeZone(identifier: "UTC")
-                let lastEditTime = dateFormatter.date(from: time)
-                ref.child("rooms").child(roomId).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
-                    guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
-                    ref.child("users").child(lastEditorId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
-                        guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                        if authority == "guest" {
-                            let isContain = guestArray.contains(where: {$0.roomId == roomId})
-                            if !isContain {
-                                guestArray.append((roomId: roomId, roomName: roomName, lastEditTime: lastEditTime!, lastEditorName: userName, authority: authority))
+            ref.child("users").child(userId).child("rooms").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let roomCount = snapshot.childrenCount
+                ref.child("rooms").child(roomId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
+                    guard let roomName = snapshot.childSnapshot(forPath: "roomName").value as? String else { return }
+                    guard let time = snapshot.childSnapshot(forPath: "lastEditTime").value as? String else { return }
+                    guard let lastEditorId = snapshot.childSnapshot(forPath: "lastEditor").value as? String else { return }
+                    dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+                    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                    dateFormatter.timeZone = TimeZone(identifier: "UTC")
+                    let lastEditTime = dateFormatter.date(from: time)
+                    ref.child("rooms").child(roomId).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
+                        guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
+                        ref.child("users").child(lastEditorId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                            guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
+                            if authority == "guest" {
+                                let isContain = guestArray.contains(where: {$0.roomId == roomId})
+                                if !isContain {
+                                    guestArray.append((roomId: roomId, roomName: roomName, lastEditTime: lastEditTime!, lastEditorName: userName, authority: authority))
+                                }
+                                guestArray.sort {$0.lastEditTime > $1.lastEditTime}
+                            } else {
+                                let isContain = otherArray.contains(where: {$0.roomId == roomId})
+                                if !isContain {
+                                    otherArray.append((roomId: roomId, roomName: roomName, lastEditTime: lastEditTime!, lastEditorName: userName, authority: authority))
+                                }
+                                otherArray.sort {$0.lastEditTime > $1.lastEditTime}
                             }
-                            guestArray.sort {$0.lastEditTime > $1.lastEditTime}
-                        } else {
-                            let isContain = otherArray.contains(where: {$0.roomId == roomId})
-                            if !isContain {
-                                otherArray.append((roomId: roomId, roomName: roomName, lastEditTime: lastEditTime!, lastEditorName: userName, authority: authority))
+                            if roomCount == guestArray.count + otherArray.count {
+                                GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get")
                             }
-                            otherArray.sort {$0.lastEditTime > $1.lastEditTime}
-                        }
-                        tableView.reloadData()
+                            tableView.reloadData()
+                        })
                     })
                 })
             })

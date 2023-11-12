@@ -19,23 +19,27 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        UISetUp()
+        setUpDataAndDelegate()
+    }
+    
+    func UISetUp() {
         title = "パスワード再設定"
         self.navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
-        
         sendResetPasswordButton.layer.cornerRadius = 18.0
-        
-        emailTextField.text = ud.string(forKey: "email")
-        
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        
+    }
+    
+    func setUpDataAndDelegate() {
+        emailTextField.text = ud.string(forKey: "email")
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
                 self.connect = true
             } else {
                 self.connect = false
-            }})
-        
+            }
+        })
         emailTextField.delegate = self
     }
     
@@ -47,8 +51,10 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
         let email = emailTextField.text!
         if connect {
             if email.contains("@") {
+                GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "send")
                 // @が含まれている時
                 Auth.auth().sendPasswordReset(withEmail: email) { error in
+                    GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "send")
                     if error == nil{
                         let alert: UIAlertController = UIAlertController(title: "送信完了", message: "再設定メールが送れました。", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
@@ -57,7 +63,7 @@ class ResetViewController: UIViewController, UITextFieldDelegate {
                         }))
                         self.present(alert, animated: true, completion: nil)
                     } else {
-                        let alert: UIAlertController = UIAlertController(title: "送信不可", message: "インターネット未接続です。", preferredStyle: .alert)
+                        let alert: UIAlertController = UIAlertController(title: "エラー", message: "再設定メールを送信できませんでした。", preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(alert, animated: true, completion: nil)
                     }

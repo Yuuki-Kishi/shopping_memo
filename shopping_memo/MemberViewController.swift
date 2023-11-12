@@ -36,7 +36,8 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 self.connect = true
             } else {
                 self.connect = false
-            }})
+            }
+        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -45,7 +46,6 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func tableViewSetUp() {
         tableView.register(UINib(nibName: "SettingTableViewCell", bundle: nil), forCellReuseIdentifier: "SettingTableViewCell")
-        
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -55,31 +55,41 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
         userId = Auth.auth().currentUser?.uid
         
         ref.child("rooms").child(roomIdString).child("members").observe(.childAdded, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let userId = snapshot.key
-            guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
-            if userId == self.userId {myAuthority = authority}
-            let email = (snapshot.childSnapshot(forPath: "email").value as? String) ?? ""
-            ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
-                guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
-                if authority == "administrator" {
-                    let isContain = administratorArray.contains(where: {$0.administratorId == userId})
-                    if !isContain { administratorArray.append((administratorId: userId, administratorName: userName, administratorEmail: email)) }
-                } else if authority == "member" {
-                    let isContain = memberArray.contains(where:  {$0.memberId == userId})
-                    if !isContain {
-                        memberArray.append((memberId: userId, memberName: userName, memberEmail: email))
-                        memberArray.sort {$0.memberName < $1.memberName}
-                    }
-                } else if authority == "guest" {
-                    let isContain = guestArray.contains(where: {$0.guestId == userId})
-                    if !isContain {
-                        guestArray.append((guestId: userId, guestName: userName, guestEmail: email))
-                        guestArray.sort {$0.guestName < $1.guestName}
-                    }
-                }
-                if myAuthority != "administrator" { plusButton.isHidden = true }
-                tableView.reloadData()
-            })})
+            ref.child("rooms").child(roomIdString).child("members").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let userCount = snapshot.childrenCount
+                ref.child("rooms").child(roomIdString).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
+                    guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
+                    if userId == self.userId {myAuthority = authority}
+                    let email = (snapshot.childSnapshot(forPath: "email").value as? String) ?? ""
+                    ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                        guard let userName = snapshot.childSnapshot(forPath: "userName").value as? String else { return }
+                        if authority == "administrator" {
+                            let isContain = administratorArray.contains(where: {$0.administratorId == userId})
+                            if !isContain { administratorArray.append((administratorId: userId, administratorName: userName, administratorEmail: email)) }
+                        } else if authority == "member" {
+                            let isContain = memberArray.contains(where:  {$0.memberId == userId})
+                            if !isContain {
+                                memberArray.append((memberId: userId, memberName: userName, memberEmail: email))
+                                memberArray.sort {$0.memberName < $1.memberName}
+                            }
+                        } else if authority == "guest" {
+                            let isContain = guestArray.contains(where: {$0.guestId == userId})
+                            if !isContain {
+                                guestArray.append((guestId: userId, guestName: userName, guestEmail: email))
+                                guestArray.sort {$0.guestName < $1.guestName}
+                            }
+                        }
+                        if myAuthority != "administrator" { plusButton.isHidden = true }
+                        if userCount == administratorArray.count + memberArray.count + guestArray.count {
+                            GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get")
+                        }
+                        tableView.reloadData()
+                    })
+                })
+            })
+        })
         
         ref.child("rooms").child(roomIdString).child("members").observe(.childChanged, with: { [self] snapshot in
             let userId = snapshot.key

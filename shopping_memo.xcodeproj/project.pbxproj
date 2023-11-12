@@ -25,6 +25,7 @@
 		DE26EAF729E12BFA007AEC11 /* SettingTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = DE26EAF529E12BFA007AEC11 /* SettingTableViewCell.xib */; };
 		DE27F7C225735A3D007250EE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE27F7C125735A3D007250EE /* GoogleService-Info.plist */; };
 		DE28F6E2261F270D0074934D /* NotSigninViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE28F6E1261F270D0074934D /* NotSigninViewController.swift */; };
+		DE3DB8292AFB8EAD0032274F /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3DB8282AFB8EAD0032274F /* CameraViewController.swift */; };
 		DE5CBE222A42ED9C009DED0C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE212A42ED9C009DED0C /* FirebaseAnalytics */; };
 		DE5CBE242A42ED9C009DED0C /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE232A42ED9C009DED0C /* FirebaseAnalyticsSwift */; };
 		DE5CBE262A42ED9C009DED0C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE252A42ED9C009DED0C /* FirebaseAuth */; };
@@ -125,6 +126,10 @@
 		DE26EAF529E12BFA007AEC11 /* SettingTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SettingTableViewCell.xib; sourceTree = "<group>"; };
 		DE27F7C125735A3D007250EE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		DE28F6E1261F270D0074934D /* NotSigninViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotSigninViewController.swift; sourceTree = "<group>"; };
+		DE3DB8282AFB8EAD0032274F /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		DE3DB82A2AFCA9590032274F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
+		DE3DB82B2AFCA95A0032274F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		DE3DB82C2AFD19130032274F /* shopping_memo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = shopping_memo.entitlements; sourceTree = "<group>"; };
 		DE5CBE312A4475D2009DED0C /* AppVersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionCheck.swift; sourceTree = "<group>"; };
 		DE6A3E652ABF46170030B7EE /* MailCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailCheckViewController.swift; sourceTree = "<group>"; };
 		DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReLogInViewController.swift; sourceTree = "<group>"; };
@@ -227,6 +232,7 @@
 		DE02CB812560D79B008012F6 /* shopping_memo */ = {
 			isa = PBXGroup;
 			children = (
+				DE3DB82C2AFD19130032274F /* shopping_memo.entitlements */,
 				DE00691B2A84BCAD0096B25F /* NBGShoppingMemoIcon.png */,
 				DE02CB822560D79B008012F6 /* AppDelegate.swift */,
 				DE02CB842560D79B008012F6 /* SceneDelegate.swift */,
@@ -238,6 +244,7 @@
 				DE0C02B72587A313005BB17F /* ListViewController.swift */,
 				DE02CB862560D79B008012F6 /* ViewController.swift */,
 				DEC30FC7293E055B006416C2 /* ImageViewViewController.swift */,
+				DE3DB8282AFB8EAD0032274F /* CameraViewController.swift */,
 				DE28F6E1261F270D0074934D /* NotSigninViewController.swift */,
 				DEE5AC562AEFD0B30082069C /* TransferViewController.swift */,
 				DEEB54082AB0C01100ACC49A /* MemberViewController.swift */,
@@ -422,11 +429,12 @@
 			};
 			buildConfigurationList = DE02CB7A2560D79B008012F6 /* Build configuration list for PBXProject "shopping_memo" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = en;
+			developmentRegion = ja;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ja,
 			);
 			mainGroup = DE02CB762560D79B008012F6;
 			packageReferences = (
@@ -582,6 +590,7 @@
 				DE28F6E2261F270D0074934D /* NotSigninViewController.swift in Sources */,
 				DE0C02B82587A313005BB17F /* ListViewController.swift in Sources */,
 				DE9BE8FE293A4F8D00992A9F /* CustomListCell.swift in Sources */,
+				DE3DB8292AFB8EAD0032274F /* CameraViewController.swift in Sources */,
 				DEEB54012AAF2F8400ACC49A /* RoomViewController.swift in Sources */,
 				DE02CB852560D79B008012F6 /* SceneDelegate.swift in Sources */,
 			);
@@ -638,6 +647,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				DE02CB892560D79B008012F6 /* Base */,
+				DE3DB82A2AFCA9590032274F /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -646,6 +656,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				DE02CB8E2560D79C008012F6 /* Base */,
+				DE3DB82B2AFCA95A0032274F /* ja */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -657,6 +668,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -718,6 +730,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -775,6 +788,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = shopping_memo/shopping_memo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 85MXHZWC2N;
@@ -801,6 +815,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = shopping_memo/shopping_memo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 85MXHZWC2N;

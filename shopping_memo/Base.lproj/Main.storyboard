@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="g6X-EE-xST">
     <device id="retina6_72" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -404,7 +403,7 @@
                     <connections>
                         <outlet property="table" destination="OWz-2S-Xsk" id="d9j-Yt-7o2"/>
                         <outlet property="titleTextField" destination="al4-OR-kvt" id="9bC-b7-psy"/>
-                        <segue destination="jcD-vb-11I" kind="show" identifier="toImageViewVC" id="aeu-ag-t1G"/>
+                        <segue destination="jcD-vb-11I" kind="show" identifier="toIVVC" id="aeu-ag-t1G"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -508,12 +507,6 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GeM-Ff-WAe">
                                 <rect key="frame" x="0.0" y="103" width="430" height="829"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Image" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="51x-5c-uQu">
-                                        <rect key="frame" x="112.66666666666669" y="619" width="205" height="60"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="50"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sIL-Au-5al">
                                         <rect key="frame" x="20" y="6" width="390" height="24"/>
                                         <color key="backgroundColor" systemColor="systemGray6Color"/>
@@ -531,14 +524,12 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="aOW-gE-UqZ" secondAttribute="bottom" id="1uD-aJ-Z7b"/>
-                                    <constraint firstItem="51x-5c-uQu" firstAttribute="centerX" secondItem="GeM-Ff-WAe" secondAttribute="centerX" id="AkO-sr-5Lb"/>
                                     <constraint firstItem="sIL-Au-5al" firstAttribute="leading" secondItem="GeM-Ff-WAe" secondAttribute="leading" constant="20" symbolic="YES" id="O5X-7G-sR4"/>
                                     <constraint firstItem="sIL-Au-5al" firstAttribute="top" secondItem="GeM-Ff-WAe" secondAttribute="top" constant="6" id="SvS-1X-eLC"/>
                                     <constraint firstAttribute="trailing" secondItem="aOW-gE-UqZ" secondAttribute="trailing" id="cfS-kh-20s"/>
                                     <constraint firstItem="aOW-gE-UqZ" firstAttribute="centerX" secondItem="GeM-Ff-WAe" secondAttribute="centerX" id="eIp-wE-nEE"/>
                                     <constraint firstItem="aOW-gE-UqZ" firstAttribute="top" secondItem="sIL-Au-5al" secondAttribute="bottom" constant="6" id="lZm-L3-N6F"/>
                                     <constraint firstItem="aOW-gE-UqZ" firstAttribute="leading" secondItem="GeM-Ff-WAe" secondAttribute="leading" id="qcL-5P-x4g"/>
-                                    <constraint firstAttribute="bottom" secondItem="51x-5c-uQu" secondAttribute="bottom" constant="150" id="t57-gb-dfw"/>
                                     <constraint firstAttribute="trailing" secondItem="sIL-Au-5al" secondAttribute="trailing" constant="20" symbolic="YES" id="ySq-eR-Ig0"/>
                                 </constraints>
                             </view>
@@ -556,13 +547,68 @@
                     <navigationItem key="navigationItem" id="CB8-sl-enh"/>
                     <connections>
                         <outlet property="imageView" destination="aOW-gE-UqZ" id="LLT-l5-zKY"/>
-                        <outlet property="noImageLabel" destination="51x-5c-uQu" id="uYE-GG-3J4"/>
                         <outlet property="upDateLabel" destination="sIL-Au-5al" id="3nX-qo-ulE"/>
+                        <segue destination="mTZ-aL-rHD" kind="show" identifier="toCVC" id="1RP-8h-MIq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hQy-bF-8wG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1330" y="77"/>
+        </scene>
+        <!--Camera View Controller-->
+        <scene sceneID="m2M-UK-QlO">
+            <objects>
+                <viewController id="mTZ-aL-rHD" customClass="CameraViewController" customModule="shopping_memo" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="hk5-QP-HPi">
+                        <rect key="frame" x="0.0" y="0.0" width="430" height="932"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="X35-7v-7VV">
+                                <rect key="frame" x="0.0" y="103" width="430" height="829"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MTe-nU-mls">
+                                <rect key="frame" x="340" y="808" width="70" height="70"/>
+                                <color key="backgroundColor" name="MyGreen"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="70" id="9K0-um-w6q"/>
+                                    <constraint firstAttribute="width" constant="70" id="R6O-v7-eQq"/>
+                                </constraints>
+                                <color key="tintColor" systemColor="labelColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="plus" catalog="system">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="font" weight="regular">
+                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                    </preferredSymbolConfiguration>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="memberPlus" destination="wCq-zX-qxQ" eventType="touchUpInside" id="gZa-Zq-MJx"/>
+                                    <action selector="plus" destination="Iq7-hd-tQL" eventType="touchUpInside" id="3Ho-cT-DWu"/>
+                                    <action selector="reTake" destination="mTZ-aL-rHD" eventType="touchUpInside" id="n2U-V8-ZMk"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="AVR-VB-53M"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="AVR-VB-53M" firstAttribute="trailing" secondItem="MTe-nU-mls" secondAttribute="trailing" constant="20" id="0Fu-aK-60g"/>
+                            <constraint firstItem="X35-7v-7VV" firstAttribute="centerX" secondItem="hk5-QP-HPi" secondAttribute="centerX" id="6KU-EF-eym"/>
+                            <constraint firstItem="X35-7v-7VV" firstAttribute="trailing" secondItem="AVR-VB-53M" secondAttribute="trailing" id="UE0-1d-8Eq"/>
+                            <constraint firstItem="X35-7v-7VV" firstAttribute="leading" secondItem="AVR-VB-53M" secondAttribute="leading" id="ZSu-4X-npe"/>
+                            <constraint firstItem="AVR-VB-53M" firstAttribute="trailing" secondItem="MTe-nU-mls" secondAttribute="trailing" constant="20" id="byh-rt-D7I"/>
+                            <constraint firstItem="X35-7v-7VV" firstAttribute="top" secondItem="AVR-VB-53M" secondAttribute="top" id="cSQ-Dm-5Kp"/>
+                            <constraint firstItem="AVR-VB-53M" firstAttribute="bottom" secondItem="MTe-nU-mls" secondAttribute="bottom" constant="20" id="kIa-Qm-uSd"/>
+                            <constraint firstAttribute="bottom" secondItem="X35-7v-7VV" secondAttribute="bottom" id="l85-pR-jyY"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="hGm-mO-A8r"/>
+                    <connections>
+                        <outlet property="imageView" destination="X35-7v-7VV" id="eye-9X-gL0"/>
+                        <outlet property="reTakeButton" destination="MTe-nU-mls" id="zm4-Fc-YUQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ykF-Tq-5VJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2267.4418604651164" y="76.60944206008584"/>
         </scene>
         <!--Re Log In View Controller-->
         <scene sceneID="hFP-xk-v4l">
@@ -842,8 +888,8 @@
                         <outlet property="signUpButton" destination="osl-Do-fP5" id="iom-tN-ZXl"/>
                         <segue destination="4YW-1I-bkS" kind="show" identifier="toNSVC" id="c5N-GG-G5g"/>
                         <segue destination="A03-sV-se6" kind="show" identifier="toRLIVC" id="krN-UE-KrY"/>
-                        <segue destination="XkF-H7-Ro3" kind="show" identifier="toRVC" id="6Ng-Zv-rMr"/>
-                        <segue destination="Zcy-gE-lj6" kind="show" identifier="toRoomVC" id="pEf-O5-aBi"/>
+                        <segue destination="XkF-H7-Ro3" kind="show" identifier="toResetVC" id="6Ng-Zv-rMr"/>
+                        <segue destination="Zcy-gE-lj6" kind="show" identifier="toRVC" id="pEf-O5-aBi"/>
                         <segue destination="7cw-8u-DVT" kind="show" identifier="toMCVC" id="2oH-3F-6a9"/>
                         <segue destination="Tys-na-zat" kind="show" identifier="toSUVC" id="cFb-PX-mKC"/>
                     </connections>

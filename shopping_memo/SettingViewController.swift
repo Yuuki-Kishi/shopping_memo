@@ -17,6 +17,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     var userId: String!
     var dateFormatter = DateFormatter()
     let userDefaults: UserDefaults = UserDefaults.standard
+    var AIV = UIActivityIndicatorView()
     var sectionArray = ["自分の情報", "設定"]
     var rowArray = [(Item: String, ItemData: String)]()
 
@@ -24,6 +25,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         title = "情報・設定"
         tableViewSetUp()
+        setUpAIV()
+        AIV.startAnimating()
         setUpAndObserveRealtimeDatabase()
     }
     
@@ -34,6 +37,13 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         tableView.delegate = self
         tableView.dataSource = self
+    }
+    
+    func setUpAIV() {
+        AIV.center = view.center
+        AIV.style = .large
+        AIV.color = .label
+        view.addSubview(AIV)
     }
     
     func setUpAndObserveRealtimeDatabase() {
@@ -56,6 +66,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             rowArray.append((Item: "アカウント作成日", ItemData: creationDate))
             rowArray.append((Item: "最終ログイン日", ItemData: lastSignInDate))
             rowArray.append((Item: "運用日数", ItemData: String(operationDays) + "日目"))
+            if rowArray.count == 7 { AIV.stopAnimating() }
             tableView.reloadData()
         })
         
@@ -128,7 +139,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchTableViewCell") as! SwitchTableViewCell
-            cell.ItemLabel.text = "メモを表示しているときスリープをオフにする"
+            cell.ItemLabel.text = "メモを見てるときスリープしない"
             cell.Switch.isOn = userDefaults.bool(forKey: "notSleepSwitch")
             return cell
         }

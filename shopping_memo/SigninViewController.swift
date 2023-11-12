@@ -31,38 +31,10 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "ログイン"
-        
+        setUpDataAndDelegate()
         UISetUp()
-
-        let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-        appVersionLabel.text = "Version: " + AppVer!
-        
-        ref = Database.database().reference()
-        
         menu()
-        
-        let connectedRef = Database.database().reference(withPath: ".info/connected")
-        connectedRef.observe(.value, with: { snapshot in
-          if snapshot.value as? Bool ?? false {self.connect = true}
-          else {self.connect = false}})
-        
-        Task {
-            let result = await AppVersionCheck.appVersionCheck()
-            if result {
-                DispatchQueue.main.async {
-                    let url = URL(string: "https://itunes.apple.com/jp/app/apple-store/id6448711012")!
-                    let alert: UIAlertController = UIAlertController(title: "古いバージョンです", message: "AppStoreから更新してください。", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "更新する", style: .default, handler: { action in
-                                UIApplication.shared.open(url, options: [:]) { success in
-                                    if success {print("成功!")}}}))
-                    alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
-                    self.present(alert, animated: true, completion: nil)
-                }}
-        }
-        
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
+        checkAppVer()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -72,20 +44,28 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         if auth.currentUser != nil {
             let userId = auth.currentUser?.uid
             let email = auth.currentUser?.email
-            ref.child("users").child(userId!).child("metadata").observeSingleEvent(of: .value, with: { snapshot in
-                let userEmail = snapshot.childSnapshot(forPath: "email").value as? String
-                if userEmail == nil {
-                    self.ref.child("users").child(userId!).child("metadata").updateChildValues(["email": email!])
+            ref.child("users").child(userId!).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let verified = (snapshot.childSnapshot(forPath: "verified").value as? Bool) ?? false
+                if !verified {
+                    self.userDefaults.set(email, forKey: "email")
+                    self.performSegue(withIdentifier: "toMCVC", sender: nil)
+                } else {
+                    self.userDefaults.set(password, forKey: "password")
+                    ref.child("users").child(userId!).child("metadata").observeSingleEvent(of: .value, with: { snapshot in
+                        guard let userEmail = snapshot.childSnapshot(forPath: "email").value as? String else {
+                            self.ref.child("users").child(userId!).child("metadata").updateChildValues(["email": email!])
+                            self.performSegue(withIdentifier: "toRVC", sender: self.auth.currentUser)
+                            return
+                        }
+                    })
+                    performSegue(withIdentifier: "toRVC", sender: auth.currentUser)
                 }
             })
-            let isEmailVerified = auth.currentUser?.isEmailVerified
-            if isEmailVerified! {
-                performSegue(withIdentifier: "toRoomVC", sender: auth.currentUser)
-            }
         }
     }
     
     func UISetUp() {
+        title = "ログイン"
         signInButton.layer.cornerRadius = 18.0
         signUpButton.layer.cornerRadius = 18.0
         
@@ -97,6 +77,36 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         
         emailTextField.attributedPlaceholder = NSAttributedString(string: "メールアドレス",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         passwordTextField.attributedPlaceholder = NSAttributedString(string: "パスワード(半角英数字)", attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
+    }
+    
+    func setUpDataAndDelegate() {
+        ref = Database.database().reference()
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {self.connect = true}
+            else {self.connect = false}
+        })
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
+    }
+    
+    func checkAppVer() {
+        let AppVer = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        appVersionLabel.text = "Version: " + AppVer!
+        Task {
+            let result = await AppVersionCheck.appVersionCheck()
+            if result {
+                DispatchQueue.main.async {
+                    let url = URL(string: "https://itunes.apple.com/jp/app/apple-store/id6448711012")!
+                    let alert: UIAlertController = UIAlertController(title: "古いバージョンです", message: "AppStoreから更新してください。", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "更新する", style: .default, handler: { action in
+                        UIApplication.shared.open(url, options: [:]) { success in
+                            if success {print("成功!")}}}))
+                    alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
+                    self.present(alert, animated: true, completion: nil)
+                }
+            }
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -112,7 +122,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func resetPassWord() {
-        self.performSegue(withIdentifier: "toRVC", sender: nil)
+        self.performSegue(withIdentifier: "toResetVC", sender: nil)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -131,17 +141,23 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         } else if !connect {
             GeneralPurpose.notConnectAlert(VC: self)
         } else {
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "signIn")
             auth.signIn(withEmail: email, password: password) { (authResult, error) in
                 if error == nil, let result = authResult {
-                    let isEmailVerified = self.auth.currentUser?.isEmailVerified
-                    if isEmailVerified! {
-                        self.userDefaults.set(email, forKey: "email")
-                        self.userDefaults.set(password, forKey: "password")
-                        self.performSegue(withIdentifier: "toRoomVC", sender: result.user)
-                        self.passwordTextField.text = ""
-                    } else {
-                        self.performSegue(withIdentifier: "toMCVC", sender: nil)
-                    }
+                    let userId = Auth.auth().currentUser?.uid
+//                    self.ref.child("users").child(userId!).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+//                        let verified = (snapshot.childSnapshot(forPath: "verified").value as? Bool) ?? false
+//                        if !verified {
+//                            self.userDefaults.set(email, forKey: "email")
+//                            self.performSegue(withIdentifier: "toMCVC", sender: result.user)
+//                        } else {
+                            self.userDefaults.set(email, forKey: "email")
+                            self.userDefaults.set(password, forKey: "password")
+                            GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "signIn")
+                            self.performSegue(withIdentifier: "toRVC", sender: result.user)
+                            self.passwordTextField.text = ""
+//                        }
+//                    })
                 } else {
                     print("error: \(error!)")
                     let errorCode = (error as? NSError)?.code
@@ -167,7 +183,7 @@ class SigninViewController: UIViewController, UITextFieldDelegate {
         let Item = UIMenu(title: "", options: .displayInline, children: [
             UIAction(title: "ログインしないで使う", image: UIImage(systemName: "list.bullet"), handler: { _ in
                 self.performSegue(withIdentifier: "toNSVC", sender: nil)
-        })])
+            })])
         let delete = UIAction(title: "アカウント削除", image: UIImage(systemName: "person.badge.minus"), attributes: .destructive, handler: { _ in
             self.performSegue(withIdentifier: "toRLIVC", sender: nil)
         })

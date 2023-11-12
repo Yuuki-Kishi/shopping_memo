@@ -30,18 +30,10 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = roomNameString
-        
         UISetUp()
+        setUpTableView()
         setUpData()
         moveData()
-        
-        tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
-        
-        tableView.delegate = self
-        tableView.dataSource = self
-        
-        listArray = []
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -49,6 +41,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func UISetUp() {
+        title = roomNameString
         plusButton.layer.cornerRadius = 35.0
         
         plusButton.layer.shadowOpacity = 0.3
@@ -57,9 +50,16 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
     }
     
+    func setUpTableView() {
+        tableView.register(UINib(nibName: "CustomListCell", bundle: nil), forCellReuseIdentifier: "CustomListCell")
+        tableView.delegate = self
+        tableView.dataSource = self
+    }
+    
     func setUpData() {
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
+        listArray = []
         
         ref.child("rooms").child(roomIdString).child("members").child(userId).observeSingleEvent(of: .value, with: { [self] snapshot in
             guard let authority = snapshot.childSnapshot(forPath: "authority").value as? String else { return }
@@ -79,21 +79,25 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func observeRealtimeDatabase() {
         ref.child("rooms").child(roomIdString).child("lists").observe(.childAdded, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let listId = snapshot.key
-            ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
-                guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
-                guard let listCount = snapshot.childSnapshot(forPath: "listCount").value as? Int else { return }
-                let isContain = listArray.contains(where: {$0.listId == listId})
-                if !isContain {
-                    listArray.append((listId: listId, listName: listName, listCount: listCount))
-                    listArray.sort {$0.listCount < $1.listCount}
-                    tableView.reloadData()
-                }
+            ref.child("rooms").child(roomIdString).child("lists").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let lists = snapshot.childrenCount
+                ref.child("rooms").child(roomIdString).child("lists").child(listId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
+                    guard let listName = snapshot.childSnapshot(forPath: "listName").value as? String else { return }
+                    guard let listCount = snapshot.childSnapshot(forPath: "listCount").value as? Int else { return }
+                    let isContain = listArray.contains(where: {$0.listId == listId})
+                    if !isContain {
+                        listArray.append((listId: listId, listName: listName, listCount: listCount))
+                        listArray.sort {$0.listCount < $1.listCount}
+                        if lists == listArray.count { GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get") }
+                        tableView.reloadData()
+                    }
+                })
             })
         })
         
         ref.child("users").child(userId).child("rooms").observe(.childChanged, with: { [self] snapshot in
-            let userId = snapshot.key
             let newAuthority = snapshot.value as? String
             myAuthority = newAuthority!
             menu()
@@ -149,6 +153,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func moveData() {
+        GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "other")
         ref = Database.database().reference()
         userId = Auth.auth().currentUser?.uid
         
@@ -211,6 +216,7 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
                                     guard let downloadURL = url else { return }
                                     let imageUrl = downloadURL.absoluteString
                                     self.ref.child("rooms").child(self.roomIdString).child("lists").child(listId).child("memo").child(memoId).updateChildValues(["imageUrl": imageUrl])
+                                    GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "other")
                                 }
                             }
                         }

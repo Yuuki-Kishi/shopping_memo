@@ -12,7 +12,6 @@ import FirebaseStorage
 
 class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet var imageView: UIImageView!
-    @IBOutlet var noImageLabel: UILabel!
     @IBOutlet var upDateLabel: UILabel!
     
     var userId: String!
@@ -25,40 +24,36 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     var ref: DatabaseReference!
     let df = DateFormatter()
     let storage = Storage.storage()
-    let activityIndicatorView = UIActivityIndicatorView()
     var connect = false
     var menuBarButtonItem: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = shoppingMemoName
-        
-        observeRealtimeDatabase()
         UISetUp()
-        
+        setUpData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        observeRealtimeDatabase()
+    }
+    
+    func UISetUp() {
+        title = shoppingMemoName
+        upDateLabel.layer.cornerRadius = 5.0
+        upDateLabel.clipsToBounds = true
+        upDateLabel.layer.cornerCurve = .continuous
+        upDateLabel.adjustsFontSizeToFitWidth = true
+    }
+    
+    func setUpData() {
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
                 self.connect = true
             } else {
                 self.connect = false
-            }})
-    }
-    
-    func UISetUp() {
-        noImageLabel.isHidden = true
-        
-        upDateLabel.layer.cornerRadius = 5.0
-        upDateLabel.clipsToBounds = true
-        upDateLabel.layer.cornerCurve = .continuous
-        
-        upDateLabel.adjustsFontSizeToFitWidth = true
-        
-        activityIndicatorView.center = view.center
-        activityIndicatorView.style = .large
-        activityIndicatorView.color = .label
-        
-        imageView.addSubview(activityIndicatorView)
+            }
+        })
     }
     
     func observeRealtimeDatabase() {
@@ -66,6 +61,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         userId = Auth.auth().currentUser?.uid
         
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoIdString).child("imageUrl").observeSingleEvent(of: .value, with:  { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             if snapshot.value == nil {
                 return
             }
@@ -73,13 +69,11 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             menu(url: url)
             if url == "" {
                 imageView.contentMode = .center
-                imageView.preferredSymbolConfiguration = .init(pointSize: 100)
                 imageView.image = UIImage(systemName: "photo")
+                imageView.preferredSymbolConfiguration = .init(pointSize: 100)
                 imageView.tintColor = UIColor.label
-                noImageLabel.isHidden = false
                 upDateLabel.text = " 最終更新日時:"
             } else {
-                activityIndicatorView.startAnimating()
                 imageRef = storage.reference(forURL: url)
                 imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
                     if let error = error {
@@ -87,9 +81,8 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     } else {
                         let image = UIImage(data: data!)
                         self.imageView.contentMode = .scaleAspectFit
-                        self.activityIndicatorView.stopAnimating()
+                        GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "get")
                         self.imageView.image = image
-                        self.noImageLabel.isHidden = true
                     }
                 }
                 imageRef.getMetadata { [self] metadata, error in
@@ -109,16 +102,15 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         }
         
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childChanged, with: { [self] snapshot in
-            activityIndicatorView.startAnimating()
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             guard let url = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
             menu(url: url)
             if url == "" {
                 imageView.contentMode = .center
                 imageView.preferredSymbolConfiguration = .init(pointSize: 100)
-                activityIndicatorView.stopAnimating()
+                GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get")
                 imageView.image = UIImage(systemName: "photo")
                 imageView.tintColor = UIColor.label
-                noImageLabel.isHidden = false
                 upDateLabel.text = " 最終更新日時:"
             } else {
                 imageRef = storage.reference(forURL: url)
@@ -128,9 +120,8 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                     } else {
                         let image = UIImage(data: data!)
                         self.imageView.contentMode = .scaleAspectFit
-                        self.activityIndicatorView.stopAnimating()
+                        GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "get")
                         self.imageView.image = image
-                        self.noImageLabel.isHidden = true
                     }
                 }
                 imageRef.getMetadata { [self] metadata, error in
@@ -206,12 +197,10 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         guard let image = info[.originalImage] as? UIImage else { return }
         guard let imageData = image.jpegData(compressionQuality: 0.3) /*as? UIImage*/ else { return }
         guard let uid = userId else { return }
+        guard let roomId = roomIdString else { return }
+        guard let listId = listIdString else { return }
         guard let memoId = memoIdString else { return }
-        let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
-        
-        noImageLabel.isHidden = true
-        imageView.backgroundColor = .clear
-        
+        let imageRef = Storage.storage().reference().child("/\(uid)/\(roomId)/\(listId)/\(memoId).jpg")
         imageRef.putData(imageData, metadata: nil) { (metadata, error) in
             if let error = error {
                 print(error)
@@ -231,9 +220,11 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     func openAlbum() {
         if connect {
             if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "other")
                 let picker = UIImagePickerController()
                 picker.sourceType = .photoLibrary
                 picker.delegate = self
+                GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "other")
                 present(picker, animated: true, completion: nil)
             }
         } else {
@@ -243,8 +234,10 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     
     func deleteImage() {
         guard let uid = userId else { return }
+        guard let roomId = roomIdString else { return }
+        guard let listId = listIdString else { return }
         guard let memoId = memoIdString else { return }
-        let imageRef = Storage.storage().reference().child("/\(uid)/\(memoId).jpg")
+        let imageRef = Storage.storage().reference().child("/\(uid)/\(roomId)/\(listId)/\(memoId).jpg")
         if imageView.image == UIImage(systemName: "photo") {
             let alert: UIAlertController = UIAlertController(title: "削除できません", message: "削除できる画像がありません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -253,7 +246,7 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
             if connect {
                 let alert: UIAlertController = UIAlertController(title: "画像を削除", message: "画像を削除してもよろしいですか。", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "削除", style: .destructive, handler: { action in
-                    self.activityIndicatorView.startAnimating()
+                    GeneralPurpose.AIV(VC: self, view: self.view, status: "start", session: "other")
                     imageRef.delete { error in
                         if let error = error {
                             print(error)
@@ -264,7 +257,6 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
                             self.imageView.preferredSymbolConfiguration = .init(pointSize: 100)
                             self.imageView.image = UIImage(systemName: "photo")
                             self.imageView.tintColor = UIColor.label
-                            self.noImageLabel.isHidden = false
                             self.upDateLabel.text = " 最終更新日時:"
                         }}}))
                 alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
@@ -276,14 +268,31 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     func menu(url: String) {
+        let plus = UIMenu(title: "", options: .displayInline, children: [
+            UIAction(title: "アルバムから追加", image: UIImage(systemName: "photo.stack"), handler: { _ in self.openAlbum()}),
+            UIAction(title: "画像を撮影", image: UIImage(systemName: "camera"), handler: { _ in
+                self.performSegue(withIdentifier: "toCVC", sender: nil)
+            })
+        ])
+        let Items = UIMenu(title: "", options: .displayInline, children: [
+            UIAction(title: "画像の変更", image: UIImage(systemName: "photo.on.rectangle.angled"), handler: { _ in self.openAlbum()}),
+            UIAction(title: "画像を撮影", image: UIImage(systemName: "camera"), handler: { _ in
+                self.performSegue(withIdentifier: "toCVC", sender: nil)
+            }),
+            UIAction(title: "画像をダウンロード", image: UIImage(systemName: "arrow.down.to.line.compact"), handler: { _ in
+                UIImageWriteToSavedPhotosAlbum(self.imageView.image!, nil, nil, nil)
+                let alert: UIAlertController = UIAlertController(title: "ダウンロード完了", message: "アルバムを確認してください。", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true, completion: nil)
+            })
+        ])
+        let delete = UIAction(title: "画像を削除", attributes: .destructive, handler: { _ in self.deleteImage()})
+        
         if url == "" {
-            menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus"), style: .done, target: self, action: #selector(menuBarButtonItem(_:)))
+            let menu = UIMenu(title: "", image: UIImage(systemName: "plus.viewfinder"), children: [plus])
+            menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus.viewfinder"), menu: menu)
             menuBarButtonItem.tintColor = .label
         } else {
-            let Items = UIMenu(title: "", options: .displayInline, children: [
-                UIAction(title: "画像の変更", image: UIImage(systemName: "photo.on.rectangle.angled"), handler: { _ in self.openAlbum()}),
-            ])
-            let delete = UIAction(title: "画像を削除", attributes: .destructive, handler: { _ in self.deleteImage()})
             let menu = UIMenu(title: "", image: UIImage(systemName: "ellipsis.circle"), options: .displayInline, children: [Items, delete])
             menuBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis.circle"), menu: menu)
             menuBarButtonItem.tintColor = .label
@@ -291,7 +300,13 @@ class ImageViewViewController: UIViewController, UIImagePickerControllerDelegate
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }
     
-    @objc func menuBarButtonItem(_ sender: UIBarButtonItem) {
-        openAlbum()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toCVC" {
+            let next = segue.destination as? CameraViewController
+            next?.roomIdString = roomIdString
+            next?.listIdString = listIdString
+            next?.memoIdString = memoIdString
+            next?.shoppingMemoName = shoppingMemoName
+        }
     }
 }

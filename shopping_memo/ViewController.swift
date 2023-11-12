@@ -13,7 +13,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     let userDefaults: UserDefaults = UserDefaults.standard
     let dateFormatter = DateFormatter()
-    var activityIndicatorView = UIActivityIndicatorView()
     var memoSortInt = 3
     var checkedSortInt = 2
     var checkedSwitch = false
@@ -46,29 +45,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = listNameString
-        
-        memoSortInt = userDefaults.integer(forKey: "memoSortInt")
-        checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
-        checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
-        userDefaults.set(linking, forKey: "linking")
-        
-        self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
-        
-        titleTextField.delegate = self
-        viewModel.iPhoneDelegate = self
-        
-        setUpTable()
-        setActivityIndicatorView()
+        setUpDelegateAndData()
+        setUpTableViewAndTextField()
         menu()
-        
-        let connectedRef = Database.database().reference(withPath: ".info/connected")
-        connectedRef.observe(.value, with: { snapshot in
-            if snapshot.value as? Bool ?? false {
-                self.connect = true
-            } else {
-                self.connect = false
-            }})
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -87,24 +66,33 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         sendMessage(notice: "clear")
     }
     
-    func setUpTable() {
+    func setUpDelegateAndData() {
+        title = listNameString
+        memoSortInt = userDefaults.integer(forKey: "memoSortInt")
+        checkedSortInt = userDefaults.integer(forKey: "checkedSortInt")
+        checkedSwitch = userDefaults.bool(forKey: "checkedSwitch")
+        userDefaults.set(linking, forKey: "linking")
+        titleTextField.delegate = self
+        viewModel.iPhoneDelegate = self
+        let connectedRef = Database.database().reference(withPath: ".info/connected")
+        connectedRef.observe(.value, with: { snapshot in
+            if snapshot.value as? Bool ?? false {
+                self.connect = true
+            } else {
+                self.connect = false
+            }
+        })
+    }
+    
+    func setUpTableViewAndTextField() {
+        self.titleTextField.attributedPlaceholder = NSAttributedString(string: "アイテムを追加",attributes: [NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel])
         table.dataSource = self
         table.delegate = self
-        
         table.allowsMultipleSelection = true
         table.sectionHeaderTopPadding = 0.01
         table.estimatedSectionHeaderHeight = 0.0
         table.estimatedSectionFooterHeight = 0.0
-        
         table.register(UINib(nibName: "CustomTableViewCell", bundle: .main), forCellReuseIdentifier: "CustomTableViewCell")
-    }
-    
-    func setActivityIndicatorView() {
-        activityIndicatorView.frame = view.frame
-        activityIndicatorView.layer.contentsCenter = view.frame
-        activityIndicatorView.style = .large
-        activityIndicatorView.color = .label
-        view.addSubview(activityIndicatorView)
     }
     
     func observeRealtimeDatabase() {
@@ -114,27 +102,34 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         checkedArray = []
         
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childAdded, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let memoId = snapshot.key // memo0とか
-            guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
-            guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
-            let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
-            guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
-            guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
-            let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
-            guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
-            
-            dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.timeZone = TimeZone(identifier: "UTC")
-            let date = dateFormatter.date(from: dateNow)
-            let time = dateFormatter.date(from: checkedTime)
-            
-            if isChecked {
-                self.checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-            } else {
-                self.memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
-            }
-            sort()
+            ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observeSingleEvent(of: .value, with: { [self] snapshot in
+                let memos = snapshot.childrenCount
+                ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").child(memoId).observeSingleEvent(of: .value, with: { [self] snapshot in
+                    guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return } // shoppingmemo
+                    guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+                    let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
+                    guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return } // 完了かどうか
+                    guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                    let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+                    guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+                    
+                    dateFormatter.dateFormat = "yyyyMMddHHmmssSSS"
+                    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                    dateFormatter.timeZone = TimeZone(identifier: "UTC")
+                    let date = dateFormatter.date(from: dateNow)
+                    let time = dateFormatter.date(from: checkedTime)
+                    
+                    if isChecked {
+                        self.checkedArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                    } else {
+                        self.memoArray.append((memoId: memoId, memoCount: memoCount, checkedCount: checkedCount, shoppingMemo: shoppingMemo, isChecked: isChecked, dateNow: date!, checkedTime: time!, imageUrl: imageUrl))
+                    }
+                    if memos == memoArray.count + checkedArray.count { GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get") }
+                    sort()
+                })
+            })
         })
         
         ref.child("rooms").child(roomIdString).child("lists").child(listIdString).child("memo").observe(.childChanged, with: { [self] snapshot in
@@ -512,7 +507,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toImageViewVC" {
+        if segue.identifier == "toIVVC" {
             let next = segue.destination as? ImageViewViewController
             next?.roomIdString = roomIdString
             next?.listIdString = listIdString
@@ -633,7 +628,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しますか？", message: "再度利用するには再度接続する必要があります。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "切断", style: .destructive, handler: { anction in
                 self.sendMessage(notice: "clear")
-                self.activityIndicatorView.startAnimating()
+                GeneralPurpose.AIV(VC: self, view: self.view, status: "start", session: "other")
             }))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
@@ -641,7 +636,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
             let alert: UIAlertController = UIAlertController(title: "Apple Watchは接続されていますか？", message: "このデバイスに接続されていないとデータを送ることができません。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { anction in
                 self.sendMessage(notice: "sendData")
-                self.activityIndicatorView.startAnimating()
+                GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "other")
             }))
             alert.addAction(UIAlertAction(title: "キャンセル", style: .cancel))
             self.present(alert, animated: true, completion: nil)
@@ -667,7 +662,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.linking = true
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
-        self.activityIndicatorView.stopAnimating()
+        GeneralPurpose.AIV(VC: self, view: self.view, status: "start", session: "other")
         let alert: UIAlertController = UIAlertController(title: "Apple Watchと接続しました", message: "画面を移動すると接続は切断されます。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
@@ -677,7 +672,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITextFieldDelega
         self.linking = false
         self.userDefaults.set(self.linking, forKey: "linking")
         menu()
-        self.activityIndicatorView.stopAnimating()
+        GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "other")
         let alert: UIAlertController = UIAlertController(title: "Apple Watchとの通信を切断しました", message: "再度使用するには再度接続してください。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
@@ -890,7 +885,7 @@ extension ViewController: imageButtonDelegate {
                     self.imageUrlString = checkedArray[indexPath.row].imageUrl
                 }
             }
-            self.performSegue(withIdentifier: "toImageViewVC", sender: nil)
+            self.performSegue(withIdentifier: "toIVVC", sender: nil)
         } else {
             GeneralPurpose.notConnectAlert(VC: self)
         }
