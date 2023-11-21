@@ -8,11 +8,13 @@
 import UIKit
 import FirebaseAuth
 import FirebaseDatabase
+import FirebaseStorage
 
 class RoomViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet var plusButton: UIButton!
     @IBOutlet var tableView: UITableView!
+    @IBOutlet var noCellLabel: UILabel!
     
     var ref: DatabaseReference!
     var dateFormatter = DateFormatter()
@@ -28,35 +30,32 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpNavigation()
-        tableViewSetUp()
-        UISetUp()
-        menu()
         setUpData()
+        tableViewSetUp()
+        menu()
+        UISetUp()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         observeRealtimeDatabase()
     }
     
-    func setUpNavigation() {
-        title = "ホーム"
-        navigationItem.hidesBackButton = true
-    }
-    
     func tableViewSetUp() {
         tableView.register(UINib(nibName: "RoomTableViewCell", bundle: nil), forCellReuseIdentifier: "RoomTableViewCell")
-        
         tableView.delegate = self
         tableView.dataSource = self
     }
     
     func UISetUp() {
+        title = "ホーム"
+        navigationItem.hidesBackButton = true
         plusButton.layer.cornerRadius = 35.0
         plusButton.layer.shadowOpacity = 0.3
         plusButton.layer.shadowRadius = 3
         plusButton.layer.shadowColor = UIColor.gray.cgColor
         plusButton.layer.shadowOffset = CGSize(width: 0, height: 5)
+        noCellLabel.adjustsFontSizeToFitWidth = true
+        if let userId = userDefaults.string(forKey: "userId") { moveData(oldUserId: userId) }
     }
     
     func setUpData() {
@@ -93,6 +92,9 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
                 self.connect = true
+                if let oldUserId = self.userDefaults.string(forKey: "userId") {
+                    self.moveData(oldUserId: oldUserId)
+                }
             } else {
                 self.connect = false
             }
@@ -108,6 +110,7 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
             let roomId = snapshot.key
             ref.child("users").child(userId).child("rooms").observeSingleEvent(of: .value, with: { [self] snapshot in
                 let roomCount = snapshot.childrenCount
+                if roomCount == 0 { GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get") }
                 ref.child("rooms").child(roomId).child("info").observeSingleEvent(of: .value, with: { [self] snapshot in
                     guard let roomName = snapshot.childSnapshot(forPath: "roomName").value as? String else { return }
                     guard let time = snapshot.childSnapshot(forPath: "lastEditTime").value as? String else { return }
@@ -187,8 +190,88 @@ class RoomViewController: UIViewController, UITableViewDelegate, UITableViewData
         })
     }
     
+    func moveData(oldUserId: String) {
+        GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "other")
+        ref = Database.database().reference()
+        userId = Auth.auth().currentUser?.uid
+        
+        ref.child("users").child(oldUserId).observe(.childAdded, with: { [self] snapshot in
+            let listId = snapshot.key
+            guard let listName = snapshot.childSnapshot(forPath: "name").value as? String else { return }
+            ref.child("users").child(userId!).child(listId).updateChildValues(["listName": listName])
+            ref.child("users").child(oldUserId).child(listId).child("name").removeValue()
+            ref.child("users").child(oldUserId).child(listId).child("未チェック").observe(.childAdded, with: { [self] snapshot in
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
+                guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
+                guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+                ref.child("users").child(userId!).child(listId).child("未チェック").child(memoId).updateChildValues(["memoCount": memoCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "imageUrl": imageUrl])
+                ref.child("users").child(oldUserId) .child(listId).child("未チェック").child(memoId).removeValue()
+            })
+            
+            ref.child("users").child(oldUserId).child(listId).child("チェック済み").observe(.childAdded, with: { [self] snapshot in
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
+                guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
+                guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                guard let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String else { return }
+                ref.child("users").child(userId!).child(listId).child("チェック済み").child(memoId).updateChildValues(["memoCount": memoCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "imageUrl": imageUrl])
+                ref.child("users").child(oldUserId).child(listId).child("チェック済み").child(memoId).removeValue()
+            })
+            
+            ref.child("users").child(oldUserId).child(listId).child("memo").observe(.childAdded, with: { [self] snapshot in
+                let memoId = snapshot.key
+                guard let shoppingMemo = snapshot.childSnapshot(forPath: "shoppingMemo").value as? String else { return }
+                guard let memoCount = snapshot.childSnapshot(forPath: "memoCount").value as? Int else { return }
+                let checkedCount = (snapshot.childSnapshot(forPath: "checkedCount").value as? Int) ?? 0
+                guard let isChecked = snapshot.childSnapshot(forPath: "isChecked").value as? Bool else { return }
+                guard let dateNow = snapshot.childSnapshot(forPath: "dateNow").value as? String else { return }
+                let checkedTime = (snapshot.childSnapshot(forPath: "checkedTime").value as? String) ?? "20230101000000000"
+                let imageUrl = snapshot.childSnapshot(forPath: "imageUrl").value as? String
+                ref.child("users").child(userId!).child(listId).child("memo").child(memoId).updateChildValues(["memoCount": memoCount, "checkedCount": checkedCount, "shoppingMemo": shoppingMemo, "isChecked": isChecked, "dateNow": dateNow, "checkedTime": checkedTime, "imageUrl": imageUrl!])
+                ref.child("users").child(oldUserId).child(listId).child("memo").child(memoId).removeValue()
+                if imageUrl! == "" { relayFinish(); return }
+                
+                let imageRef = Storage.storage().reference(forURL: imageUrl!)
+                imageRef.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                    if let error = error {
+                        print(error)
+                    } else {
+                        let imageRef = Storage.storage().reference().child("/\(self.userId!)/\(listId)/\(memoId).jpg")
+                        imageRef.putData(data!, metadata: nil) { (metadata, error) in
+                            if let error = error {
+                                print(error)
+                            } else {
+                                imageRef.downloadURL { (url, error) in
+                                    guard let downloadURL = url else { return }
+                                    let imageUrl = downloadURL.absoluteString
+                                    self.ref.child("users").child(self.userId!).child(listId).child("memo").child(memoId).updateChildValues(["imageUrl": imageUrl])
+                                    self.relayFinish()
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        })
+    }
+    
+    func relayFinish() {
+        GeneralPurpose.AIV(VC: self, view: self.view, status: "stop", session: "other")
+        let alert: UIAlertController = UIAlertController(title: "引き継ぎが完了しました", message: "以前のアカウントのデータは削除されました。使用方法はチュートリアルをご覧ください。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+            self.userDefaults.removeObject(forKey: "userId")
+        }))
+        self.present(alert, animated: true, completion:  nil)
+    }
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         roomArray = guestArray + otherArray
+        if roomArray.count == 0 { tableView.backgroundColor = .clear }
+        else { tableView.backgroundColor = .systemBackground }
         return roomArray.count
     }
     

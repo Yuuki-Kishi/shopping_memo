@@ -26,10 +26,19 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUp()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        observeRealtimeDatabase()
+    }
+    
+    func setUp() {
         title = "メンバー"
         plusButton.layer.cornerRadius = 35.0
-        tableViewSetUp()
-        
+        tableView.register(UINib(nibName: "SettingTableViewCell", bundle: nil), forCellReuseIdentifier: "SettingTableViewCell")
+        tableView.delegate = self
+        tableView.dataSource = self
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {
@@ -38,16 +47,6 @@ class MemberViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 self.connect = false
             }
         })
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        observeRealtimeDatabase()
-    }
-    
-    func tableViewSetUp() {
-        tableView.register(UINib(nibName: "SettingTableViewCell", bundle: nil), forCellReuseIdentifier: "SettingTableViewCell")
-        tableView.delegate = self
-        tableView.dataSource = self
     }
     
     func observeRealtimeDatabase() {

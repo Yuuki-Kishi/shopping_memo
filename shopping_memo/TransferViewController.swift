@@ -23,13 +23,15 @@ class TransferViewController: UIViewController, UITableViewDelegate, UITableView
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        UISetUp()
+        setUpData()
+    }
+    
+    func UISetUp() {
         title = "管理者権限を譲渡"
         tableView.register(UINib(nibName: "SettingTableViewCell", bundle: nil), forCellReuseIdentifier: "SettingTableViewCell")
-        
         tableView.delegate = self
         tableView.dataSource = self
-        
-        setUpData()
     }
     
     func setUpData() {

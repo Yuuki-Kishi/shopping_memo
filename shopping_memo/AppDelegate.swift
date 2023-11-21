@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 import GoogleSignIn
-import FacebookCoreKit
+//import FBSDKCoreKit
 
  @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         sleep(1)
         FirebaseApp.configure()
-        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+//        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
         return true
     }
 
@@ -41,15 +41,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return GIDSignIn.sharedInstance.handle(url)
     }
     
-    //追加
-    func application(_ application : UIApplication,open url: URL, sourceApplication: String?, annotation: Any)->Bool{
-        return ApplicationDelegate.shared.application(application, open: url, sourceApplication: sourceApplication, annotation: annotation)
-    }
-    
-    //追加
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        AppEvents.shared.activateApp()
-    }
+//    //追加
+//    func application(_ application : UIApplication,open url: URL, sourceApplication: String?, annotation: Any)->Bool{
+//        return ApplicationDelegate.shared.application(application, open: url, sourceApplication: sourceApplication, annotation: annotation)
+//    }
+//    
+//    //追加
+//    func applicationDidBecomeActive(_ application: UIApplication) {
+//        AppEvents.shared.activateApp()
+//    }
     
 }
 

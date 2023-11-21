@@ -17,16 +17,14 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     var userId: String!
     var dateFormatter = DateFormatter()
     let userDefaults: UserDefaults = UserDefaults.standard
-    var AIV = UIActivityIndicatorView()
     var sectionArray = ["自分の情報", "設定"]
     var rowArray = [(Item: String, ItemData: String)]()
+    var settingArray = [(Item: String, ItemData: String)]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "情報・設定"
         tableViewSetUp()
-        setUpAIV()
-        AIV.startAnimating()
         setUpAndObserveRealtimeDatabase()
     }
     
@@ -37,13 +35,6 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         tableView.delegate = self
         tableView.dataSource = self
-    }
-    
-    func setUpAIV() {
-        AIV.center = view.center
-        AIV.style = .large
-        AIV.color = .label
-        view.addSubview(AIV)
     }
     
     func setUpAndObserveRealtimeDatabase() {
@@ -58,6 +49,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
         let operationDays = (Calendar.current.dateComponents([.day], from: create!, to: Date()).day)! + 1
         
         ref.child("users").child(userId).child("metadata").observeSingleEvent(of: .value, with: { [self] snapshot in
+            GeneralPurpose.AIV(VC: self, view: view, status: "start", session: "get")
             let userName = (snapshot.childSnapshot(forPath: "userName").value as? String) ?? "未設定"
             rowArray.append((Item: "ユーザーネーム", ItemData: userName))
             rowArray.append((Item: "メールアドレス", ItemData: email!))
@@ -66,7 +58,8 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             rowArray.append((Item: "アカウント作成日", ItemData: creationDate))
             rowArray.append((Item: "最終ログイン日", ItemData: lastSignInDate))
             rowArray.append((Item: "運用日数", ItemData: String(operationDays) + "日目"))
-            if rowArray.count == 7 { AIV.stopAnimating() }
+            settingArray.append((Item: "メモを見てるときスリープしない", ItemData: ""))
+            if rowArray.count == 7 { GeneralPurpose.AIV(VC: self, view: view, status: "stop", session: "get") }
             tableView.reloadData()
         })
         
@@ -112,7 +105,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 { return rowArray.count }
-        return 1
+        else { return settingArray.count }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -120,7 +113,7 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             let cell = tableView.dequeueReusableCell(withIdentifier: "SettingTableViewCell") as! SettingTableViewCell
             let imageCell = tableView.dequeueReusableCell(withIdentifier: "ImageTableViewCell") as! ImageTableViewCell
             switch indexPath.row {
-            case 0:
+            case 0, 2:
                 cell.selectionStyle = .default
                 cell.ItemLabel.text = rowArray[indexPath.row].Item
                 cell.DataLabel.text = rowArray[indexPath.row].ItemData
@@ -139,13 +132,14 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SwitchTableViewCell") as! SwitchTableViewCell
-            cell.ItemLabel.text = "メモを見てるときスリープしない"
+            cell.ItemLabel.text = settingArray.last?.Item
             cell.Switch.isOn = userDefaults.bool(forKey: "notSleepSwitch")
             return cell
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.section == 0 && indexPath.row == 0 {
             var alertTextField: UITextField!
             let userName = rowArray[indexPath.row].ItemData
@@ -163,6 +157,11 @@ class SettingViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 self.ref.child("users").child(self.userId).child("metadata").updateChildValues(["userName": text!])
                                 textField.text = ""
                             }}))}
+            self.present(alert, animated: true, completion: nil)
+        } else if indexPath.section == 0 && indexPath.row == 2 {
+            UIPasteboard.general.string = rowArray[2].ItemData
+            let alert: UIAlertController = UIAlertController(title: "コピーしました", message: "ユーザーIDがクリップボードにコピーされました。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true, completion: nil)
         }
     }

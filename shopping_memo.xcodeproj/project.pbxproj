@@ -26,6 +26,7 @@
 		DE3DB8292AFB8EAD0032274F /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3DB8282AFB8EAD0032274F /* CameraViewController.swift */; };
 		DE3DB82F2B0240FE0032274F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DE3DB82E2B0240FE0032274F /* GoogleSignIn */; };
 		DE3DB8312B0240FE0032274F /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE3DB8302B0240FE0032274F /* GoogleSignInSwift */; };
+		DE59AB1A2B0B923A00023948 /* RelayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE59AB192B0B923A00023948 /* RelayViewController.swift */; };
 		DE5CBE222A42ED9C009DED0C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE212A42ED9C009DED0C /* FirebaseAnalytics */; };
 		DE5CBE242A42ED9C009DED0C /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE232A42ED9C009DED0C /* FirebaseAnalyticsSwift */; };
 		DE5CBE262A42ED9C009DED0C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE5CBE252A42ED9C009DED0C /* FirebaseAuth */; };
@@ -127,6 +128,7 @@
 		DE3DB82A2AFCA9590032274F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		DE3DB82B2AFCA95A0032274F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		DE3DB82C2AFD19130032274F /* shopping_memo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = shopping_memo.entitlements; sourceTree = "<group>"; };
+		DE59AB192B0B923A00023948 /* RelayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayViewController.swift; sourceTree = "<group>"; };
 		DE5CBE312A4475D2009DED0C /* AppVersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionCheck.swift; sourceTree = "<group>"; };
 		DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReLogInViewController.swift; sourceTree = "<group>"; };
 		DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteViewController.swift; sourceTree = "<group>"; };
@@ -246,6 +248,7 @@
 				DEEB540E2AB2091D00ACC49A /* QRCodeReadViewController.swift */,
 				DEEB54102AB34AE300ACC49A /* AddMemberViewController.swift */,
 				DEEB54062AAFFC3500ACC49A /* SettingViewController.swift */,
+				DE59AB192B0B923A00023948 /* RelayViewController.swift */,
 				DE74EA6A2A19BD5600C87A7E /* ReLogInViewController.swift */,
 				DE74EA6C2A19BD9F00C87A7E /* DeleteViewController.swift */,
 				DE02CB882560D79B008012F6 /* Main.storyboard */,
@@ -438,7 +441,6 @@
 			packageReferences = (
 				DE5CBE202A42ED9C009DED0C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				DE3DB82D2B023EEC0032274F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				DE3DB8342B04290B0032274F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 			);
 			productRefGroup = DE02CB802560D79B008012F6 /* Products */;
 			projectDirPath = "";
@@ -587,6 +589,7 @@
 				DE74EA6B2A19BD5600C87A7E /* ReLogInViewController.swift in Sources */,
 				DEEB54092AB0C01100ACC49A /* MemberViewController.swift in Sources */,
 				DE21E7312AB831A200896C3B /* GeneralPurpose.swift in Sources */,
+				DE59AB1A2B0B923A00023948 /* RelayViewController.swift in Sources */,
 				DE02CB872560D79B008012F6 /* ViewController.swift in Sources */,
 				DEF2DD352AB9C2D70071DB42 /* SwitchTableViewCell.swift in Sources */,
 				DE1BA9BC2585B683003506E9 /* SigninViewController.swift in Sources */,
@@ -814,7 +817,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.Kishi.Yuki.shopping-memo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -841,7 +844,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.Kishi.Yuki.shopping-memo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -1050,14 +1053,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 7.0.0;
-			};
-		};
-		DE3DB8342B04290B0032274F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 14.1.0;
 			};
 		};
 		DE5CBE202A42ED9C009DED0C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {

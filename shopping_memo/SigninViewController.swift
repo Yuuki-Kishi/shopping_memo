@@ -10,18 +10,19 @@ import FirebaseDatabase
 import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
-import FBSDKCoreKit
-import FBSDKLoginKit
-import FacebookCore
-import FacebookLogin
+//import FBSDKCoreKit
+//import FBSDKLoginKit
+//import FacebookCore
 import AuthenticationServices
+import CryptoKit
 
-class SigninViewController: UIViewController, LoginButtonDelegate {
+class SigninViewController: UIViewController, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding/*, LoginButtonDelegate*/ {
+    
     
     @IBOutlet weak var appVersionLabel: UILabel!
     @IBOutlet weak var appIconImage: UIImageView!
     @IBOutlet weak var signInWithGoogle: GIDSignInButton!
-    @IBOutlet weak var signIngWithFacebook: FBLoginButton!
+//    @IBOutlet weak var signIngWithFacebook: FBLoginButton!
     @IBOutlet weak var signInWithApple: ASAuthorizationAppleIDButton!
     
     let userDefaults: UserDefaults = UserDefaults.standard
@@ -29,9 +30,11 @@ class SigninViewController: UIViewController, LoginButtonDelegate {
     var ref: DatabaseReference!
     var connect = false
     var menuBarButtonItem: UIBarButtonItem!
+    var currentNonce: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        setFB()
         setUpDataAndDelegate()
         UISetUp()
         menu()
@@ -42,20 +45,44 @@ class SigninViewController: UIViewController, LoginButtonDelegate {
         if Auth.auth().currentUser != nil { self.performSegue(withIdentifier: "toRVC", sender: nil) }
     }
     
+//    func setFB() {
+//        let loginButton = FBLoginButton()
+//        loginButton.delegate = self
+//    }
+//    
+//    func loginButton(_ loginButton: FBLoginButton!, didCompleteWith result: LoginManagerLoginResult!, error: Error!) {
+//        if let error = error {
+//            print(error.localizedDescription)
+//            return
+//        } else {
+//            let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
+//            Auth.auth().signIn(with: credential) { (result, error) in
+//                if let error = error {
+//                    return
+//                } else {
+//                    self.performSegue(withIdentifier: "toRVC", sender: nil)
+//                }
+//            }
+//        }
+//    }
+    
     func UISetUp() {
         title = "サインイン"
         signInWithGoogle.style = .wide
-        
-        appIconImage.layer.cornerRadius = 30.0
+        appIconImage.layer.cornerRadius = 40.0
         appIconImage.layer.cornerCurve = .continuous
         appIconImage.layer.borderColor = UIColor.clear.cgColor
-        
+        signInWithApple.layer.shadowOpacity = 0.3
+        signInWithApple.layer.shadowRadius = 1
+        signInWithApple.layer.shadowColor = UIColor.label.cgColor
+        signInWithApple.layer.shadowOffset = CGSize(width: 0, height: 2)
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title:  "戻る", style:  .plain, target: nil, action: nil)
     }
     
     func setUpDataAndDelegate() {
         ref = Database.database().reference()
-        signIngWithFacebook.delegate = self
+//        signIngWithFacebook.delegate = self
+        signInWithApple.addTarget(self, action: #selector(signInApple(_:)), for: .touchUpInside)
         let connectedRef = Database.database().reference(withPath: ".info/connected")
         connectedRef.observe(.value, with: { snapshot in
             if snapshot.value as? Bool ?? false {self.connect = true}
@@ -90,6 +117,14 @@ class SigninViewController: UIViewController, LoginButtonDelegate {
         googleSignIn()
     }
     
+    @IBAction func relay() {
+        self.performSegue(withIdentifier: "toRelayVC", sender: nil)
+    }
+    
+    @objc func signInApple(_ sender: ASAuthorizationAppleIDButton) {
+        startSignInWithAppleFlow()
+    }
+    
     func googleSignIn() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         let config = GIDConfiguration(clientID: clientID)
@@ -112,18 +147,105 @@ class SigninViewController: UIViewController, LoginButtonDelegate {
         }
     }
     
-    func loginButton(_ loginButton: FBSDKLoginKit.FBLoginButton, didCompleteWith result: FBSDKLoginKit.LoginManagerLoginResult?, error: Error?) {
-        //loginする
-        if error == nil{ if result?.isCancelled == true{ return } }
-        let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
-        Auth.auth().signIn(with: credential) { (result, error) in
-            if let error = error {
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: Array<Character> =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        while remainingLength > 0 {
+            let randoms: [UInt8] = (0 ..< 16).map { _ in
+                var random: UInt8 = 0
+                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
+                if errorCode != errSecSuccess {
+                    fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+                }
+                return random
+            }
+            randoms.forEach { random in
+                if remainingLength == 0 {
+                    return
+                }
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+        return result
+    }
+    
+    func startSignInWithAppleFlow() {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.presentationContextProvider = self
+        authorizationController.performRequests()
+    }
+    
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            return String(format: "%02x", $0)
+        }.joined()
+        return hashString
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            guard let nonce = currentNonce else {
+                fatalError("Invalid state: A login callback was received, but no login request was sent.")
+            }
+            guard let appleIDToken = appleIDCredential.identityToken else {
+                print("Unable to fetch identity token")
                 return
-            } else {
-                self.performSegue(withIdentifier: "toRVC", sender: nil)
+            }
+            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
+                return
+            }
+            // Initialize a Firebase credential.
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: nonce)
+            print("appleIDToken:", appleIDToken)
+            print("idTokenString:", idTokenString)
+            print("credential:", credential)
+            // Sign in with Firebase.
+            Auth.auth().signIn(with: credential) { (authResult, error) in
+                if let error = error {
+                    print("error:", error.localizedDescription)
+                } else {
+                    self.performSegue(withIdentifier: "toRVC", sender: nil)
+                }
             }
         }
     }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        print("Sign in with Apple errored: \(error)")
+    }
+    
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return self.view.window!
+    }
+    //    func loginButton(_ loginButton: FBSDKLoginKit.FBLoginButton, didCompleteWith result: FBSDKLoginKit.LoginManagerLoginResult?, error: Error?) {
+//        //loginする
+//        if error == nil{ if result?.isCancelled == true{ return } }
+//        let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
+//        Auth.auth().signIn(with: credential) { (result, error) in
+//            if let error = error {
+//                return
+//            } else {
+//                self.performSegue(withIdentifier: "toRVC", sender: nil)
+//            }
+//        }
+//    }
     
 //    func signIn() {
 //        let email = emailTextField.text!
@@ -187,7 +309,8 @@ class SigninViewController: UIViewController, LoginButtonDelegate {
         self.navigationItem.rightBarButtonItem = menuBarButtonItem
     }
     
-    func loginButtonDidLogOut(_ loginButton: FBSDKLoginKit.FBLoginButton) {
-        print("ログアウト")
-    }
+//    func loginButtonDidLogOut(_ loginButton: FBSDKLoginKit.FBLoginButton) {
+//        print("ログアウト")
+//    }
 }
+
